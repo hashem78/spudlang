@@ -13,7 +13,9 @@ keywords = []
 authors = [
   { name = "hashem78", email = "hashem.olayano@gmail.com" },
 ]
-dependencies = []
+dependencies = [
+    "structlog>=25.5.0",
+]
 
 [project.scripts]
 spud = "spud.__main__:main"
