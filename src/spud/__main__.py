@@ -2,20 +2,22 @@
 #
 # SPDX-License-Identifier: MIT
 
-from dependency_injector.wiring import Provide, inject
+import cyclopts
 
 from spud.di import Container
 
+app = cyclopts.App()
 
-@inject
-def main(logger=Provide[Container.logger]) -> None:
-    logger.info("Hello World!")
+
+@app.default
+def main() -> None:
+    pass
 
 
 def entrypoint() -> None:
     container = Container()
     container.wire(modules=[__name__])
-    main()
+    app()
 
 
 if __name__ == "__main__":
