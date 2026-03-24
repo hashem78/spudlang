@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spud"
+dynamic = ["version"]
+description = 'Programming language to generate prompts'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "hashem78", email = "hashem.olayano@gmail.com" },
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/hashem78/spud#readme"
+Issues = "https://github.com/hashem78/spud/issues"
+Source = "https://github.com/hashem78/spud"
+
+[tool.hatch.version]
+path = "src/spud/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/spud tests}"
+
+[tool.coverage.run]
+source_pkgs = ["spud", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/spud/__about__.py",
+]
+
+[tool.coverage.paths]
+spud = ["src/spud", "*/spud/src/spud"]
+tests = ["tests", "*/spud/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
