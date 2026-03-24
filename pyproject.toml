@@ -1,13 +1,13 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "ruff"]
 build-backend = "hatchling.build"
 
 [project]
 name = "spud"
-dynamic = ["version"]
+version = "0.0.1"
 description = 'Programming language to generate prompts'
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 license = "MIT"
 keywords = []
 authors = [
@@ -20,23 +20,37 @@ Documentation = "https://github.com/hashem78/spud#readme"
 Issues = "https://github.com/hashem78/spud/issues"
 Source = "https://github.com/hashem78/spud"
 
-[tool.hatch.version]
-path = "src/spud/__about__.py"
+[tool.hatch.envs.default]
+installer = "uv"
 
-[tool.hatch.envs.types]
+[tool.hatch.envs.dev]
 extra-dependencies = [
-  "mypy>=1.0.0",
+  "ruff",
+  "ty",
 ]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/spud tests}"
+
+[tool.hatch.envs.dev.scripts]
+lint = "ruff check {args:src/spud tests}"
+fmt = "ruff format {args:src/spud tests}"
+fmt-check = "ruff format --check {args:src/spud tests}"
+typecheck = "ty check {args}"
+
+[tool.hatch.build.hooks.custom]
+
+[tool.ty.src]
+exclude = ["hatch_build.py"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [tool.coverage.run]
 source_pkgs = ["spud", "tests"]
 branch = true
 parallel = true
-omit = [
-  "src/spud/__about__.py",
-]
+omit = []
 
 [tool.coverage.paths]
 spud = ["src/spud", "*/spud/src/spud"]
