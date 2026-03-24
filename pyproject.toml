@@ -15,6 +15,9 @@ authors = [
 ]
 dependencies = []
 
+[project.scripts]
+spud = "spud.__main__:main"
+
 [project.urls]
 Documentation = "https://github.com/hashem78/spud#readme"
 Issues = "https://github.com/hashem78/spud/issues"
@@ -34,6 +37,15 @@ lint = "ruff check {args:src/spud tests}"
 fmt = "ruff format {args:src/spud tests}"
 fmt-check = "ruff format --check {args:src/spud tests}"
 typecheck = "ty check {args}"
+
+[tool.hatch.envs.build]
+python = "3.12"
+extra-dependencies = [
+  "nuitka[onefile]",
+]
+
+[tool.hatch.envs.build.scripts]
+binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud src/spud/__main__.py"
 
 [tool.hatch.build.hooks.custom]
 
