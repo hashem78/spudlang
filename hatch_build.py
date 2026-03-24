@@ -11,7 +11,4 @@ class CustomBuildHook(BuildHookInterface):
             cwd=self.root,
         )
         if result.returncode != 0:
-            sys.exit(
-                "Build failed: code is not formatted. "
-                "Run 'ruff format src/ tests/' to fix."
-            )
+            sys.exit("Build failed: code is not formatted. Run 'ruff format src/ tests/' to fix.")

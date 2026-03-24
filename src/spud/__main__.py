@@ -2,14 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
-import structlog
+from dependency_injector.wiring import Provide, inject
 
-logger = structlog.get_logger(__name__)
+from spud.di import Container
 
 
-def main() -> None:
+@inject
+def main(logger=Provide[Container.logger]) -> None:
     logger.info("Hello World!")
 
 
-if __name__ == "__main__":
+def entrypoint() -> None:
+    container = Container()
+    container.wire(modules=[__name__])
     main()
+
+
+if __name__ == "__main__":
+    entrypoint()

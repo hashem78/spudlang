@@ -14,11 +14,12 @@ authors = [
   { name = "hashem78", email = "hashem.olayano@gmail.com" },
 ]
 dependencies = [
+    "dependency-injector>=4.49.0",
     "structlog>=25.5.0",
 ]
 
 [project.scripts]
-spud = "spud.__main__:main"
+spud = "spud.__main__:entrypoint"
 
 [project.urls]
 Documentation = "https://github.com/hashem78/spud#readme"
@@ -32,6 +33,7 @@ installer = "uv"
 extra-dependencies = [
   "ruff",
   "ty",
+  "pytest",
 ]
 
 [tool.hatch.envs.dev.scripts]
@@ -39,6 +41,7 @@ lint = "ruff check {args:src/spud tests}"
 fmt = "ruff format {args:src/spud tests}"
 fmt-check = "ruff format --check {args:src/spud tests}"
 typecheck = "ty check {args}"
+test = "pytest {args:tests}"
 
 [tool.hatch.envs.build]
 python = "3.12"
