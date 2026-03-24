@@ -29,6 +29,7 @@ Source = "https://github.com/hashem78/spud"
 
 [tool.hatch.envs.default]
 installer = "uv"
+python = "3.12"
 
 [tool.hatch.envs.dev]
 extra-dependencies = [
