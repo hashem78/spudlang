@@ -82,7 +82,14 @@ def _configure_structlog() -> None:
 _configure_structlog()
 
 
+def _is_compiled() -> bool:
+    return "__compiled__" in globals()
+
+
 def create_logger() -> structlog.stdlib.BoundLogger:
+    if _is_compiled():
+        return structlog.get_logger(scope="spud")
+
     for frame_info in inspect.stack():
         patched = frame_info[0].f_locals.get("patched")
         if not isinstance(patched, PatchedCallable):

@@ -46,12 +46,12 @@ class TestLevelFormatter:
         fmt = _LevelFormatter()
         result = fmt("level", "info")
         expected_style = LEVEL_STYLES["info"]
-        assert result == f"{expected_style}info{RESET}"
+        assert result == f"{expected_style}[info]{RESET}"
 
     def test_unknown_level_no_style(self):
         fmt = _LevelFormatter()
         result = fmt("level", "nonexistent")
-        assert result == f"nonexistent{RESET}"
+        assert result == f"[nonexistent]{RESET}"
 
     def test_all_standard_levels(self):
         fmt = _LevelFormatter()
@@ -133,9 +133,8 @@ class TestLogOutput:
         assert "test message" in output
         assert "info" in output
 
-    def test_output_has_no_brackets(self, capsys):
+    def test_output_has_brackets_around_level(self, capsys):
         logger = _injected_function()
         logger.info("hello")
         output = capsys.readouterr().out
-        assert "[info" not in output
-        assert "info]" not in output
+        assert "[info]" in output
