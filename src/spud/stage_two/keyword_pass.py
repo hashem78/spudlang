@@ -62,11 +62,13 @@ class _State(BaseModel):
         return self.model_copy(update={"buff": (*self.buff, token), "current_node": child})
 
     def set_pending(self, token: DefinedStageTwoToken, buff: tuple[StageOneToken, ...]) -> "_State":
-        return self.model_copy(update={
-            "pending_token": token,
-            "pending_buff": buff,
-            "phase": _Phase.PENDING_MATCH,
-        })
+        return self.model_copy(
+            update={
+                "pending_token": token,
+                "pending_buff": buff,
+                "phase": _Phase.PENDING_MATCH,
+            }
+        )
 
 
 def _to_defined(token: StageOneToken) -> DefinedStageTwoToken:

@@ -84,6 +84,9 @@ class StageTwoTokenType(str, Enum):
     NEW_LINE = "\n"
     SPACE = " "
     EQUALS = "="
+    EXCLAMATION = "!"
+    AMPERSAND = "&"
+    PIPE = "|"
     DOUBLE_QUOTES = '"'
     SINGLE_QUOTES = "'"
     FALSE = "false"
