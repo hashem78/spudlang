@@ -9,13 +9,16 @@ from pathlib import Path
 import structlog
 
 from spud.core.file_reader import FileReader
+from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
+from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
 GOLDEN_DIR = Path(__file__).parent / "golden"
-TRIE = create_stage_two_trie()
+STAGE_TWO_TRIE = create_stage_two_trie()
+STAGE_FOUR_TRIE = create_stage_four_trie()
 LOGGER = structlog.get_logger()
 
 
@@ -28,17 +31,30 @@ def _serialize_stage_one(path: Path) -> str:
 def _serialize_stage_two(path: Path) -> str:
     reader = FileReader(path)
     stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, TRIE, LOGGER)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
     return "\n".join(token.token_type.name for token in stage_two.parse())
 
 
 def _serialize_stage_three(path: Path) -> str:
     reader = FileReader(path)
     stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, TRIE, LOGGER)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
     stage_three = StageThree(stage_two, LOGGER)
     lines = []
     for token in stage_three.parse():
+        value = r"\n" if token.value == "\n" else token.value
+        lines.append(f"{token.token_type.name} {value}")
+    return "\n".join(lines)
+
+
+def _serialize_stage_four(path: Path) -> str:
+    reader = FileReader(path)
+    stage_one = StageOne(reader)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
+    stage_three = StageThree(stage_two, LOGGER)
+    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    lines = []
+    for token in stage_four.parse():
         value = r"\n" if token.value == "\n" else token.value
         lines.append(f"{token.token_type.name} {value}")
     return "\n".join(lines)
@@ -84,6 +100,7 @@ def main() -> int:
         ("Stage One", GOLDEN_DIR / "stage_one", _serialize_stage_one),
         ("Stage Two", GOLDEN_DIR / "stage_two", _serialize_stage_two),
         ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
+        ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
     ]
 
     all_failures: list[tuple[str, str]] = []
