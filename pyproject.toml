@@ -44,7 +44,7 @@ lint = "ruff check {args:src/spud tests}"
 fmt = "ruff format {args:src/spud tests}"
 fmt-check = "ruff format --check {args:src/spud tests}"
 typecheck = "ty check {args}"
-test = "pytest {args:tests}"
+test = "pytest {args:tests} && python tests/test_golden.py"
 
 [tool.hatch.envs.build]
 python = "3.12"

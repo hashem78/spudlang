@@ -8,4 +8,5 @@ class FileReader:
 
     def read(self) -> Generator[str, None, None]:
         with open(self._path, "r") as f:
-            yield f.read(1)
+            while char := f.read(1):
+                yield char
