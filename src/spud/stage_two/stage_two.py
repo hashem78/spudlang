@@ -58,10 +58,15 @@ class StageTwo:
         for token in tokens:
             if token.token_type in self._STR_CTX_INDICATORS:
                 str_ctx_buff = [token]
+                escaped = False
                 while (inner_token := next(tokens, None)) is not None:
                     str_ctx_buff.append(inner_token)
-                    if inner_token.token_type in self._STR_CTX_INDICATORS:
+                    if inner_token.token_type == StageOneTokenType.BACKWARD_SLASH:
+                        escaped = not escaped
+                    elif inner_token.token_type in self._STR_CTX_INDICATORS and not escaped:
                         break
+                    else:
+                        escaped = False
 
                 yield StringLiteralStageTwoToken(
                     token_type=StageTwoTokenType.STRING,

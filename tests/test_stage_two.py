@@ -395,3 +395,31 @@ class TestStringLiterals:
             StageTwoTokenType.SPACE,
             StageTwoTokenType.STRING,
         ]
+
+    def test_escaped_double_quote(self):
+        tokens = _parse(r'"hello\"world"')
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == r'"hello\"world"'
+
+    def test_escaped_single_quote(self):
+        tokens = _parse(r"'hello\'world'")
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == r"'hello\'world'"
+
+    def test_escaped_backslash_before_quote(self):
+        tokens = _parse(r'"hello\\"')
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == r'"hello\\"'
+
+    def test_escaped_backslash_then_escaped_quote(self):
+        tokens = _parse(r'"a\\\"b"')
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == r'"a\\\"b"'
