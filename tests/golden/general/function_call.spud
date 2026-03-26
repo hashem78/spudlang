@@ -1,0 +1,2 @@
+message := greet("world")
+output := fizzbuzz(20)

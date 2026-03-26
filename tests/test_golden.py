@@ -101,6 +101,7 @@ def main() -> int:
         ("Stage Two", GOLDEN_DIR / "stage_two", _serialize_stage_two),
         ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
         ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
+        ("General", GOLDEN_DIR / "general", _serialize_stage_four),
     ]
 
     all_failures: list[tuple[str, str]] = []

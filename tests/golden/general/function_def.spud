@@ -1,0 +1,4 @@
+greet := (who) =>
+  template := "hello, "
+  result := template + who
+  result

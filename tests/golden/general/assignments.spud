@@ -1,0 +1,3 @@
+name := "spud"
+version := "0.1.0"
+max_retries := 5

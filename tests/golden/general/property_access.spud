@@ -1,0 +1,2 @@
+if req.method == "GET" && req.path != "/admin"
+  respond(200, "ok")
