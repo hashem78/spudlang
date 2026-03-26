@@ -8,6 +8,7 @@ from spud.core.file_reader import FileReader
 from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
+from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
@@ -24,3 +25,4 @@ class Container(containers.DeclarativeContainer):
     stage_three = providers.Factory(StageThree, stage_two=stage_two, logger=logger)
     stage_four_trie = providers.Singleton(create_stage_four_trie)
     stage_four = providers.Factory(StageFour, stage_three=stage_three, trie=stage_four_trie, logger=logger)
+    stage_five = providers.Factory(StageFive, stage_four=stage_four, logger=logger)
