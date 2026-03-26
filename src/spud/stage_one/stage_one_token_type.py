@@ -90,5 +90,6 @@ class StageOneTokenType(str, Enum):
     EXCLAMATION = "!"
     AMPERSAND = "&"
     PIPE = "|"
+    BACKTICK = "`"
     DOUBLE_QUOTES = '"'
     SINGLE_QUOTES = "'"

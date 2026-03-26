@@ -5,6 +5,7 @@ class StageFourTokenType(str, Enum):
     IDENTIFIER = "identifier"
     NEW_LINE = "\n"
     STRING = "STRING"
+    RAW_STRING = "RAW_STRING"
     FALSE = "false"
     TRUE = "true"
     IF = "if"

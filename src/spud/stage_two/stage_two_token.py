@@ -18,4 +18,11 @@ class StringLiteralStageTwoToken(BaseModel):
     value: list[StageOneToken]
 
 
-StageTwoToken = DefinedStageTwoToken | StringLiteralStageTwoToken
+class RawStringLiteralStageTwoToken(BaseModel):
+    token_type: Literal[StageTwoTokenType.RAW_STRING] = StageTwoTokenType.RAW_STRING
+    position: Position
+    value: list[StageOneToken]
+
+
+StringStageTwoToken = StringLiteralStageTwoToken | RawStringLiteralStageTwoToken
+StageTwoToken = DefinedStageTwoToken | StringStageTwoToken

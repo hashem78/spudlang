@@ -101,3 +101,4 @@ class StageTwoTokenType(str, Enum):
     AND = "and"
     IN = "in"
     STRING = "STRING"
+    RAW_STRING = "RAW_STRING"

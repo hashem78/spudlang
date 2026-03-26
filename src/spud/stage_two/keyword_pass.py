@@ -6,7 +6,12 @@ from pydantic import BaseModel, ConfigDict
 from spud.core.trie import Trie, TrieNode
 from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_one.stage_one_token_type import StageOneTokenType
-from spud.stage_two.stage_two_token import DefinedStageTwoToken, StageTwoToken, StringLiteralStageTwoToken
+from spud.stage_two.stage_two_token import (
+    DefinedStageTwoToken,
+    RawStringLiteralStageTwoToken,
+    StageTwoToken,
+    StringLiteralStageTwoToken,
+)
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 from spud.stage_two.string_pass import StringPass
 
@@ -148,7 +153,7 @@ class KeywordPass:
         for token in self._string_pass.parse():
             # String literals bypass trie matching entirely. Any in-progress
             # trie state is flushed and the string is yielded as-is.
-            if isinstance(token, StringLiteralStageTwoToken):
+            if isinstance(token, (StringLiteralStageTwoToken, RawStringLiteralStageTwoToken)):
                 # A pending keyword before a string is valid — the string
                 # acts as a word boundary.
                 if s.phase == _Phase.PENDING_MATCH:
