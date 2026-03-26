@@ -54,9 +54,10 @@ class StageTwo:
         pending: DefinedStageTwoToken | None = None
         pending_buff: list[StageOneToken] = []
 
+        prev_was_backslash = False
         tokens = self._stage_one.parse()
         for token in tokens:
-            if token.token_type in self._STR_CTX_INDICATORS:
+            if token.token_type in self._STR_CTX_INDICATORS and not prev_was_backslash:
                 str_ctx_buff = [token]
                 escaped = False
                 while (inner_token := next(tokens, None)) is not None:
@@ -122,6 +123,8 @@ class StageTwo:
                     position=token.position,
                 )
                 prev_was_identifier = not is_boundary
+
+            prev_was_backslash = token.token_type == StageOneTokenType.BACKWARD_SLASH
 
         if pending is not None:
             yield pending

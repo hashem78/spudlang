@@ -83,6 +83,8 @@ class StageTwoTokenType(str, Enum):
     PAREN_RIGHT = ")"
     NEW_LINE = "\n"
     SPACE = " "
+    DOUBLE_QUOTES = '"'
+    SINGLE_QUOTES = "'"
     FALSE = "false"
     TRUE = "true"
     IF = "if"
