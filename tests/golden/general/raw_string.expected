@@ -1,0 +1,3 @@
+IDENTIFIER template
+WALRUS :=
+RAW_STRING `\n  hello\n  world\n`

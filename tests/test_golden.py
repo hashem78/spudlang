@@ -42,7 +42,7 @@ def _serialize_stage_three(path: Path) -> str:
     stage_three = StageThree(stage_two, LOGGER)
     lines = []
     for token in stage_three.parse():
-        value = r"\n" if token.value == "\n" else token.value
+        value = token.value.replace("\n", r"\n")
         lines.append(f"{token.token_type.name} {value}")
     return "\n".join(lines)
 
@@ -55,7 +55,7 @@ def _serialize_stage_four(path: Path) -> str:
     stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
     lines = []
     for token in stage_four.parse():
-        value = r"\n" if token.value == "\n" else token.value
+        value = token.value.replace("\n", r"\n")
         lines.append(f"{token.token_type.name} {value}")
     return "\n".join(lines)
 

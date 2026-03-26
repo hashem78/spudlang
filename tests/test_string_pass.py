@@ -7,7 +7,7 @@ from typing import Generator
 from spud.stage_one.stage_one import StageOne
 from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_one.stage_one_token_type import StageOneTokenType
-from spud.stage_two.stage_two_token import StringLiteralStageTwoToken
+from spud.stage_two.stage_two_token import RawStringLiteralStageTwoToken, StringLiteralStageTwoToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 from spud.stage_two.string_pass import StringPass, StringPassToken
 
@@ -172,3 +172,56 @@ class TestMixedContent:
         assert isinstance(tokens[0], StringLiteralStageTwoToken)
         assert tokens[0].position.line == 1
         assert tokens[0].position.column == 0
+
+
+class TestRawStrings:
+    def test_basic_raw_string(self):
+        tokens = _parse("`hello`")
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], RawStringLiteralStageTwoToken)
+        assert tokens[0].token_type == StageTwoTokenType.RAW_STRING
+        assert _inner_text(tokens[0]) == "`hello`"
+
+    def test_raw_string_no_escape_processing(self):
+        tokens = _parse(r"`hello\"world`")
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], RawStringLiteralStageTwoToken)
+        assert _inner_text(tokens[0]) == r'`hello\"world`'
+
+    def test_raw_string_with_newline(self):
+        tokens = _parse("`hello\nworld`")
+        assert len(tokens) == 1
+        assert _inner_text(tokens[0]) == "`hello\nworld`"
+
+    def test_raw_string_with_quotes_inside(self):
+        tokens = _parse('`he said "hello"`')
+        assert len(tokens) == 1
+        assert _inner_text(tokens[0]) == '`he said "hello"`'
+
+    def test_raw_string_with_single_quotes_inside(self):
+        tokens = _parse("`it's raw`")
+        assert len(tokens) == 1
+        assert _inner_text(tokens[0]) == "`it's raw`"
+
+    def test_empty_raw_string(self):
+        tokens = _parse("``")
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.RAW_STRING
+        assert _inner_text(tokens[0]) == "``"
+
+    def test_unterminated_raw_string(self):
+        tokens = _parse("`hello")
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.RAW_STRING
+        assert _inner_text(tokens[0]) == "`hello"
+
+    def test_raw_string_position(self):
+        tokens = _parse("`hi`")
+        assert tokens[0].position.line == 1
+        assert tokens[0].position.column == 0
+
+    def test_raw_string_between_identifiers(self):
+        tokens = _parse("a `raw` b")
+        strings = [t for t in tokens if isinstance(t, RawStringLiteralStageTwoToken)]
+        assert len(strings) == 1
+        assert strings[0].token_type == StageTwoTokenType.RAW_STRING
