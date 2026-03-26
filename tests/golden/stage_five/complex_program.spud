@@ -1,0 +1,26 @@
+config := "prod"
+max := 100
+
+validate := (input) =>
+  if input > max
+    "too large"
+  elif input < 0
+    "negative"
+  else
+    "ok"
+
+process := (items) =>
+  results := []
+  for item in items
+    status := validate(item)
+    if status == "ok"
+      results :: push(item)
+    else
+      log("skipped", item)
+  results
+
+main := () =>
+  data := [1, 50, 200, -5, 75]
+  processed := process(data)
+  for result in processed
+    print(result)

@@ -1,0 +1,18 @@
+a := 1
+
+b := (x) =>
+
+  y := x + 1
+
+  z := y + 2
+
+
+c := 3
+
+d := (n) =>
+  for i in range(n)
+
+    if i > 0
+      process(i)
+
+e := 4

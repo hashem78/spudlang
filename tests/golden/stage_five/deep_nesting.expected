@@ -1,0 +1,6 @@
+EXPR f := ( n ) =>
+  EXPR for i in range ( n )
+    EXPR if i > 5
+      EXPR "big"
+    EXPR else
+      EXPR "small"

@@ -11,6 +11,8 @@ import structlog
 from spud.core.file_reader import FileReader
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
+from spud.stage_five.stage_five import StageFive
+from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
@@ -60,6 +62,27 @@ def _serialize_stage_four(path: Path) -> str:
     return "\n".join(lines)
 
 
+def _serialize_stage_five(path: Path) -> str:
+    reader = FileReader(path)
+    stage_one = StageOne(reader)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
+    stage_three = StageThree(stage_two, LOGGER)
+    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    stage_five = StageFive(stage_four, LOGGER)
+    lines: list[str] = []
+    for expr in stage_five.parse():
+        _serialize_expr(expr, lines, depth=0)
+    return "\n".join(lines)
+
+
+def _serialize_expr(expr: StageFiveToken, lines: list[str], depth: int) -> None:
+    indent = "  " * depth
+    values = " ".join(t.value.replace("\n", r"\n") for t in expr.tokens)
+    lines.append(f"{indent}EXPR {values}")
+    for child in expr.children:
+        _serialize_expr(child, lines, depth + 1)
+
+
 def _run_case(spud_path: Path, serializer) -> tuple[str, str | None]:
     """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
@@ -101,7 +124,7 @@ def main() -> int:
         ("Stage Two", GOLDEN_DIR / "stage_two", _serialize_stage_two),
         ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
         ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
-        ("General", GOLDEN_DIR / "general", _serialize_stage_four),
+        ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five),
     ]
 
     all_failures: list[tuple[str, str]] = []

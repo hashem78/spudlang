@@ -1,0 +1,7 @@
+EXPR a := 1
+EXPR b := ( x ) =>
+  EXPR c := x
+  EXPR d := ( y ) =>
+    EXPR y + 1
+  EXPR e := c + 1
+EXPR f := 2

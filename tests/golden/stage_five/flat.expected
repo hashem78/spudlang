@@ -1,0 +1,3 @@
+EXPR x := 1
+EXPR y := 2
+EXPR z := 3

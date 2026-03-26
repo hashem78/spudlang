@@ -1,0 +1,10 @@
+EXPR a := 1
+EXPR b := ( x ) =>
+  EXPR y := x + 1
+  EXPR z := y + 2
+EXPR c := 3
+EXPR d := ( n ) =>
+  EXPR for i in range ( n )
+    EXPR if i > 0
+      EXPR process ( i )
+EXPR e := 4

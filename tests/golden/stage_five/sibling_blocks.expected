@@ -1,0 +1,4 @@
+EXPR a := ( x ) =>
+  EXPR x + 1
+EXPR b := ( y ) =>
+  EXPR y + 2

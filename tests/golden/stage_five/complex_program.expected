@@ -1,0 +1,23 @@
+EXPR config := "prod"
+EXPR max := 100
+EXPR validate := ( input ) =>
+  EXPR if input > max
+    EXPR "too large"
+  EXPR elif input < 0
+    EXPR "negative"
+  EXPR else
+    EXPR "ok"
+EXPR process := ( items ) =>
+  EXPR results := [ ]
+  EXPR for item in items
+    EXPR status := validate ( item )
+    EXPR if status == "ok"
+      EXPR results :: push ( item )
+    EXPR else
+      EXPR log ( "skipped" , item )
+  EXPR results
+EXPR main := ( ) =>
+  EXPR data := [ 1 , 50 , 200 , - 5 , 75 ]
+  EXPR processed := process ( data )
+  EXPR for result in processed
+    EXPR print ( result )
