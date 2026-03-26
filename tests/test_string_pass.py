@@ -120,7 +120,7 @@ class TestEscapedQuotesOutsideStrings:
         assert tokens[1].token_type == StageOneTokenType.SINGLE_QUOTES
 
     def test_backslash_double_quote_is_two_tokens(self):
-        tokens = _parse(r'\"')
+        tokens = _parse(r"\"")
         assert len(tokens) == 2
         assert tokens[0].token_type == StageOneTokenType.BACKWARD_SLASH
         assert tokens[1].token_type == StageOneTokenType.DOUBLE_QUOTES
@@ -186,7 +186,7 @@ class TestRawStrings:
         tokens = _parse(r"`hello\"world`")
         assert len(tokens) == 1
         assert isinstance(tokens[0], RawStringLiteralStageTwoToken)
-        assert _inner_text(tokens[0]) == r'`hello\"world`'
+        assert _inner_text(tokens[0]) == r"`hello\"world`"
 
     def test_raw_string_with_newline(self):
         tokens = _parse("`hello\nworld`")

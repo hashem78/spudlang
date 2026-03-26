@@ -3,7 +3,11 @@ from typing import Generator
 from spud.stage_one.stage_one import StageOne
 from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_one.stage_one_token_type import StageOneTokenType
-from spud.stage_two.stage_two_token import RawStringLiteralStageTwoToken, StringLiteralStageTwoToken, StringStageTwoToken
+from spud.stage_two.stage_two_token import (
+    RawStringLiteralStageTwoToken,
+    StringLiteralStageTwoToken,
+    StringStageTwoToken,
+)
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 StringPassToken = StageOneToken | StringStageTwoToken
