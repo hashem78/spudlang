@@ -73,4 +73,14 @@ def create_stage_two_trie() -> Trie[StageOneTokenType, StageTwoTokenType]:
         StageTwoTokenType.IN,
     )
 
+    trie.insert(
+        [
+            StageOneTokenType.E_LOWERCASE,
+            StageOneTokenType.L_LOWERCASE,
+            StageOneTokenType.S_LOWERCASE,
+            StageOneTokenType.E_LOWERCASE,
+        ],
+        StageTwoTokenType.ELSE,
+    )
+
     return trie

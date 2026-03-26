@@ -35,5 +35,6 @@ class StageThreeTokenType(str, Enum):
     OR = "or"
     AND = "and"
     IN = "in"
+    ELSE = "else"
     STRING = "STRING"
     RAW_STRING = "RAW_STRING"
