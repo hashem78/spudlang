@@ -109,7 +109,33 @@ class KeywordPass:
         End-of-input also confirms a pending match.
     """
 
-    _BOUNDARY_TYPES = {StageOneTokenType.SPACE, StageOneTokenType.NEW_LINE}
+    _BOUNDARY_TYPES = {
+        StageOneTokenType.SPACE,
+        StageOneTokenType.NEW_LINE,
+        StageOneTokenType.DOT,
+        StageOneTokenType.HYPHEN,
+        StageOneTokenType.COMMA,
+        StageOneTokenType.SEMICOLON,
+        StageOneTokenType.COLON,
+        StageOneTokenType.OCTOTHORPE,
+        StageOneTokenType.PERCENT,
+        StageOneTokenType.PLUS,
+        StageOneTokenType.ASTERISK,
+        StageOneTokenType.FORWARD_SLASH,
+        StageOneTokenType.BACKWARD_SLASH,
+        StageOneTokenType.ANGLED_LEFT,
+        StageOneTokenType.ANGLED_RIGHT,
+        StageOneTokenType.BRACKET_LEFT,
+        StageOneTokenType.BRACKET_RIGHT,
+        StageOneTokenType.PAREN_LEFT,
+        StageOneTokenType.PAREN_RIGHT,
+        StageOneTokenType.BRACE_LEFT,
+        StageOneTokenType.BRACE_RIGHT,
+        StageOneTokenType.EQUALS,
+        StageOneTokenType.EXCLAMATION,
+        StageOneTokenType.AMPERSAND,
+        StageOneTokenType.PIPE,
+    }
 
     def __init__(self, string_pass: StringPass, trie: _Trie):
         self._string_pass = string_pass
