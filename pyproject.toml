@@ -16,6 +16,7 @@ authors = [
 dependencies = [
     "cyclopts>=4.10.1",
     "dependency-injector>=4.49.0",
+    "pydantic>=2.12.5",
     "structlog>=25.5.0",
 ]
 
