@@ -15,6 +15,7 @@ class StageFourTokenType(str, Enum):
     AND = "and"
     IN = "in"
     ELSE = "else"
+    ELIF = "elif"
     COMMA = ","
     SEMICOLON = ";"
     DOT = "."

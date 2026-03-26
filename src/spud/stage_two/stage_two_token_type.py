@@ -101,5 +101,6 @@ class StageTwoTokenType(str, Enum):
     AND = "and"
     IN = "in"
     ELSE = "else"
+    ELIF = "elif"
     STRING = "STRING"
     RAW_STRING = "RAW_STRING"
