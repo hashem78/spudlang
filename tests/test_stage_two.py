@@ -7,12 +7,10 @@ from typing import Generator
 import structlog
 
 from spud.core.position import Position
-from spud.core.trie import Trie
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_one.stage_one import StageOne
-from spud.stage_one.stage_one_token_type import StageOneTokenType
 from spud.stage_two.stage_two import StageTwo
-from spud.stage_two.stage_two_token import StageTwoToken
+from spud.stage_two.stage_two_token import DefinedStageTwoToken, StageTwoToken, StringLiteralStageTwoToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 
@@ -313,3 +311,87 @@ class TestBackToBackKeywords:
         types = _types(tokens)
         assert StageTwoTokenType.FOR not in types
         assert StageTwoTokenType.IF not in types
+
+
+class TestStringLiterals:
+    def test_double_quoted_string(self):
+        tokens = _parse('"hello"')
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.STRING
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+
+    def test_single_quoted_string(self):
+        tokens = _parse("'hello'")
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.STRING
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+
+    def test_string_preserves_inner_tokens(self):
+        tokens = _parse('"abc"')
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == '"abc"'
+
+    def test_string_with_keyword_inside(self):
+        tokens = _parse('"for"')
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.STRING
+
+    def test_string_between_keywords(self):
+        tokens = _parse('for "hello" if')
+        types = _types(tokens)
+        assert types == [
+            StageTwoTokenType.FOR,
+            StageTwoTokenType.SPACE,
+            StageTwoTokenType.STRING,
+            StageTwoTokenType.SPACE,
+            StageTwoTokenType.IF,
+        ]
+
+    def test_string_position(self):
+        tokens = _parse('"hi"')
+        assert tokens[0].position == Position(line=1, column=0)
+
+    def test_string_after_space(self):
+        tokens = _parse(' "hi"')
+        string_token = next(t for t in tokens if t.token_type == StageTwoTokenType.STRING)
+        assert string_token.position == Position(line=1, column=1)
+
+    def test_empty_string(self):
+        tokens = _parse('""')
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.STRING
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == '""'
+
+    def test_unterminated_string_consumes_rest(self):
+        tokens = _parse('"hello')
+        assert len(tokens) == 1
+        assert tokens[0].token_type == StageTwoTokenType.STRING
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == '"hello'
+
+    def test_string_with_spaces(self):
+        tokens = _parse('"hello world"')
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == '"hello world"'
+
+    def test_string_with_newline(self):
+        tokens = _parse('"hello\nworld"')
+        assert len(tokens) == 1
+        assert isinstance(tokens[0], StringLiteralStageTwoToken)
+        inner_values = "".join(t.token_type.value for t in tokens[0].value)
+        assert inner_values == '"hello\nworld"'
+
+    def test_multiple_strings(self):
+        tokens = _parse('"a" "b"')
+        types = _types(tokens)
+        assert types == [
+            StageTwoTokenType.STRING,
+            StageTwoTokenType.SPACE,
+            StageTwoTokenType.STRING,
+        ]
