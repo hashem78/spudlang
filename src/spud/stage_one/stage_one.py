@@ -23,6 +23,6 @@ class StageOne:
 
             if raw_token == "\n":
                 line += 1
-                column = 1
+                column = 0
             else:
                 column += 1
