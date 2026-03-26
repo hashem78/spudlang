@@ -5,7 +5,7 @@ from structlog import BoundLogger
 from spud.stage_three.stage_three_token import StageThreeToken
 from spud.stage_three.stage_three_token_type import StageThreeTokenType
 from spud.stage_two.stage_two import StageTwo
-from spud.stage_two.stage_two_token import StageTwoToken
+from spud.stage_two.stage_two_token import DefinedStageTwoToken, StageTwoToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 
@@ -51,7 +51,9 @@ class StageThree:
                     yield StageThreeToken(
                         token_type=StageThreeTokenType[token_type.name],
                         position=token.position,
-                        value=token_type.value,
+                        value=token.token_type.value
+                        if isinstance(token, DefinedStageTwoToken)
+                        else "".join([tk.token_type.value for tk in token.value]),
                     )
                 case _:
                     buff.append(token)

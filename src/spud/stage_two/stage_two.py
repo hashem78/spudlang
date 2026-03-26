@@ -6,7 +6,7 @@ from spud.core.trie import Trie, TrieNode
 from spud.stage_one.stage_one import StageOne
 from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_one.stage_one_token_type import StageOneTokenType
-from spud.stage_two.stage_two_token import StageTwoToken
+from spud.stage_two.stage_two_token import DefinedStageTwoToken, StageTwoToken, StringLiteralStageTwoToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 
@@ -22,6 +22,7 @@ class StageTwo:
         self._logger = logger
 
     _BOUNDARY_TYPES = {StageOneTokenType.SPACE, StageOneTokenType.NEW_LINE}
+    _STR_CTX_INDICATORS = {StageOneTokenType.SINGLE_QUOTES, StageOneTokenType.DOUBLE_QUOTES}
 
     def parse(self) -> Generator[StageTwoToken, None, None]:
         """Word-boundary-aware trie matching in a single pass.
@@ -49,10 +50,27 @@ class StageTwo:
         buff: list[StageOneToken] = []
         current_node: TrieNode[StageOneTokenType, StageTwoTokenType] = self._trie.root
         prev_was_identifier = False
-        pending: StageTwoToken | None = None
+        str_ctx_buff: list[StageOneToken] = []
+        pending: DefinedStageTwoToken | None = None
         pending_buff: list[StageOneToken] = []
 
-        for token in self._stage_one.parse():
+        tokens = self._stage_one.parse()
+        for token in tokens:
+            if token.token_type in self._STR_CTX_INDICATORS:
+                str_ctx_buff = [token]
+                while (inner_token := next(tokens, None)) is not None:
+                    str_ctx_buff.append(inner_token)
+                    if inner_token.token_type in self._STR_CTX_INDICATORS:
+                        break
+
+                yield StringLiteralStageTwoToken(
+                    token_type=StageTwoTokenType.STRING,
+                    position=str_ctx_buff[0].position,
+                    value=str_ctx_buff,
+                )
+                str_ctx_buff.clear()
+                continue
+
             is_boundary = token.token_type in self._BOUNDARY_TYPES
 
             if pending is not None:
@@ -61,7 +79,7 @@ class StageTwo:
                     prev_was_identifier = False
                 else:
                     for buffered in pending_buff:
-                        yield StageTwoToken(
+                        yield DefinedStageTwoToken(
                             token_type=StageTwoTokenType(buffered.token_type.value),
                             position=buffered.position,
                         )
@@ -76,25 +94,25 @@ class StageTwo:
                 if current_node.value is not None:
                     if prev_was_identifier:
                         for buffered in buff:
-                            yield StageTwoToken(
+                            yield DefinedStageTwoToken(
                                 token_type=StageTwoTokenType(buffered.token_type.value),
                                 position=buffered.position,
                             )
                         prev_was_identifier = True
                     else:
-                        pending = StageTwoToken(token_type=current_node.value, position=buff[0].position)
+                        pending = DefinedStageTwoToken(token_type=current_node.value, position=buff[0].position)
                         pending_buff = buff.copy()
                     buff.clear()
                     current_node = self._trie.root
             else:
                 for buffered in buff:
-                    yield StageTwoToken(
+                    yield DefinedStageTwoToken(
                         token_type=StageTwoTokenType(buffered.token_type.value),
                         position=buffered.position,
                     )
                 buff.clear()
                 current_node = self._trie.root
-                yield StageTwoToken(
+                yield DefinedStageTwoToken(
                     token_type=StageTwoTokenType(token.token_type.value),
                     position=token.position,
                 )
@@ -104,7 +122,7 @@ class StageTwo:
             yield pending
 
         for buffered in buff:
-            yield StageTwoToken(
+            yield DefinedStageTwoToken(
                 token_type=StageTwoTokenType(buffered.token_type.value),
                 position=buffered.position,
             )
