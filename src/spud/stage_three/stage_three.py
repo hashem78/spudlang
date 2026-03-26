@@ -11,6 +11,7 @@ from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 class StageThree:
     _SYMBOL_TYPES = {
+        StageTwoTokenType.DOT,
         StageTwoTokenType.HYPHEN,
         StageTwoTokenType.COMMA,
         StageTwoTokenType.SEMICOLON,
@@ -27,6 +28,8 @@ class StageThree:
         StageTwoTokenType.BRACKET_RIGHT,
         StageTwoTokenType.PAREN_LEFT,
         StageTwoTokenType.PAREN_RIGHT,
+        StageTwoTokenType.BRACE_LEFT,
+        StageTwoTokenType.BRACE_RIGHT,
         StageTwoTokenType.EQUALS,
         StageTwoTokenType.EXCLAMATION,
         StageTwoTokenType.AMPERSAND,
