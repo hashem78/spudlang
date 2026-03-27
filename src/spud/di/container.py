@@ -9,9 +9,9 @@ from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
-from spud.stage_six.stage_six import StageSix
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
+from spud.stage_six.stage_six import StageSix
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
