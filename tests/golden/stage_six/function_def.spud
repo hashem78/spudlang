@@ -1,0 +1,5 @@
+f := (x) =>
+  x + 1
+add := (a, b) =>
+  result := a + b
+  result

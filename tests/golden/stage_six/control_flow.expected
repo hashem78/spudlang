@@ -1,0 +1,22 @@
+FOR_LOOP for x in items
+  EXPRESSION x
+  EXPRESSION items
+  FUNCTION_CALL process ( x )
+    EXPRESSION process
+    EXPRESSION x
+WHILE_LOOP while running
+  EXPRESSION running
+  FUNCTION_CALL tick ( )
+    EXPRESSION tick
+IF_EXPR if x > 0
+  BINARY_OP x > 0
+    EXPRESSION x
+    NUMERIC_LITERAL 0
+  STRING_LITERAL "positive"
+ELIF_EXPR elif x == 0
+  BINARY_OP x == 0
+    EXPRESSION x
+    NUMERIC_LITERAL 0
+  STRING_LITERAL "zero"
+ELSE_EXPR else
+  STRING_LITERAL "negative"

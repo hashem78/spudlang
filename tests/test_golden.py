@@ -14,6 +14,8 @@ from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_four.stage_four import StageFour
+from spud.stage_six.stage_six import StageSix
+from spud.stage_six.stage_six_token import StageSixToken
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
@@ -83,6 +85,29 @@ def _serialize_expr(expr: StageFiveToken, lines: list[str], depth: int) -> None:
         _serialize_expr(child, lines, depth + 1)
 
 
+def _serialize_stage_six(path: Path) -> str:
+    reader = FileReader(path)
+    stage_one = StageOne(reader)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
+    stage_three = StageThree(stage_two, LOGGER)
+    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    stage_five = StageFive(stage_four, LOGGER)
+    stage_six = StageSix(stage_five, LOGGER)
+    lines: list[str] = []
+    for expr in stage_six.parse():
+        _serialize_six_expr(expr, lines, depth=0)
+    return "\n".join(lines)
+
+
+def _serialize_six_expr(expr: StageSixToken, lines: list[str], depth: int) -> None:
+    indent = "  " * depth
+    values = " ".join(t.value.replace("\n", r"\n") for t in expr.tokens)
+    label = expr.token_type.name
+    lines.append(f"{indent}{label} {values}")
+    for child in expr.children:
+        _serialize_six_expr(child, lines, depth + 1)
+
+
 def _run_case(spud_path: Path, serializer) -> tuple[str, str | None]:
     """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
@@ -125,6 +150,7 @@ def main() -> int:
         ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
         ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
         ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five),
+        ("Stage Six", GOLDEN_DIR / "stage_six", _serialize_stage_six),
     ]
 
     all_failures: list[tuple[str, str]] = []

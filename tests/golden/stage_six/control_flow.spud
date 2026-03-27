@@ -1,0 +1,10 @@
+for x in items
+  process(x)
+while running
+  tick()
+if x > 0
+  "positive"
+elif x == 0
+  "zero"
+else
+  "negative"

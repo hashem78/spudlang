@@ -1,0 +1,37 @@
+ASSIGNMENT config := "prod"
+  EXPRESSION config
+  STRING_LITERAL "prod"
+ASSIGNMENT max := 100
+  EXPRESSION max
+  NUMERIC_LITERAL 100
+ASSIGNMENT validate := ( input ) =>
+  EXPRESSION validate
+  FUNCTION_DEF ( input ) =>
+    IF_EXPR if input > max
+      BINARY_OP input > max
+        EXPRESSION input
+        EXPRESSION max
+      STRING_LITERAL "too large"
+    ELSE_EXPR else
+      STRING_LITERAL "ok"
+ASSIGNMENT main := ( ) =>
+  EXPRESSION main
+  FUNCTION_DEF ( ) =>
+    ASSIGNMENT data := [ 1 , 50 , 200 ]
+      EXPRESSION data
+      EXPRESSION [ 1 , 50 , 200 ]
+    FOR_LOOP for item in data
+      EXPRESSION item
+      EXPRESSION data
+      ASSIGNMENT status := validate ( item )
+        EXPRESSION status
+        FUNCTION_CALL validate ( item )
+          EXPRESSION validate
+          EXPRESSION item
+      IF_EXPR if status == "ok"
+        BINARY_OP status == "ok"
+          EXPRESSION status
+          STRING_LITERAL "ok"
+        FUNCTION_CALL print ( item )
+          EXPRESSION print
+          EXPRESSION item

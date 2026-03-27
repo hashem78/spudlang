@@ -1,0 +1,14 @@
+ASSIGNMENT x := 1
+  EXPRESSION x
+  NUMERIC_LITERAL 1
+ASSIGNMENT name := "spud"
+  EXPRESSION name
+  STRING_LITERAL "spud"
+ASSIGNMENT flag := true
+  EXPRESSION flag
+  BOOLEAN_LITERAL true
+ASSIGNMENT result := a + b
+  EXPRESSION result
+  BINARY_OP a + b
+    EXPRESSION a
+    EXPRESSION b

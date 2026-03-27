@@ -1,0 +1,15 @@
+config := "prod"
+max := 100
+
+validate := (input) =>
+  if input > max
+    "too large"
+  else
+    "ok"
+
+main := () =>
+  data := [1, 50, 200]
+  for item in data
+    status := validate(item)
+    if status == "ok"
+      print(item)

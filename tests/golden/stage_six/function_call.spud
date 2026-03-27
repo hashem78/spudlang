@@ -1,0 +1,5 @@
+foo()
+bar(1)
+greet("world")
+add(1, 2)
+foo(bar(1))
