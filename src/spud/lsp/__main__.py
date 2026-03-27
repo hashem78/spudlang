@@ -3,7 +3,7 @@ from dependency_injector import providers
 from spud.core.string_reader import StringReader
 from spud.lsp.container import LspContainer
 from spud.lsp.server import SpudLanguageServer
-from spud.lsp.types import ParseResult
+from spud.lsp.lsp_types import ParseResult
 
 
 def entrypoint() -> None:

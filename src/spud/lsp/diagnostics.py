@@ -1,6 +1,6 @@
 from lsprotocol import types
 
-from spud.lsp.types import ParseResult
+from spud.lsp.lsp_types import ParseResult
 from spud.stage_six.parse_error import ParseError, ParseErrorKind
 
 

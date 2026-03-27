@@ -5,7 +5,7 @@ from spud.lsp.completion import CompletionHandler
 from spud.lsp.diagnostics import DiagnosticsHandler
 from spud.lsp.hover import HoverHandler
 from spud.lsp.symbols import SymbolsHandler
-from spud.lsp.types import ParseFn, ParseResult
+from spud.lsp.lsp_types import ParseFn, ParseResult
 from spud.stage_six.program import Program
 
 
