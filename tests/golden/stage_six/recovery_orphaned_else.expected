@@ -1,7 +1,0 @@
-ERRORS: 2
-├── BINDING x
-│   └── NUMERIC 1
-├── BINDING y
-│   └── NUMERIC 2
-└── BINDING z
-    └── NUMERIC 3

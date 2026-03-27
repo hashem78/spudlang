@@ -1,0 +1,13 @@
+errors: []
+tree: |-
+  ├── BINDING id
+  │   └── FUNCTION_DEF (x)
+  │       └── IDENTIFIER x
+  ├── BINDING add
+  │   └── FUNCTION_DEF (a, b)
+  │       └── BINARY_OP +
+  │           ├── IDENTIFIER a
+  │           └── IDENTIFIER b
+  └── BINDING constant
+      └── FUNCTION_DEF ()
+          └── NUMERIC 42

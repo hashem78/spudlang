@@ -1,0 +1,5 @@
+errors:
+- position: 0:0
+  kind: unexpected_end
+  context: unterminated_string
+tree: ''

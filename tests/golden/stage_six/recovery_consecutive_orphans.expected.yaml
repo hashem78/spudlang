@@ -1,0 +1,16 @@
+errors:
+- position: 0:0
+  kind: unexpected_token
+  got: else
+  context: orphaned_else
+- position: '2:0'
+  kind: unexpected_token
+  got: else
+  context: orphaned_else
+- position: '4:0'
+  kind: unexpected_token
+  got: else
+  context: orphaned_else
+tree: |-
+  └── BINDING x
+      └── NUMERIC 1

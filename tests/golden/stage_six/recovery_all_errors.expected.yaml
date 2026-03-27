@@ -1,0 +1,21 @@
+errors:
+- position: 0:0
+  kind: unexpected_token
+  got: :=
+  context: expression
+- position: '1:0'
+  kind: unexpected_token
+  got: else
+  context: orphaned_else
+- position: '2:0'
+  kind: unexpected_token
+  got: elif
+  context: orphaned_elif
+- position: '3:0'
+  kind: unexpected_token
+  got: '
+
+    '
+  expected: identifier
+  context: for_variable
+tree: ''

@@ -1,0 +1,20 @@
+errors:
+- position: 0:0
+  kind: unexpected_token
+  got: :=
+  context: expression
+- position: '2:0'
+  kind: unexpected_token
+  got: :=
+  context: expression
+- position: '4:0'
+  kind: unexpected_token
+  got: :=
+  context: expression
+tree: |-
+  ├── BINDING x
+  │   └── NUMERIC 5
+  ├── BINDING y
+  │   └── NUMERIC 10
+  └── BINDING z
+      └── NUMERIC 15

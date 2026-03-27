@@ -1,0 +1,18 @@
+errors:
+- position: '2:4'
+  kind: unexpected_token
+  got: :=
+  context: expression
+- position: '4:0'
+  kind: unexpected_token
+  got: DEDENT
+  context: expression
+- position: '4:0'
+  kind: unexpected_token
+  got: DEDENT
+  context: expression
+tree: |-
+  ├── CALL process
+  │   └── IDENTIFIER i
+  └── BINDING valid
+      └── NUMERIC 42

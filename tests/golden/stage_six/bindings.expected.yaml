@@ -1,0 +1,12 @@
+errors: []
+tree: |-
+  ├── BINDING x
+  │   └── NUMERIC 5
+  ├── BINDING name
+  │   └── STRING "spud"
+  ├── BINDING flag
+  │   └── BOOLEAN True
+  └── BINDING result
+      └── BINARY_OP +
+          ├── IDENTIFIER a
+          └── IDENTIFIER b

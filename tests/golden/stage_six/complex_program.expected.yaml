@@ -1,0 +1,28 @@
+errors: []
+tree: |-
+  ├── BINDING max
+  │   └── NUMERIC 100
+  ├── BINDING validate
+  │   └── FUNCTION_DEF (input)
+  │       └── IF_ELSE
+  │           ├── BRANCH
+  │           │   ├── BINARY_OP >
+  │           │   │   ├── IDENTIFIER input
+  │           │   │   └── IDENTIFIER max
+  │           │   └── STRING "too large"
+  │           ├── BRANCH
+  │           │   ├── BINARY_OP <
+  │           │   │   ├── IDENTIFIER input
+  │           │   │   └── NUMERIC 0
+  │           │   └── STRING "negative"
+  │           └── STRING "ok"
+  └── BINDING main
+      └── FUNCTION_DEF ()
+          └── FOR i
+              ├── CALL range
+              │   └── IDENTIFIER max
+              ├── BINDING result
+              │   └── CALL validate
+              │       └── IDENTIFIER i
+              └── CALL print
+                  └── IDENTIFIER result

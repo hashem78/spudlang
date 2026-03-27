@@ -1,0 +1,30 @@
+errors: []
+tree: |-
+  ├── BINARY_OP +
+  │   ├── IDENTIFIER a
+  │   └── IDENTIFIER b
+  ├── BINARY_OP +
+  │   ├── IDENTIFIER a
+  │   └── BINARY_OP *
+  │       ├── IDENTIFIER b
+  │       └── IDENTIFIER c
+  ├── BINARY_OP +
+  │   ├── BINARY_OP *
+  │   │   ├── IDENTIFIER a
+  │   │   └── IDENTIFIER b
+  │   └── IDENTIFIER c
+  ├── BINARY_OP *
+  │   ├── BINARY_OP +
+  │   │   ├── IDENTIFIER a
+  │   │   └── IDENTIFIER b
+  │   └── IDENTIFIER c
+  ├── BINARY_OP +
+  │   ├── BINARY_OP +
+  │   │   ├── IDENTIFIER a
+  │   │   └── IDENTIFIER b
+  │   └── IDENTIFIER c
+  └── BINARY_OP -
+      ├── BINARY_OP -
+      │   ├── IDENTIFIER a
+      │   └── IDENTIFIER b
+      └── IDENTIFIER c

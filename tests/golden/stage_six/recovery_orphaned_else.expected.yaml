@@ -1,0 +1,16 @@
+errors:
+- position: '1:0'
+  kind: unexpected_token
+  got: else
+  context: orphaned_else
+- position: '4:0'
+  kind: unexpected_token
+  got: elif
+  context: orphaned_elif
+tree: |-
+  ├── BINDING x
+  │   └── NUMERIC 1
+  ├── BINDING y
+  │   └── NUMERIC 2
+  └── BINDING z
+      └── NUMERIC 3

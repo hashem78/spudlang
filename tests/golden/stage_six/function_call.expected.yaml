@@ -1,0 +1,15 @@
+errors: []
+tree: |-
+  ├── CALL foo
+  ├── CALL bar
+  │   └── NUMERIC 1
+  ├── CALL add
+  │   ├── NUMERIC 1
+  │   └── NUMERIC 2
+  ├── CALL print
+  │   └── BINARY_OP +
+  │       ├── IDENTIFIER a
+  │       └── IDENTIFIER b
+  └── CALL foo
+      └── CALL bar
+          └── NUMERIC 1

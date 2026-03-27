@@ -1,0 +1,11 @@
+errors: []
+tree: |-
+  └── BINDING outer
+      └── FUNCTION_DEF (x)
+          ├── BINDING inner
+          │   └── FUNCTION_DEF (y)
+          │       └── BINARY_OP +
+          │           ├── IDENTIFIER x
+          │           └── IDENTIFIER y
+          └── CALL inner
+              └── NUMERIC 1

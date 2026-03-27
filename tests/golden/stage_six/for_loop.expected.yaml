@@ -1,0 +1,12 @@
+errors: []
+tree: |-
+  ├── FOR i
+  │   ├── IDENTIFIER items
+  │   └── CALL process
+  │       └── IDENTIFIER i
+  └── FOR x
+      ├── CALL range
+      │   └── NUMERIC 10
+      └── BINARY_OP +
+          ├── IDENTIFIER x
+          └── NUMERIC 1

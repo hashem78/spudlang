@@ -1,5 +1,0 @@
-ERRORS: 3
-├── CALL process
-│   └── IDENTIFIER i
-└── BINDING valid
-    └── NUMERIC 42

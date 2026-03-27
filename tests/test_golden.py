@@ -81,6 +81,10 @@ _PROGRAM_PARSER = _create_parsers()["program_parser"]
 
 
 def _serialize_stage_six(path: Path) -> str:
+    import io
+
+    import yaml
+
     reader = FileReader(path)
     stage_one = StageOne(reader)
     stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
@@ -90,27 +94,38 @@ def _serialize_stage_six(path: Path) -> str:
     tokens = list(stage_five.parse())
     stream = TokenStream(tokens)
     program = _PROGRAM_PARSER.parse(stream)
-    import io
+
+    errors = []
+    for error in program.errors:
+        entry: dict[str, str] = {
+            "position": f"{error.position.line}:{error.position.column}",
+            "kind": error.kind.value,
+        }
+        if error.got:
+            entry["got"] = error.got.value
+        if error.expected:
+            entry["expected"] = error.expected.value
+        if error.context:
+            entry["context"] = error.context.kind.value
+        errors.append(entry)
 
     buf = io.StringIO()
-    buf.write(f"ERRORS: {len(program.errors)}\n")
-    _print_ast_to_buf(program, buf)
-    return buf.getvalue().rstrip("\n")
-
-
-def _print_ast_to_buf(program, buf) -> None:
-    """Like print_ast but writes to a buffer instead of stdout."""
-    from spud.core.ast_printer import _children, _label
-
     for i, node in enumerate(program.body):
         is_last = i == len(program.body) - 1
-        connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
-        child_prefix = "    " if is_last else "\u2502   "
-        label = _label(node)
-        buf.write(f"{connector}{label}\n")
-        children = _children(node)
-        for j, child in enumerate(children):
-            _print_node_to_buf(child, child_prefix, j == len(children) - 1, buf)
+        _print_node_to_buf(node, "", is_last, buf)
+    tree = buf.getvalue().rstrip("\n")
+
+    class _LiteralStr(str):
+        pass
+
+    def _literal_representer(dumper, data):
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+
+    dumper = yaml.Dumper
+    dumper.add_representer(_LiteralStr, _literal_representer)
+
+    result: dict = {"errors": errors, "tree": _LiteralStr(tree) if tree else ""}
+    return yaml.dump(result, Dumper=dumper, default_flow_style=False, sort_keys=False, allow_unicode=True).rstrip("\n")
 
 
 def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
@@ -118,17 +133,15 @@ def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
 
     connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
     child_prefix = prefix + ("    " if is_last else "\u2502   ")
-    label = _label(node)
-    buf.write(f"{prefix}{connector}{label}\n")
-    children = _children(node)
-    for i, child in enumerate(children):
-        _print_node_to_buf(child, child_prefix, i == len(children) - 1, buf)
+    buf.write(f"{prefix}{connector}{_label(node)}\n")
+    for i, child in enumerate(_children(node)):
+        _print_node_to_buf(child, child_prefix, i == len(_children(node)) - 1, buf)
 
 
-def _run_case(spud_path: Path, serializer) -> tuple[str, str | None]:
+def _run_case(spud_path: Path, serializer, expected_suffix: str = ".expected") -> tuple[str, str | None]:
     """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
-    expected_path = spud_path.with_suffix(".expected")
+    expected_path = spud_path.with_suffix(expected_suffix)
 
     if not expected_path.exists():
         return name, f"Missing expected file: {expected_path}"
@@ -142,14 +155,18 @@ def _run_case(spud_path: Path, serializer) -> tuple[str, str | None]:
     return name, None
 
 
-def _run_stage(stage_dir: Path, serializer) -> tuple[int, int, list[tuple[str, str]]]:
+def _run_stage(
+    stage_dir: Path, serializer, expected_suffix: str = ".expected"
+) -> tuple[int, int, list[tuple[str, str]]]:
     """Run all cases in a stage directory in parallel. Returns (passed, total, failures)."""
     spud_files = sorted(stage_dir.glob("*.spud"))
     failures: list[tuple[str, str]] = []
     passed = 0
 
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(_run_case, spud_path, serializer): spud_path for spud_path in spud_files}
+        futures = {
+            executor.submit(_run_case, spud_path, serializer, expected_suffix): spud_path for spud_path in spud_files
+        }
         for future in as_completed(futures):
             name, failure = future.result()
             if failure is None:
@@ -161,23 +178,23 @@ def _run_stage(stage_dir: Path, serializer) -> tuple[int, int, list[tuple[str, s
 
 
 def main() -> int:
-    stages = [
-        ("Stage One", GOLDEN_DIR / "stage_one", _serialize_stage_one),
-        ("Stage Two", GOLDEN_DIR / "stage_two", _serialize_stage_two),
-        ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
-        ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
-        ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five),
-        ("Stage Six", GOLDEN_DIR / "stage_six", _serialize_stage_six),
+    stages: list[tuple[str, Path, object, str]] = [
+        ("Stage One", GOLDEN_DIR / "stage_one", _serialize_stage_one, ".expected"),
+        ("Stage Two", GOLDEN_DIR / "stage_two", _serialize_stage_two, ".expected"),
+        ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three, ".expected"),
+        ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four, ".expected"),
+        ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five, ".expected"),
+        ("Stage Six", GOLDEN_DIR / "stage_six", _serialize_stage_six, ".expected.yaml"),
     ]
 
     all_failures: list[tuple[str, str]] = []
     results: list[tuple[str, int, int]] = []
 
-    for stage_name, stage_dir, serializer in stages:
+    for stage_name, stage_dir, serializer, suffix in stages:
         if not stage_dir.exists():
             results.append((stage_name, 0, 0))
             continue
-        passed, total, failures = _run_stage(stage_dir, serializer)
+        passed, total, failures = _run_stage(stage_dir, serializer, suffix)
         results.append((stage_name, passed, total))
         all_failures.extend(failures)
 
