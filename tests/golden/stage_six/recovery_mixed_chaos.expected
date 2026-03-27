@@ -1,0 +1,19 @@
+ERRORS: 3
+├── BINDING a
+│   └── NUMERIC 1
+├── BINDING b
+│   └── FUNCTION_DEF (x)
+│       └── IF_ELSE
+│           ├── BRANCH
+│           │   ├── BINARY_OP >
+│           │   │   ├── IDENTIFIER x
+│           │   │   └── NUMERIC 0
+│           │   └── STRING "yes"
+│           └── STRING "no"
+├── BINDING c
+│   └── BINARY_OP +
+│       ├── IDENTIFIER a
+│       └── CALL b
+│           └── NUMERIC 1
+└── BINDING d
+    └── NUMERIC 42

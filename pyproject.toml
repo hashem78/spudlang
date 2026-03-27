@@ -39,6 +39,7 @@ extra-dependencies = [
   "ruff",
   "ty",
   "pytest",
+  "hypothesis",
 ]
 
 [tool.hatch.envs.dev.scripts]

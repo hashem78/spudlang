@@ -1,0 +1,5 @@
+f := (x) =>
+  for i in range(x)
+    :=
+    process(i)
+valid := 42

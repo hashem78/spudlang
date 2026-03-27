@@ -1,0 +1,7 @@
+ERRORS: 3
+├── BINDING x
+│   └── NUMERIC 5
+├── BINDING y
+│   └── NUMERIC 10
+└── BINDING z
+    └── NUMERIC 15

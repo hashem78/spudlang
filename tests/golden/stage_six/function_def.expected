@@ -1,3 +1,4 @@
+ERRORS: 0
 ├── BINDING id
 │   └── FUNCTION_DEF (x)
 │       └── IDENTIFIER x

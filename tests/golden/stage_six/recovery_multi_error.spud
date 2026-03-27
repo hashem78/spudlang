@@ -1,0 +1,6 @@
+:= broken
+x := 5
+:= also broken
+y := 10
+:= third
+z := 15

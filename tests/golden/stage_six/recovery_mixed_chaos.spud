@@ -1,0 +1,12 @@
+a := 1
+:= broken
+b := (x) =>
+  if x > 0
+    "yes"
+  else
+    "no"
+else
+  orphaned
+c := a + b(1)
+for in missing_var
+d := 42

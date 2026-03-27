@@ -1,0 +1,7 @@
+else
+  a
+else
+  b
+else
+  c
+x := 1

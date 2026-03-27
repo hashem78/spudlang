@@ -1,0 +1,7 @@
+x := 1
+else
+  body
+y := 2
+elif true
+  body
+z := 3

@@ -15,7 +15,6 @@ from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
-from spud.stage_six.parse_error import ParseError
 from spud.stage_six.token_stream import TokenStream
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
@@ -90,13 +89,12 @@ def _serialize_stage_six(path: Path) -> str:
     stage_five = StageFive(stage_four, LOGGER)
     tokens = list(stage_five.parse())
     stream = TokenStream(tokens)
-    result = _PROGRAM_PARSER.parse(stream)
-    if isinstance(result, ParseError):
-        return f"PARSE_ERROR {result.kind.value}"
+    program = _PROGRAM_PARSER.parse(stream)
     import io
 
     buf = io.StringIO()
-    _print_ast_to_buf(result, buf)
+    buf.write(f"ERRORS: {len(program.errors)}\n")
+    _print_ast_to_buf(program, buf)
     return buf.getvalue().rstrip("\n")
 
 

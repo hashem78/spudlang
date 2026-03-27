@@ -1,3 +1,4 @@
+ERRORS: 0
 ├── NUMERIC 42
 ├── CALL foo
 ├── BINARY_OP -
