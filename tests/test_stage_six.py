@@ -21,7 +21,6 @@ from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
 from spud.stage_six.numeric_literal import NumericLiteral
-from spud.stage_six.parse_error import ParseError
 from spud.stage_six.parsers.binding_parser import BindingParser
 from spud.stage_six.parsers.block_parser import BlockParser
 from spud.stage_six.parsers.expression_parser import ExpressionParser
@@ -65,7 +64,7 @@ def _create_parsers() -> dict:
     return {"program_parser": program}
 
 
-def _parse(text: str) -> Program | ParseError:
+def _parse(text: str) -> Program:
     reader = _StringReader(text)
     s1 = StageOne(reader)
     s2 = StageTwo(s1, create_stage_two_trie(), structlog.get_logger())
@@ -926,12 +925,12 @@ class TestEdgeCases:
 class TestParseErrors:
     def test_unexpected_token_walrus_at_start(self):
         result = _parse(":= 5")
-        assert isinstance(result, ParseError)
+        assert len(result.errors) > 0
 
     def test_missing_closing_paren(self):
         result = _parse("foo(1")
-        assert isinstance(result, ParseError)
+        assert len(result.errors) > 0
 
     def test_missing_block_after_if(self):
         result = _parse("if true")
-        assert isinstance(result, ParseError)
+        assert len(result.errors) > 0

@@ -2,7 +2,7 @@ from lsprotocol import types
 
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind
-from spud_lsp.lsp_types import ParseResult
+from spud.stage_six.program import Program
 
 _TOKEN_LABELS: dict[T, str] = {
     T.IDENTIFIER: "identifier",
@@ -77,34 +77,32 @@ def _context_label(context: ParseContext) -> str:
 
 
 class DiagnosticsHandler:
-    def diagnose(self, result: ParseResult) -> list[types.Diagnostic]:
-        """Convert a parse result into LSP diagnostics."""
-        if not isinstance(result, ParseError):
-            return []
+    def diagnose(self, program: Program) -> list[types.Diagnostic]:
+        """Convert parse errors from a Program into LSP diagnostics."""
+        return [self._to_diagnostic(error) for error in program.errors]
 
+    def _to_diagnostic(self, error: ParseError) -> types.Diagnostic:
         message: str
-        match result.kind:
+        match error.kind:
             case ParseErrorKind.UNEXPECTED_END:
                 message = "unexpected end of input"
-                if result.expected:
-                    message += f", expected {_token_label(result.expected)}"
+                if error.expected:
+                    message += f", expected {_token_label(error.expected)}"
             case ParseErrorKind.UNEXPECTED_TOKEN:
-                got_label: str = _token_label(result.got) if result.got else "token"
+                got_label: str = _token_label(error.got) if error.got else "token"
                 message = f"unexpected {got_label}"
-                if result.expected:
-                    message += f", expected {_token_label(result.expected)}"
+                if error.expected:
+                    message += f", expected {_token_label(error.expected)}"
 
-        if result.context:
-            message += f" ({_context_label(result.context)})"
+        if error.context:
+            message += f" ({_context_label(error.context)})"
 
-        return [
-            types.Diagnostic(
-                range=types.Range(
-                    start=types.Position(line=result.position.line, character=result.position.column),
-                    end=types.Position(line=result.position.line, character=result.position.column + 1),
-                ),
-                severity=types.DiagnosticSeverity.Error,
-                source="spud",
-                message=message,
-            )
-        ]
+        return types.Diagnostic(
+            range=types.Range(
+                start=types.Position(line=error.position.line, character=error.position.column),
+                end=types.Position(line=error.position.line, character=error.position.column + 1),
+            ),
+            severity=types.DiagnosticSeverity.Error,
+            source="spud",
+            message=message,
+        )

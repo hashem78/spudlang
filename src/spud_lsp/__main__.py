@@ -1,17 +1,17 @@
 from dependency_injector import providers
 
 from spud.core.string_reader import StringReader
+from spud.stage_six.program import Program
 from spud_lsp.container import LspContainer
-from spud_lsp.lsp_types import ParseResult
 from spud_lsp.server import SpudLanguageServer
 
 
 def entrypoint() -> None:
     container: LspContainer = LspContainer()
 
-    def parse(text: str) -> ParseResult:
+    def parse(text: str) -> Program:
         container.reader.override(providers.Factory(StringReader, text=text))
-        result: ParseResult = container.stage_six().parse()
+        result: Program = container.stage_six().parse()
         container.reader.reset_override()
         return result
 

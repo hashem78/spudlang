@@ -9,7 +9,6 @@ from dependency_injector import providers
 
 from spud.core.file_reader import FileReader
 from spud.di import Container
-from spud.stage_six.parse_error import ParseError
 
 app = cyclopts.App()
 
@@ -20,16 +19,15 @@ container = Container()
 def main(file: Path, tree: bool = False) -> None:
     container.reader.override(providers.Factory(FileReader, path=file))
     stage_six = container.stage_six()
-    result = stage_six.parse()
-    match result:
-        case ParseError():
-            print(result)
-        case program if tree:
-            from spud.core.ast_printer import print_ast
+    program = stage_six.parse()
+    for error in program.errors:
+        print(f"error: {error}")
+    if tree:
+        from spud.core.ast_printer import print_ast
 
-            print_ast(program)
-        case program:
-            print(program)
+        print_ast(program)
+    else:
+        print(program)
 
 
 def entrypoint() -> None:

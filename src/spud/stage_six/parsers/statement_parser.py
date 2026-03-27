@@ -51,7 +51,7 @@ class StatementParser:
             case T.IDENTIFIER if self._peek_type_at(stream, 1) == T.WALRUS:
                 return self._binding_parser.parse(stream)
             case T.ELSE:
-                tok = stream.peek()
+                tok = stream.consume()
                 return ParseError(
                     kind=ParseErrorKind.UNEXPECTED_TOKEN,
                     position=tok.position,
@@ -59,7 +59,7 @@ class StatementParser:
                     context=ctx(ParseContextKind.ORPHANED_ELSE),
                 )
             case T.ELIF:
-                tok = stream.peek()
+                tok = stream.consume()
                 return ParseError(
                     kind=ParseErrorKind.UNEXPECTED_TOKEN,
                     position=tok.position,

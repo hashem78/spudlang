@@ -5,7 +5,7 @@ from spud.stage_six.program import Program
 from spud_lsp.completion import CompletionHandler
 from spud_lsp.diagnostics import DiagnosticsHandler
 from spud_lsp.hover import HoverHandler
-from spud_lsp.lsp_types import ParseFn, ParseResult
+from spud_lsp.lsp_types import ParseFn
 from spud_lsp.symbols import SymbolsHandler
 
 
@@ -31,22 +31,20 @@ class SpudLanguageServer(LanguageServer):
         @self.feature(types.TEXT_DOCUMENT_DID_OPEN)
         def did_open(params: types.DidOpenTextDocumentParams) -> None:
             uri: str = params.text_document.uri
-            result: ParseResult = self._parse(params.text_document.text)
-            if isinstance(result, Program):
-                self._last_program[uri] = result
+            program: Program = self._parse(params.text_document.text)
+            self._last_program[uri] = program
             self.text_document_publish_diagnostics(
-                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(result))
+                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(program))
             )
 
         @self.feature(types.TEXT_DOCUMENT_DID_CHANGE)
         def did_change(params: types.DidChangeTextDocumentParams) -> None:
             uri: str = params.text_document.uri
             doc = self.workspace.get_text_document(uri)
-            result: ParseResult = self._parse(doc.source)
-            if isinstance(result, Program):
-                self._last_program[uri] = result
+            program: Program = self._parse(doc.source)
+            self._last_program[uri] = program
             self.text_document_publish_diagnostics(
-                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(result))
+                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(program))
             )
 
         @self.feature(types.TEXT_DOCUMENT_HOVER)

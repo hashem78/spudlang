@@ -57,3 +57,35 @@ class TokenStream:
                 context=context,
             )
         return result
+
+    def skip_to_recovery(self) -> None:
+        """Skip tokens until a statement boundary for error recovery.
+
+        Consumes tokens until it finds a NEW_LINE at the current
+        nesting depth, then consumes it so the next token starts a
+        new statement. Skips over entire indented blocks (matching
+        INDENT/DEDENT pairs) to avoid getting stuck on orphaned
+        block structures. Stops without consuming at DEDENT (end
+        of enclosing block) or EOF.
+        """
+        depth: int = 0
+        while not self.at_end():
+            match self.peek_type():
+                case T.INDENT:
+                    depth += 1
+                    self.consume()
+                case T.DEDENT:
+                    if depth > 0:
+                        depth -= 1
+                        self.consume()
+                    else:
+                        return
+                case T.NEW_LINE if depth == 0:
+                    self.consume()
+                    # If an indented block follows, skip it too —
+                    # it belongs to the errored statement.
+                    if self.peek_type() == T.INDENT:
+                        continue
+                    return
+                case _:
+                    self.consume()

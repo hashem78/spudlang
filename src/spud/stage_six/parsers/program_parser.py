@@ -16,29 +16,32 @@ class ProgramParser:
 
     Consumes the entire token stream, delegating each statement to
     the injected ``StatementParser``. Newlines between statements
-    (including leading and trailing) are silently skipped — they
-    serve as expression boundaries in the stream but carry no
-    semantic meaning at the program level.
+    (including leading and trailing) are silently skipped.
 
-    Returns ``Program(body=[...])`` on success, or the first
-    ``ParseError`` encountered by any sub-parser.
+    On parse errors, records the error and skips to the next
+    statement boundary (NEW_LINE or DEDENT) to continue parsing.
+    Returns a ``Program`` with all successfully parsed statements
+    in ``body`` and all errors in ``errors``.
     """
 
     def __init__(self, statement_parser: IParser[ASTNode]):
         self._statement_parser = statement_parser
 
-    def parse(self, stream: TokenStream) -> Program | ParseError:
+    def parse(self, stream: TokenStream) -> Program:
         """Parse the full token stream into a Program."""
         body: list[ASTNode] = []
+        errors: list[ParseError] = []
         self._skip_newlines(stream)
         while not stream.at_end():
             stmt = self._statement_parser.parse(stream)
             if isinstance(stmt, ParseError):
-                return stmt
-            body.append(stmt)
+                errors.append(stmt)
+                stream.skip_to_recovery()
+            else:
+                body.append(stmt)
             self._skip_newlines(stream)
         end = body[-1].end if body else Position(line=0, column=0)
-        return Program(position=Position(line=0, column=0), end=end, body=body)
+        return Program(position=Position(line=0, column=0), end=end, body=body, errors=errors)
 
     def _skip_newlines(self, stream: TokenStream) -> None:
         while stream.peek_type() == T.NEW_LINE:

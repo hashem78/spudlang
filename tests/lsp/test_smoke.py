@@ -170,6 +170,32 @@ async def main() -> int:
             return 1
         print(f"OK: {code!r} -> {actual_msg}")
 
+    # Multiple errors in one file — verify recovery collects all.
+    diagnostics_received.clear()
+    multi_error_text: str = "x := 5\n:= broken\ny := 10\n:= also broken"
+    client.protocol.notify(
+        "textDocument/didOpen",
+        types.DidOpenTextDocumentParams(
+            text_document=types.TextDocumentItem(
+                uri="file:///multi.spud",
+                language_id="spud",
+                version=1,
+                text=multi_error_text,
+            )
+        ),
+    )
+    await asyncio.sleep(0.5)
+
+    multi_diags = [d for d in diagnostics_received if d.uri == "file:///multi.spud"]
+    if not multi_diags:
+        print("FAIL: no diagnostics for multi-error file")
+        return 1
+    diag_count: int = len(multi_diags[-1].diagnostics)
+    if diag_count < 2:
+        print(f"FAIL: expected multiple diagnostics, got {diag_count}")
+        return 1
+    print(f"OK: multi-error file produced {diag_count} diagnostics")
+
     # Shutdown.
     await client.protocol.send_request_async("shutdown", None)
     client.protocol.notify("exit", None)
