@@ -1,0 +1,24 @@
+├── BINARY_OP ==
+│   ├── IDENTIFIER a
+│   └── IDENTIFIER b
+├── BINARY_OP !=
+│   ├── IDENTIFIER a
+│   └── IDENTIFIER b
+├── BINARY_OP &&
+│   ├── BINARY_OP >
+│   │   ├── IDENTIFIER x
+│   │   └── NUMERIC 0
+│   └── BINARY_OP <
+│       ├── IDENTIFIER y
+│       └── NUMERIC 10
+├── BINARY_OP ||
+│   ├── IDENTIFIER a
+│   └── BINARY_OP &&
+│       ├── IDENTIFIER b
+│       └── IDENTIFIER c
+├── BINARY_OP >
+│   ├── IDENTIFIER a
+│   └── IDENTIFIER b
+└── BINARY_OP <=
+    ├── IDENTIFIER a
+    └── IDENTIFIER b

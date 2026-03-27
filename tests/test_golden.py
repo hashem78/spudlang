@@ -9,11 +9,14 @@ from pathlib import Path
 import structlog
 
 from spud.core.file_reader import FileReader
+from spud.di.container import _create_parsers
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
+from spud.stage_six.parse_error import ParseError
+from spud.stage_six.token_stream import TokenStream
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
@@ -75,6 +78,55 @@ def _serialize_stage_five(path: Path) -> str:
     return "\n".join(lines)
 
 
+_PROGRAM_PARSER = _create_parsers()["program_parser"]
+
+
+def _serialize_stage_six(path: Path) -> str:
+    reader = FileReader(path)
+    stage_one = StageOne(reader)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
+    stage_three = StageThree(stage_two, LOGGER)
+    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    stage_five = StageFive(stage_four, LOGGER)
+    tokens = list(stage_five.parse())
+    stream = TokenStream(tokens)
+    result = _PROGRAM_PARSER.parse(stream)
+    if isinstance(result, ParseError):
+        return f"PARSE_ERROR {result.kind.value}"
+    import io
+
+    buf = io.StringIO()
+    _print_ast_to_buf(result, buf)
+    return buf.getvalue().rstrip("\n")
+
+
+def _print_ast_to_buf(program, buf) -> None:
+    """Like print_ast but writes to a buffer instead of stdout."""
+    from spud.core.ast_printer import _children, _label
+
+    for i, node in enumerate(program.body):
+        is_last = i == len(program.body) - 1
+        connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
+        child_prefix = "    " if is_last else "\u2502   "
+        label = _label(node)
+        buf.write(f"{connector}{label}\n")
+        children = _children(node)
+        for j, child in enumerate(children):
+            _print_node_to_buf(child, child_prefix, j == len(children) - 1, buf)
+
+
+def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
+    from spud.core.ast_printer import _children, _label
+
+    connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
+    child_prefix = prefix + ("    " if is_last else "\u2502   ")
+    label = _label(node)
+    buf.write(f"{prefix}{connector}{label}\n")
+    children = _children(node)
+    for i, child in enumerate(children):
+        _print_node_to_buf(child, child_prefix, i == len(children) - 1, buf)
+
+
 def _run_case(spud_path: Path, serializer) -> tuple[str, str | None]:
     """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
@@ -117,6 +169,7 @@ def main() -> int:
         ("Stage Three", GOLDEN_DIR / "stage_three", _serialize_stage_three),
         ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four),
         ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five),
+        ("Stage Six", GOLDEN_DIR / "stage_six", _serialize_stage_six),
     ]
 
     all_failures: list[tuple[str, str]] = []

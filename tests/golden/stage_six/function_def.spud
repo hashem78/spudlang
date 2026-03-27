@@ -1,0 +1,6 @@
+id := (x) =>
+  x
+add := (a, b) =>
+  a + b
+constant := () =>
+  42

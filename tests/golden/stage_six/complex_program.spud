@@ -1,0 +1,12 @@
+max := 100
+validate := (input) =>
+  if input > max
+    "too large"
+  elif input < 0
+    "negative"
+  else
+    "ok"
+main := () =>
+  for i in range(max)
+    result := validate(i)
+    print(result)

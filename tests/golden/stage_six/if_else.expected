@@ -1,0 +1,12 @@
+└── IF_ELSE
+    ├── BRANCH
+    │   ├── BINARY_OP >
+    │   │   ├── IDENTIFIER x
+    │   │   └── NUMERIC 0
+    │   └── STRING "positive"
+    ├── BRANCH
+    │   ├── BINARY_OP ==
+    │   │   ├── IDENTIFIER x
+    │   │   └── NUMERIC 0
+    │   └── STRING "zero"
+    └── STRING "negative"

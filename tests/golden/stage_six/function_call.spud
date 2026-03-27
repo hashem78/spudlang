@@ -1,0 +1,5 @@
+foo()
+bar(1)
+add(1, 2)
+print(a + b)
+foo(bar(1))
