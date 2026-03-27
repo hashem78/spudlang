@@ -1,6 +1,5 @@
 from lsprotocol import types
 
-from spud.lsp.utils import find_node_at
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binary_op import BinaryOp
 from spud.stage_six.binding import Binding
@@ -14,6 +13,7 @@ from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud_lsp.utils import find_node_at
 
 
 class HoverHandler:

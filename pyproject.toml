@@ -23,7 +23,7 @@ dependencies = [
 
 [project.scripts]
 spud = "spud.__main__:entrypoint"
-spud-lsp = "spud.lsp.__main__:entrypoint"
+spud-lsp = "spud_lsp.__main__:entrypoint"
 
 [project.urls]
 Documentation = "https://github.com/hashem78/spud#readme"
@@ -57,7 +57,7 @@ extra-dependencies = [
 
 [tool.hatch.envs.build.scripts]
 binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud src/spud/__main__.py"
-lsp-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-lsp src/spud/lsp/__main__.py"
+lsp-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-lsp src/spud_lsp/__main__.py"
 install-lsp = "cp dist/spud-lsp ~/.local/bin/spud-lsp && echo 'Installed spud-lsp to ~/.local/bin/spud-lsp'"
 
 [tool.hatch.build.hooks.custom]

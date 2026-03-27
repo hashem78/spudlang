@@ -1,8 +1,8 @@
 from lsprotocol import types
 
-from spud.lsp.lsp_types import ParseResult
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind
+from spud_lsp.lsp_types import ParseResult
 
 _TOKEN_LABELS: dict[T, str] = {
     T.IDENTIFIER: "identifier",

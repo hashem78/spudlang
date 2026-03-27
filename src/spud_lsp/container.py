@@ -5,16 +5,16 @@ from spud.di.container import _create_parsers
 from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
-from spud.lsp.completion import CompletionHandler
-from spud.lsp.diagnostics import DiagnosticsHandler
-from spud.lsp.hover import HoverHandler
-from spud.lsp.symbols import SymbolsHandler
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
 from spud.stage_six.stage_six import StageSix
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
+from spud_lsp.completion import CompletionHandler
+from spud_lsp.diagnostics import DiagnosticsHandler
+from spud_lsp.hover import HoverHandler
+from spud_lsp.symbols import SymbolsHandler
 
 
 class LspContainer(containers.DeclarativeContainer):

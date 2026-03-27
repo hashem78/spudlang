@@ -1,12 +1,12 @@
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
-from spud.lsp.completion import CompletionHandler
-from spud.lsp.diagnostics import DiagnosticsHandler
-from spud.lsp.hover import HoverHandler
-from spud.lsp.lsp_types import ParseFn, ParseResult
-from spud.lsp.symbols import SymbolsHandler
 from spud.stage_six.program import Program
+from spud_lsp.completion import CompletionHandler
+from spud_lsp.diagnostics import DiagnosticsHandler
+from spud_lsp.hover import HoverHandler
+from spud_lsp.lsp_types import ParseFn, ParseResult
+from spud_lsp.symbols import SymbolsHandler
 
 
 class SpudLanguageServer(LanguageServer):

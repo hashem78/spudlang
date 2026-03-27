@@ -20,7 +20,7 @@ async def main() -> int:
     def on_diagnostics(params: types.PublishDiagnosticsParams) -> None:
         diagnostics_received.append(params)
 
-    await client.start_io(sys.executable, "-m", "spud.lsp")
+    await client.start_io(sys.executable, "-m", "spud_lsp")
 
     # Initialize.
     init_result: types.InitializeResult = await client.protocol.send_request_async(
