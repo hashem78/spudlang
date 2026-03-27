@@ -1,0 +1,88 @@
+# Spud Grammar
+#
+# Notation:
+#   rule       = definition          rule definition
+#   'x'        literal token         keyword or symbol
+#   TOKEN      named token type      from the lexer
+#   ( ... )    grouping
+#   ... | ...  alternation
+#   ... *      zero or more
+#   ... +      one or more
+#   ... ?      optional
+#
+# Tokens are produced by stages 1-5 of the lexer pipeline.
+# NEWLINE, INDENT, and DEDENT are synthetic tokens from stage 5.
+# IDENTIFIER includes both names and numeric literals (digits-only
+# identifiers are promoted to NumericLiteral by the parser).
+
+
+# ── Program ──────────────────────────────────────────────────────
+
+program        = NEWLINE* ( statement NEWLINE* )* EOF
+
+
+# ── Statements ───────────────────────────────────────────────────
+
+statement      = binding
+               | if_else
+               | for_loop
+               | expression
+
+binding        = IDENTIFIER ':=' ( function_def | expression )
+
+if_else        = 'if' expression NEWLINE block
+                 ( 'elif' expression NEWLINE block )*
+                 ( 'else' NEWLINE block )?
+
+for_loop       = 'for' IDENTIFIER 'in' expression NEWLINE block
+
+block          = INDENT NEWLINE* ( statement NEWLINE* )* DEDENT
+
+
+# ── Function definition ─────────────────────────────────────────
+
+function_def   = '(' param_list ')' '=>' NEWLINE block
+
+param_list     = ( IDENTIFIER ( ',' IDENTIFIER )* )?
+
+
+# ── Expressions ──────────────────────────────────────────────────
+#
+# Precedence from lowest to highest binding strength.
+# Left-associative unless noted.
+
+expression     = or_expr
+
+or_expr        = and_expr ( '||' and_expr )*
+
+and_expr       = comparison ( '&&' comparison )*
+
+comparison     = addition ( cmp_op addition )?              # non-associative
+
+cmp_op         = '==' | '!=' | '<' | '>' | '<=' | '>='
+
+addition       = multiplication ( ( '+' | '-' ) multiplication )*
+
+multiplication = unary ( ( '*' | '/' | '%' ) unary )*
+
+unary          = '-' unary
+               | primary
+
+primary        = IDENTIFIER '(' arg_list ')'               # function call
+               | IDENTIFIER                                 # variable or numeric
+               | STRING
+               | RAW_STRING
+               | 'true' | 'false'
+               | '(' expression ')'                         # grouped
+
+arg_list       = ( expression ( ',' expression )* )?
+
+
+# ── Lexical tokens ──────────────────────────────────────────────
+#
+# Produced by stages 1-5. Not defined here — see:
+#   stage 1: character tokenization
+#   stage 2: string literals + keyword recognition
+#   stage 3: identifier grouping
+#   stage 4: operator matching
+#   stage 5: INDENT/DEDENT/NEWLINE injection
