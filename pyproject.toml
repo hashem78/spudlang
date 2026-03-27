@@ -17,11 +17,13 @@ dependencies = [
     "cyclopts>=4.10.1",
     "dependency-injector>=4.49.0",
     "pydantic>=2.12.5",
+    "pygls>=2.0.0",
     "structlog>=25.5.0",
 ]
 
 [project.scripts]
 spud = "spud.__main__:entrypoint"
+spud-lsp = "spud.lsp.__main__:entrypoint"
 
 [project.urls]
 Documentation = "https://github.com/hashem78/spud#readme"
@@ -54,6 +56,7 @@ extra-dependencies = [
 
 [tool.hatch.envs.build.scripts]
 binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud src/spud/__main__.py"
+lsp-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-lsp src/spud/lsp/__main__.py"
 
 [tool.hatch.build.hooks.custom]
 
