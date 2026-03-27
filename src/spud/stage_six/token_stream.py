@@ -74,6 +74,7 @@ class TokenStream:
                     self._skip_trailing_block()
                     return
                 case T.DEDENT:
+                    self.consume()
                     return
                 case _:
                     self.consume()
