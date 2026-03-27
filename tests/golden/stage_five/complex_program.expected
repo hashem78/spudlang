@@ -1,23 +1,138 @@
-EXPR config := "prod"
-EXPR max := 100
-EXPR validate := ( input ) =>
-  EXPR if input > max
-    EXPR "too large"
-  EXPR elif input < 0
-    EXPR "negative"
-  EXPR else
-    EXPR "ok"
-EXPR process := ( items ) =>
-  EXPR results := [ ]
-  EXPR for item in items
-    EXPR status := validate ( item )
-    EXPR if status == "ok"
-      EXPR results :: push ( item )
-    EXPR else
-      EXPR log ( "skipped" , item )
-  EXPR results
-EXPR main := ( ) =>
-  EXPR data := [ 1 , 50 , 200 , - 5 , 75 ]
-  EXPR processed := process ( data )
-  EXPR for result in processed
-    EXPR print ( result )
+IDENTIFIER config
+WALRUS :=
+STRING "prod"
+NEW_LINE 
+IDENTIFIER max
+WALRUS :=
+IDENTIFIER 100
+NEW_LINE 
+IDENTIFIER validate
+WALRUS :=
+PAREN_LEFT (
+IDENTIFIER input
+PAREN_RIGHT )
+FAT_ARROW =>
+NEW_LINE 
+INDENT 
+IF if
+IDENTIFIER input
+GREATER_THAN >
+IDENTIFIER max
+NEW_LINE 
+INDENT 
+STRING "too large"
+NEW_LINE 
+DEDENT 
+ELIF elif
+IDENTIFIER input
+LESS_THAN <
+IDENTIFIER 0
+NEW_LINE 
+INDENT 
+STRING "negative"
+NEW_LINE 
+DEDENT 
+ELSE else
+NEW_LINE 
+INDENT 
+STRING "ok"
+NEW_LINE 
+DEDENT 
+DEDENT 
+IDENTIFIER process
+WALRUS :=
+PAREN_LEFT (
+IDENTIFIER items
+PAREN_RIGHT )
+FAT_ARROW =>
+NEW_LINE 
+INDENT 
+IDENTIFIER results
+WALRUS :=
+BRACKET_LEFT [
+BRACKET_RIGHT ]
+NEW_LINE 
+FOR for
+IDENTIFIER item
+IN in
+IDENTIFIER items
+NEW_LINE 
+INDENT 
+IDENTIFIER status
+WALRUS :=
+IDENTIFIER validate
+PAREN_LEFT (
+IDENTIFIER item
+PAREN_RIGHT )
+NEW_LINE 
+IF if
+IDENTIFIER status
+EQUALS ==
+STRING "ok"
+NEW_LINE 
+INDENT 
+IDENTIFIER results
+PATH_SEPARATOR ::
+IDENTIFIER push
+PAREN_LEFT (
+IDENTIFIER item
+PAREN_RIGHT )
+NEW_LINE 
+DEDENT 
+ELSE else
+NEW_LINE 
+INDENT 
+IDENTIFIER log
+PAREN_LEFT (
+STRING "skipped"
+COMMA ,
+IDENTIFIER item
+PAREN_RIGHT )
+NEW_LINE 
+DEDENT 
+DEDENT 
+IDENTIFIER results
+NEW_LINE 
+DEDENT 
+IDENTIFIER main
+WALRUS :=
+PAREN_LEFT (
+PAREN_RIGHT )
+FAT_ARROW =>
+NEW_LINE 
+INDENT 
+IDENTIFIER data
+WALRUS :=
+BRACKET_LEFT [
+IDENTIFIER 1
+COMMA ,
+IDENTIFIER 50
+COMMA ,
+IDENTIFIER 200
+COMMA ,
+MINUS -
+IDENTIFIER 5
+COMMA ,
+IDENTIFIER 75
+BRACKET_RIGHT ]
+NEW_LINE 
+IDENTIFIER processed
+WALRUS :=
+IDENTIFIER process
+PAREN_LEFT (
+IDENTIFIER data
+PAREN_RIGHT )
+NEW_LINE 
+FOR for
+IDENTIFIER result
+IN in
+IDENTIFIER processed
+NEW_LINE 
+INDENT 
+IDENTIFIER print
+PAREN_LEFT (
+IDENTIFIER result
+PAREN_RIGHT )
+NEW_LINE 
+DEDENT 
+DEDENT 

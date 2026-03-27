@@ -6,7 +6,6 @@ from typing import Generator
 
 import structlog
 
-from spud.core.file_reader import FileReader
 from spud.core.position import Position
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
@@ -14,10 +13,14 @@ from spud.stage_five.stage_five import StageFive
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_five.stage_five_token_type import StageFiveTokenType
 from spud.stage_four.stage_four import StageFour
-from spud.stage_four.stage_four_token_type import StageFourTokenType
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
+
+INDENT = StageFiveTokenType.INDENT
+DEDENT = StageFiveTokenType.DEDENT
+NL = StageFiveTokenType.NEW_LINE
+ID = StageFiveTokenType.IDENTIFIER
 
 
 class _StringReader:
@@ -39,8 +42,15 @@ def _parse(text: str) -> list[StageFiveToken]:
     return list(stage_five.parse())
 
 
-def _token_values(expr: StageFiveToken) -> str:
-    return " ".join(t.value for t in expr.tokens)
+def _types(tokens: list[StageFiveToken]) -> list[StageFiveTokenType]:
+    return [t.token_type for t in tokens]
+
+
+def _values(tokens: list[StageFiveToken]) -> list[str]:
+    return [t.value for t in tokens if t.value]
+
+
+# ── Empty Input ─────────────────────────────────────────────────────
 
 
 class TestEmptyInput:
@@ -51,271 +61,304 @@ class TestEmptyInput:
         assert _parse("\n\n\n") == []
 
     def test_only_spaces(self):
-        exprs = _parse("   ")
-        assert len(exprs) == 0 or all(len(e.tokens) == 0 for e in exprs)
+        assert _parse("   ") == []
+
+
+# ── Flat Expressions ────────────────────────────────────────────────
 
 
 class TestFlatExpressions:
     def test_single_line(self):
-        exprs = _parse("x := 1")
-        assert len(exprs) == 1
-        assert exprs[0].token_type == StageFiveTokenType.EXPRESSION
-        assert exprs[0].children == []
+        tokens = _parse("x := 1")
+        types = _types(tokens)
+        assert INDENT not in types
+        assert DEDENT not in types
+        assert types[-1] == NL
 
-    def test_single_line_with_newline(self):
-        exprs = _parse("x := 1\n")
-        assert len(exprs) == 1
-        assert exprs[0].children == []
+    def test_single_line_values(self):
+        tokens = _parse("x := 1")
+        assert _values(tokens) == ["x", ":=", "1"]
 
     def test_two_lines(self):
-        exprs = _parse("x := 1\ny := 2")
-        assert len(exprs) == 2
-        assert _token_values(exprs[0]) == "x := 1"
-        assert _token_values(exprs[1]) == "y := 2"
+        tokens = _parse("x := 1\ny := 2")
+        types = _types(tokens)
+        assert INDENT not in types
+        assert DEDENT not in types
+        assert types.count(NL) == 2
+
+    def test_two_lines_values(self):
+        tokens = _parse("x := 1\ny := 2")
+        assert _values(tokens) == ["x", ":=", "1", "y", ":=", "2"]
 
     def test_three_lines(self):
-        exprs = _parse("a := 1\nb := 2\nc := 3")
-        assert len(exprs) == 3
-        assert all(e.children == [] for e in exprs)
+        tokens = _parse("a := 1\nb := 2\nc := 3")
+        types = _types(tokens)
+        assert INDENT not in types
+        assert DEDENT not in types
+        assert types.count(NL) == 3
 
     def test_blank_lines_between(self):
-        exprs = _parse("a := 1\n\n\nb := 2")
-        assert len(exprs) == 2
-        assert _token_values(exprs[0]) == "a := 1"
-        assert _token_values(exprs[1]) == "b := 2"
+        tokens = _parse("a := 1\n\n\nb := 2")
+        assert _values(tokens) == ["a", ":=", "1", "b", ":=", "2"]
 
     def test_trailing_newlines(self):
-        exprs = _parse("x := 1\n\n\n")
-        assert len(exprs) == 1
+        tokens = _parse("x := 1\n\n\n")
+        assert _values(tokens) == ["x", ":=", "1"]
+
+
+# ── Single Level Nesting ───────────────────────────────────────────
 
 
 class TestSingleLevelNesting:
     def test_one_child(self):
-        exprs = _parse("parent\n  child")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 1
-        assert _token_values(exprs[0].children[0]) == "child"
+        tokens = _parse("parent\n  child")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, DEDENT]
 
     def test_two_children(self):
-        exprs = _parse("parent\n  child1\n  child2")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 2
-        assert _token_values(exprs[0].children[0]) == "child1"
-        assert _token_values(exprs[0].children[1]) == "child2"
-
-    def test_child_has_no_children(self):
-        exprs = _parse("parent\n  child")
-        assert exprs[0].children[0].children == []
+        tokens = _parse("parent\n  child1\n  child2")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, ID, NL, DEDENT]
 
     def test_parent_after_nested(self):
-        exprs = _parse("a\n  b\nc")
-        assert len(exprs) == 2
-        assert _token_values(exprs[0]) == "a"
-        assert len(exprs[0].children) == 1
-        assert _token_values(exprs[1]) == "c"
-        assert exprs[1].children == []
+        tokens = _parse("a\n  b\nc")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, DEDENT, ID, NL]
+
+
+# ── Multi Level Nesting ────────────────────────────────────────────
 
 
 class TestMultiLevelNesting:
     def test_two_levels(self):
-        exprs = _parse("a\n  b\n    c")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 1
-        assert len(exprs[0].children[0].children) == 1
-        assert _token_values(exprs[0].children[0].children[0]) == "c"
+        tokens = _parse("a\n  b\n    c")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, INDENT, ID, NL, DEDENT, DEDENT]
 
     def test_three_levels(self):
-        exprs = _parse("a\n  b\n    c\n      d")
-        assert len(exprs) == 1
-        child = exprs[0].children[0].children[0].children[0]
-        assert _token_values(child) == "d"
-        assert child.children == []
+        tokens = _parse("a\n  b\n    c\n      d")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, INDENT, ID, NL, INDENT, ID, NL, DEDENT, DEDENT, DEDENT]
 
     def test_deep_then_return_to_root(self):
-        exprs = _parse("a\n  b\n    c\nd")
-        assert len(exprs) == 2
-        assert _token_values(exprs[0]) == "a"
-        assert len(exprs[0].children) == 1
-        assert len(exprs[0].children[0].children) == 1
-        assert _token_values(exprs[1]) == "d"
-        assert exprs[1].children == []
+        tokens = _parse("a\n  b\n    c\nd")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, INDENT, ID, NL, DEDENT, DEDENT, ID, NL]
 
     def test_deep_then_return_to_middle(self):
-        exprs = _parse("a\n  b\n    c\n  d")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 2
-        assert _token_values(exprs[0].children[0]) == "b"
-        assert len(exprs[0].children[0].children) == 1
-        assert _token_values(exprs[0].children[1]) == "d"
-        assert exprs[0].children[1].children == []
+        tokens = _parse("a\n  b\n    c\n  d")
+        types = _types(tokens)
+        assert types == [ID, NL, INDENT, ID, NL, INDENT, ID, NL, DEDENT, ID, NL, DEDENT]
+
+
+# ── Sibling Blocks ─────────────────────────────────────────────────
 
 
 class TestSiblingBlocks:
     def test_two_parents_with_children(self):
-        exprs = _parse("a\n  a1\n  a2\nb\n  b1\n  b2")
-        assert len(exprs) == 2
-        assert len(exprs[0].children) == 2
-        assert len(exprs[1].children) == 2
-        assert _token_values(exprs[0].children[0]) == "a1"
-        assert _token_values(exprs[1].children[1]) == "b2"
+        tokens = _parse("a\n  a1\n  a2\nb\n  b1\n  b2")
+        types = _types(tokens)
+        assert types == [
+            ID,
+            NL,
+            INDENT,
+            ID,
+            NL,
+            ID,
+            NL,
+            DEDENT,
+            ID,
+            NL,
+            INDENT,
+            ID,
+            NL,
+            ID,
+            NL,
+            DEDENT,
+        ]
 
     def test_alternating_flat_and_nested(self):
-        exprs = _parse("a\nb\n  b1\nc\nd\n  d1")
-        assert len(exprs) == 4
-        assert exprs[0].children == []
-        assert len(exprs[1].children) == 1
-        assert exprs[2].children == []
-        assert len(exprs[3].children) == 1
+        tokens = _parse("a\nb\n  b1\nc\nd\n  d1")
+        types = _types(tokens)
+        assert types == [
+            ID,
+            NL,
+            ID,
+            NL,
+            INDENT,
+            ID,
+            NL,
+            DEDENT,
+            ID,
+            NL,
+            ID,
+            NL,
+            INDENT,
+            ID,
+            NL,
+            DEDENT,
+        ]
+
+
+# ── If/Else Pattern ────────────────────────────────────────────────
 
 
 class TestIfElsePattern:
     def test_if_with_body(self):
-        exprs = _parse("if x > 0\n  \"positive\"")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 1
+        tokens = _parse('if x > 0\n  "positive"')
+        types = _types(tokens)
+        assert INDENT in types
+        assert DEDENT in types
 
     def test_if_else_with_bodies(self):
-        exprs = _parse("if x > 0\n  \"positive\"\nelse\n  \"negative\"")
-        assert len(exprs) == 2
-        assert len(exprs[0].children) == 1
-        assert len(exprs[1].children) == 1
+        tokens = _parse('if x > 0\n  "positive"\nelse\n  "negative"')
+        types = _types(tokens)
+        # Two INDENT/DEDENT pairs — one for each block.
+        assert types.count(INDENT) == 2
+        assert types.count(DEDENT) == 2
 
-    def test_nested_if_else(self):
-        exprs = _parse("for i in items\n  if i > 5\n    \"big\"\n  else\n    \"small\"")
-        assert len(exprs) == 1
-        for_expr = exprs[0]
-        assert len(for_expr.children) == 2
-        assert len(for_expr.children[0].children) == 1
-        assert len(for_expr.children[1].children) == 1
+
+# ── Function Pattern ───────────────────────────────────────────────
 
 
 class TestFunctionPattern:
     def test_function_with_body(self):
-        exprs = _parse("add := (a, b) =>\n  result := a + b\n  result")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 2
+        tokens = _parse("add := (a, b) =>\n  result := a + b\n  result")
+        types = _types(tokens)
+        assert types.count(INDENT) == 1
+        assert types.count(DEDENT) == 1
 
     def test_function_then_flat(self):
-        exprs = _parse("f := (x) =>\n  x + 1\ny := f(5)")
-        assert len(exprs) == 2
-        assert len(exprs[0].children) == 1
-        assert exprs[1].children == []
+        tokens = _parse("f := (x) =>\n  x + 1\ny := f(5)")
+        types = _types(tokens)
+        assert types.count(INDENT) == 1
+        assert types.count(DEDENT) == 1
 
     def test_nested_function_calls(self):
-        exprs = _parse("outer := (n) =>\n  for i in range(n)\n    if i > 0\n      process(i)")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 1
-        assert len(exprs[0].children[0].children) == 1
-        assert len(exprs[0].children[0].children[0].children) == 1
+        tokens = _parse("outer := (n) =>\n  for i in range(n)\n    if i > 0\n      process(i)")
+        types = _types(tokens)
+        assert types.count(INDENT) == 3
+        assert types.count(DEDENT) == 3
+
+
+# ── Position Tracking ──────────────────────────────────────────────
 
 
 class TestPositionTracking:
-    def test_first_line_position(self):
-        exprs = _parse("x := 1")
-        assert exprs[0].position == Position(line=1, column=0)
+    def test_first_token_position(self):
+        tokens = _parse("x := 1")
+        assert tokens[0].position == Position(line=1, column=0)
 
     def test_second_line_position(self):
-        exprs = _parse("x := 1\ny := 2")
-        assert exprs[1].position == Position(line=2, column=0)
+        tokens = _parse("x := 1\ny := 2")
+        # Find first token of second line (after NL).
+        y_token = [t for t in tokens if t.value == "y"][0]
+        assert y_token.position == Position(line=2, column=0)
 
     def test_child_position(self):
-        exprs = _parse("parent\n  child")
-        assert exprs[0].children[0].position == Position(line=2, column=2)
+        tokens = _parse("parent\n  child")
+        child_token = [t for t in tokens if t.value == "child"][0]
+        assert child_token.position == Position(line=2, column=2)
 
-    def test_deep_child_position(self):
-        exprs = _parse("a\n  b\n    c")
-        assert exprs[0].children[0].children[0].position == Position(line=3, column=4)
+    def test_indent_position(self):
+        tokens = _parse("parent\n  child")
+        indent = [t for t in tokens if t.token_type == INDENT][0]
+        assert indent.position == Position(line=2, column=2)
+
+
+# ── Token Preservation ─────────────────────────────────────────────
 
 
 class TestTokenPreservation:
-    def test_tokens_preserved(self):
-        exprs = _parse("x := 1 + 2")
-        types = [t.token_type for t in exprs[0].tokens]
-        assert StageFourTokenType.IDENTIFIER in types
-        assert StageFourTokenType.WALRUS in types
-        assert StageFourTokenType.PLUS in types
-
     def test_keywords_preserved(self):
-        exprs = _parse("for x in items")
-        types = [t.token_type for t in exprs[0].tokens]
-        assert StageFourTokenType.FOR in types
-        assert StageFourTokenType.IN in types
+        tokens = _parse("for x in items")
+        types = _types(tokens)
+        assert StageFiveTokenType.FOR in types
+        assert StageFiveTokenType.IN in types
 
     def test_string_preserved(self):
-        exprs = _parse('"hello world"')
-        types = [t.token_type for t in exprs[0].tokens]
-        assert StageFourTokenType.STRING in types
+        tokens = _parse('"hello world"')
+        types = _types(tokens)
+        assert StageFiveTokenType.STRING in types
 
     def test_operators_preserved(self):
-        exprs = _parse("a == b && c != d")
-        types = [t.token_type for t in exprs[0].tokens]
-        assert StageFourTokenType.EQUALS in types
-        assert StageFourTokenType.LOGICAL_AND in types
-        assert StageFourTokenType.NOT_EQUALS in types
+        tokens = _parse("a == b && c != d")
+        types = _types(tokens)
+        assert StageFiveTokenType.EQUALS in types
+        assert StageFiveTokenType.LOGICAL_AND in types
+        assert StageFiveTokenType.NOT_EQUALS in types
+
+    def test_walrus_preserved(self):
+        tokens = _parse("x := 1")
+        types = _types(tokens)
+        assert StageFiveTokenType.WALRUS in types
+
+
+# ── Indent Variations ──────────────────────────────────────────────
 
 
 class TestIndentVariations:
     def test_two_space_indent(self):
-        exprs = _parse("a\n  b")
-        assert len(exprs[0].children) == 1
+        tokens = _parse("a\n  b")
+        assert _types(tokens).count(INDENT) == 1
 
     def test_four_space_indent(self):
-        exprs = _parse("a\n    b")
-        assert len(exprs[0].children) == 1
+        tokens = _parse("a\n    b")
+        assert _types(tokens).count(INDENT) == 1
 
     def test_mixed_indent_depths(self):
-        exprs = _parse("a\n  b\n      c")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 1
-        assert len(exprs[0].children[0].children) == 1
+        tokens = _parse("a\n  b\n      c")
+        assert _types(tokens).count(INDENT) == 2
+        assert _types(tokens).count(DEDENT) == 2
 
     def test_uneven_siblings(self):
-        exprs = _parse("a\n  b\n  c\n    d\n  e")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 3
-        assert exprs[0].children[0].children == []
-        assert len(exprs[0].children[1].children) == 1
-        assert exprs[0].children[2].children == []
+        tokens = _parse("a\n  b\n  c\n    d\n  e")
+        types = _types(tokens)
+        # a NL INDENT b NL c NL INDENT d NL DEDENT e NL DEDENT
+        assert types == [ID, NL, INDENT, ID, NL, ID, NL, INDENT, ID, NL, DEDENT, ID, NL, DEDENT]
+
+
+# ── Edge Cases ──────────────────────────────────────────────────────
 
 
 class TestEdgeCases:
-    def test_single_token_expression(self):
-        exprs = _parse("x")
-        assert len(exprs) == 1
-        assert len(exprs[0].tokens) == 1
+    def test_single_token(self):
+        tokens = _parse("x")
+        assert _types(tokens) == [ID, NL]
 
     def test_single_string(self):
-        exprs = _parse('"hello"')
-        assert len(exprs) == 1
+        tokens = _parse('"hello"')
+        types = _types(tokens)
+        assert StageFiveTokenType.STRING in types
 
     def test_many_flat_lines(self):
         lines = "\n".join(f"x{i} := {i}" for i in range(20))
-        exprs = _parse(lines)
-        assert len(exprs) == 20
-        assert all(e.children == [] for e in exprs)
+        tokens = _parse(lines)
+        types = _types(tokens)
+        assert INDENT not in types
+        assert DEDENT not in types
 
     def test_deeply_nested(self):
         text = "a\n  b\n    c\n      d\n        e\n          f"
-        exprs = _parse(text)
-        assert len(exprs) == 1
-        node = exprs[0]
-        for _ in range(5):
-            assert len(node.children) == 1
-            node = node.children[0]
-        assert node.children == []
+        tokens = _parse(text)
+        types = _types(tokens)
+        assert types.count(INDENT) == 5
+        assert types.count(DEDENT) == 5
 
     def test_blank_lines_in_nested_block(self):
-        exprs = _parse("a\n  b\n\n  c")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 2
+        tokens = _parse("a\n  b\n\n  c")
+        types = _types(tokens)
+        assert types.count(INDENT) == 1
+        assert types.count(DEDENT) == 1
+        assert _values(tokens) == ["a", "b", "c"]
 
-    def test_only_indented_lines(self):
-        exprs = _parse("  a\n  b")
-        assert len(exprs) == 2
+    def test_indent_dedent_balance(self):
+        tokens = _parse("a\n  b\n    c\n      d\ne\n  f")
+        types = _types(tokens)
+        assert types.count(INDENT) == types.count(DEDENT)
 
     def test_child_returns_to_exact_parent_indent(self):
-        exprs = _parse("a\n  b\n    c\n  d\n    e")
-        assert len(exprs) == 1
-        assert len(exprs[0].children) == 2
-        assert len(exprs[0].children[0].children) == 1
-        assert len(exprs[0].children[1].children) == 1
+        tokens = _parse("a\n  b\n    c\n  d\n    e")
+        types = _types(tokens)
+        # a NL INDENT b NL INDENT c NL DEDENT d NL INDENT e NL DEDENT DEDENT
+        assert types == [ID, NL, INDENT, ID, NL, INDENT, ID, NL, DEDENT, ID, NL, INDENT, ID, NL, DEDENT, DEDENT]
