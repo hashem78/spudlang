@@ -131,6 +131,43 @@ async def main() -> int:
     print(f"Diagnostic: {bad_diags[-1].diagnostics[0].message}")
     print("OK: diagnostics reported for invalid code")
 
+    # Diagnostic cases — verify specific error messages.
+    diag_cases: list[tuple[str, str]] = [
+        ('"hello', "unterminated string literal"),
+        ("'hello", "unterminated string literal"),
+        ("`hello", "unterminated raw string literal"),
+        ("foo(1, 2", "unterminated '('"),
+        ("(a + b", "unterminated '('"),
+        ("if true", "in if body"),
+        ("for in x", "in for loop variable"),
+    ]
+
+    for i, (code, expected_fragment) in enumerate(diag_cases):
+        diagnostics_received.clear()
+        test_uri: str = f"file:///diag_case_{i}.spud"
+        client.protocol.notify(
+            "textDocument/didOpen",
+            types.DidOpenTextDocumentParams(
+                text_document=types.TextDocumentItem(
+                    uri=test_uri,
+                    language_id="spud",
+                    version=1,
+                    text=code,
+                )
+            ),
+        )
+        await asyncio.sleep(0.5)
+
+        case_diags = [d for d in diagnostics_received if d.uri == test_uri]
+        if not case_diags or not case_diags[-1].diagnostics:
+            print(f"FAIL: no diagnostics for {code!r}")
+            return 1
+        actual_msg: str = case_diags[-1].diagnostics[0].message
+        if expected_fragment not in actual_msg:
+            print(f"FAIL: {code!r} -> {actual_msg!r}, expected to contain {expected_fragment!r}")
+            return 1
+        print(f"OK: {code!r} -> {actual_msg}")
+
     # Shutdown.
     await client.protocol.send_request_async("shutdown", None)
     client.protocol.notify("exit", None)
