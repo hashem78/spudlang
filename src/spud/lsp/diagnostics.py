@@ -2,7 +2,7 @@ from lsprotocol import types
 
 from spud.lsp.lsp_types import ParseResult
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind
+from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind
 
 _TOKEN_LABELS: dict[T, str] = {
     T.IDENTIFIER: "identifier",
@@ -59,6 +59,8 @@ _CONTEXT_LABELS: dict[ParseContextKind, str] = {
     ParseContextKind.FOR_BODY: "in for loop body",
     ParseContextKind.BLOCK: "in indented block",
     ParseContextKind.EXPRESSION: "in expression",
+    ParseContextKind.UNTERMINATED_STRING: "unterminated string literal",
+    ParseContextKind.UNTERMINATED_RAW_STRING: "unterminated raw string literal",
 }
 
 
@@ -66,8 +68,10 @@ def _token_label(token_type: T) -> str:
     return _TOKEN_LABELS.get(token_type, token_type.name.lower())
 
 
-def _context_label(kind: ParseContextKind) -> str:
-    return _CONTEXT_LABELS.get(kind, kind.value)
+def _context_label(context: ParseContext) -> str:
+    if context.kind == ParseContextKind.UNTERMINATED_DELIMITER and context.delimiter:
+        return f"unterminated {_token_label(context.delimiter)}"
+    return _CONTEXT_LABELS.get(context.kind, context.kind.value)
 
 
 class DiagnosticsHandler:
@@ -89,7 +93,7 @@ class DiagnosticsHandler:
                     message += f", expected {_token_label(result.expected)}"
 
         if result.context:
-            message += f" ({_context_label(result.context.kind)})"
+            message += f" ({_context_label(result.context)})"
 
         return [
             types.Diagnostic(

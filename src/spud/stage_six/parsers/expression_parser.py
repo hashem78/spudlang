@@ -7,7 +7,7 @@ from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.numeric_literal import NumericLiteral
-from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
+from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
@@ -186,10 +186,24 @@ class ExpressionParser:
 
             case T.STRING:
                 stream.consume()
+                is_double = tok.value.startswith('"')
+                is_single = tok.value.startswith("'")
+                if (is_double and not tok.value.endswith('"')) or (is_single and not tok.value.endswith("'")):
+                    return ParseError(
+                        kind=ParseErrorKind.UNEXPECTED_END,
+                        position=tok.position,
+                        context=ctx(ParseContextKind.UNTERMINATED_STRING),
+                    )
                 return StringLiteral(position=tok.position, end=tok.position, value=tok.value)
 
             case T.RAW_STRING:
                 stream.consume()
+                if not tok.value.endswith("`"):
+                    return ParseError(
+                        kind=ParseErrorKind.UNEXPECTED_END,
+                        position=tok.position,
+                        context=ctx(ParseContextKind.UNTERMINATED_RAW_STRING),
+                    )
                 return RawStringLiteral(position=tok.position, end=tok.position, value=tok.value)
 
             case T.TRUE:
@@ -202,10 +216,11 @@ class ExpressionParser:
 
             case T.PAREN_LEFT:
                 stream.consume()
+                paren_ctx = ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.PAREN_LEFT)
                 expr = self.parse(stream)
                 if isinstance(expr, ParseError):
-                    return expr
-                rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.EXPRESSION))
+                    return with_context(expr, paren_ctx)
+                rparen = stream.expect(T.PAREN_RIGHT, context=paren_ctx)
                 if isinstance(rparen, ParseError):
                     return rparen
                 return expr.model_copy(update={"end": rparen.position})
@@ -246,7 +261,8 @@ class ExpressionParser:
                 if isinstance(arg, ParseError):
                     return with_context(arg, ctx(ParseContextKind.FUNCTION_ARGS))
                 args.append(arg)
-        rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.FUNCTION_ARGS))
+        paren_ctx = ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.PAREN_LEFT)
+        rparen = stream.expect(T.PAREN_RIGHT, context=paren_ctx)
         if isinstance(rparen, ParseError):
             return rparen
         callee = Identifier(position=callee_tok.position, end=callee_tok.position, name=callee_tok.value)

@@ -27,10 +27,14 @@ class ParseContextKind(str, Enum):
     FOR_BODY = "for_body"
     BLOCK = "block"
     EXPRESSION = "expression"
+    UNTERMINATED_STRING = "unterminated_string"
+    UNTERMINATED_RAW_STRING = "unterminated_raw_string"
+    UNTERMINATED_DELIMITER = "unterminated_delimiter"
 
 
 class ParseContext(BaseModel, frozen=True):
     kind: ParseContextKind
+    delimiter: StageFiveTokenType | None = None
 
 
 class ParseError(BaseModel, frozen=True):
