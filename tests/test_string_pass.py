@@ -170,7 +170,7 @@ class TestMixedContent:
     def test_string_position(self):
         tokens = _parse('"hi"')
         assert isinstance(tokens[0], StringLiteralStageTwoToken)
-        assert tokens[0].position.line == 1
+        assert tokens[0].position.line == 0
         assert tokens[0].position.column == 0
 
 
@@ -217,7 +217,7 @@ class TestRawStrings:
 
     def test_raw_string_position(self):
         tokens = _parse("`hi`")
-        assert tokens[0].position.line == 1
+        assert tokens[0].position.line == 0
         assert tokens[0].position.column == 0
 
     def test_raw_string_between_identifiers(self):

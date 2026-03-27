@@ -11,7 +11,7 @@ class StageOne:
         self._handle = handle
 
     def parse(self) -> Generator[StageOneToken, None, None]:
-        line = 1
+        line = 0
         column = 0
 
         for raw_token in self._handle.read():

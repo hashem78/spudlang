@@ -247,23 +247,23 @@ class TestFunctionPattern:
 class TestPositionTracking:
     def test_first_token_position(self):
         tokens = _parse("x := 1")
-        assert tokens[0].position == Position(line=1, column=0)
+        assert tokens[0].position == Position(line=0, column=0)
 
     def test_second_line_position(self):
         tokens = _parse("x := 1\ny := 2")
         # Find first token of second line (after NL).
         y_token = [t for t in tokens if t.value == "y"][0]
-        assert y_token.position == Position(line=2, column=0)
+        assert y_token.position == Position(line=1, column=0)
 
     def test_child_position(self):
         tokens = _parse("parent\n  child")
         child_token = [t for t in tokens if t.value == "child"][0]
-        assert child_token.position == Position(line=2, column=2)
+        assert child_token.position == Position(line=1, column=2)
 
     def test_indent_position(self):
         tokens = _parse("parent\n  child")
         indent = [t for t in tokens if t.token_type == INDENT][0]
-        assert indent.position == Position(line=2, column=2)
+        assert indent.position == Position(line=1, column=2)
 
 
 # ── Token Preservation ─────────────────────────────────────────────

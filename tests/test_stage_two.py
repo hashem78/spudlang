@@ -273,24 +273,24 @@ class TestMultipleKeywordsInSequence:
 class TestPositionTracking:
     def test_keyword_position(self):
         tokens = _parse("for")
-        assert tokens[0].position == Position(line=1, column=0)
+        assert tokens[0].position == Position(line=0, column=0)
 
     def test_keyword_after_space(self):
         tokens = _parse(" for")
         for_token = next(t for t in tokens if t.token_type == StageTwoTokenType.FOR)
-        assert for_token.position == Position(line=1, column=1)
+        assert for_token.position == Position(line=0, column=1)
 
     def test_passthrough_positions(self):
         tokens = _parse("ab")
-        assert tokens[0].position == Position(line=1, column=0)
-        assert tokens[1].position == Position(line=1, column=1)
+        assert tokens[0].position == Position(line=0, column=0)
+        assert tokens[1].position == Position(line=0, column=1)
 
     def test_rejected_keyword_preserves_char_positions(self):
         tokens = _parse("forl")
-        assert tokens[0].position == Position(line=1, column=0)
-        assert tokens[1].position == Position(line=1, column=1)
-        assert tokens[2].position == Position(line=1, column=2)
-        assert tokens[3].position == Position(line=1, column=3)
+        assert tokens[0].position == Position(line=0, column=0)
+        assert tokens[1].position == Position(line=0, column=1)
+        assert tokens[2].position == Position(line=0, column=2)
+        assert tokens[3].position == Position(line=0, column=3)
 
 
 class TestEmptyInput:
@@ -350,12 +350,12 @@ class TestStringLiterals:
 
     def test_string_position(self):
         tokens = _parse('"hi"')
-        assert tokens[0].position == Position(line=1, column=0)
+        assert tokens[0].position == Position(line=0, column=0)
 
     def test_string_after_space(self):
         tokens = _parse(' "hi"')
         string_token = next(t for t in tokens if t.token_type == StageTwoTokenType.STRING)
-        assert string_token.position == Position(line=1, column=1)
+        assert string_token.position == Position(line=0, column=1)
 
     def test_empty_string(self):
         tokens = _parse('""')
