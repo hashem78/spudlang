@@ -47,3 +47,4 @@ class StageFourTokenType(str, Enum):
     ARROW = "->"
     FAT_ARROW = "=>"
     PATH_SEPARATOR = "::"
+    UNKNOWN = "UNKNOWN"

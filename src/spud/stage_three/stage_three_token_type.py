@@ -40,3 +40,4 @@ class StageThreeTokenType(str, Enum):
     MATCH = "match"
     STRING = "STRING"
     RAW_STRING = "RAW_STRING"
+    UNKNOWN = "UNKNOWN"

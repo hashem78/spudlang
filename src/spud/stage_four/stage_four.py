@@ -87,8 +87,12 @@ class StageFour:
 
     @staticmethod
     def _pass_through(token: StageThreeToken) -> StageFourToken:
+        try:
+            token_type = StageFourTokenType[token.token_type.name]
+        except KeyError:
+            token_type = StageFourTokenType.UNKNOWN
         return StageFourToken(
-            token_type=StageFourTokenType[token.token_type.name],
+            token_type=token_type,
             position=token.position,
             value=token.value,
         )

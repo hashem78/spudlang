@@ -16,8 +16,12 @@ class StageOne:
 
         for raw_token in self._handle.read():
             position = Position(line=line, column=column)
+            try:
+                token_type = StageOneTokenType(raw_token)
+            except ValueError:
+                token_type = StageOneTokenType.UNKNOWN
             yield StageOneToken(
-                token_type=StageOneTokenType(raw_token),
+                token_type=token_type,
                 position=position,
             )
 

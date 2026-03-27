@@ -93,3 +93,4 @@ class StageOneTokenType(str, Enum):
     BACKTICK = "`"
     DOUBLE_QUOTES = '"'
     SINGLE_QUOTES = "'"
+    UNKNOWN = "UNKNOWN"
