@@ -2,7 +2,7 @@ from lsprotocol import types
 
 from spud.lsp.lsp_types import ParseResult
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.parse_error import ParseError, ParseErrorKind
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind
 
 _TOKEN_LABELS: dict[T, str] = {
     T.IDENTIFIER: "identifier",
@@ -43,9 +43,31 @@ _TOKEN_LABELS: dict[T, str] = {
     T.DEDENT: "end of block",
 }
 
+_CONTEXT_LABELS: dict[ParseContextKind, str] = {
+    ParseContextKind.BINDING_TARGET: "in binding target",
+    ParseContextKind.BINDING_VALUE: "in binding value",
+    ParseContextKind.FUNCTION_PARAMS: "in function parameter list",
+    ParseContextKind.FUNCTION_BODY: "in function body",
+    ParseContextKind.FUNCTION_ARGS: "in function arguments",
+    ParseContextKind.IF_CONDITION: "in if condition",
+    ParseContextKind.ELIF_CONDITION: "in elif condition",
+    ParseContextKind.IF_BODY: "in if body",
+    ParseContextKind.ELIF_BODY: "in elif body",
+    ParseContextKind.ELSE_BODY: "in else body",
+    ParseContextKind.FOR_VARIABLE: "in for loop variable",
+    ParseContextKind.FOR_ITERABLE: "in for loop iterable",
+    ParseContextKind.FOR_BODY: "in for loop body",
+    ParseContextKind.BLOCK: "in indented block",
+    ParseContextKind.EXPRESSION: "in expression",
+}
+
 
 def _token_label(token_type: T) -> str:
     return _TOKEN_LABELS.get(token_type, token_type.name.lower())
+
+
+def _context_label(kind: ParseContextKind) -> str:
+    return _CONTEXT_LABELS.get(kind, kind.value)
 
 
 class DiagnosticsHandler:
@@ -65,6 +87,9 @@ class DiagnosticsHandler:
                 message = f"unexpected {got_label}"
                 if result.expected:
                     message += f", expected {_token_label(result.expected)}"
+
+        if result.context:
+            message += f" ({_context_label(result.context.kind)})"
 
         return [
             types.Diagnostic(

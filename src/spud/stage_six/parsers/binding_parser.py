@@ -3,7 +3,7 @@ from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binding import Binding
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
-from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -38,10 +38,10 @@ class BindingParser:
 
     def parse(self, stream: TokenStream) -> Binding | ParseError:
         """Consume ``IDENTIFIER :=`` and parse the bound value."""
-        target_tok = stream.expect(T.IDENTIFIER)
+        target_tok = stream.expect(T.IDENTIFIER, context=ctx(ParseContextKind.BINDING_TARGET))
         if isinstance(target_tok, ParseError):
             return target_tok
-        walrus = stream.expect(T.WALRUS)
+        walrus = stream.expect(T.WALRUS, context=ctx(ParseContextKind.BINDING_TARGET))
         if isinstance(walrus, ParseError):
             return walrus
         target = Identifier(position=target_tok.position, end=target_tok.position, name=target_tok.value)
@@ -56,7 +56,7 @@ class BindingParser:
             value = self._expression_parser.parse(stream)
 
         if isinstance(value, ParseError):
-            return value
+            return with_context(value, ctx(ParseContextKind.BINDING_VALUE))
         return Binding(position=target_tok.position, end=value.end, target=target, value=value)
 
     def _is_function_def(self, stream: TokenStream) -> bool:

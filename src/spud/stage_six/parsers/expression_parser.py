@@ -7,7 +7,7 @@ from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.numeric_literal import NumericLiteral
-from spud.stage_six.parse_error import ParseError, ParseErrorKind
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
@@ -172,6 +172,7 @@ class ExpressionParser:
             return ParseError(
                 kind=ParseErrorKind.UNEXPECTED_END,
                 position=Position(line=0, column=0),
+                context=ctx(ParseContextKind.EXPRESSION),
             )
 
         match tok.token_type:
@@ -204,7 +205,7 @@ class ExpressionParser:
                 expr = self.parse(stream)
                 if isinstance(expr, ParseError):
                     return expr
-                rparen = stream.expect(T.PAREN_RIGHT)
+                rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.EXPRESSION))
                 if isinstance(rparen, ParseError):
                     return rparen
                 return expr.model_copy(update={"end": rparen.position})
@@ -214,6 +215,7 @@ class ExpressionParser:
                     kind=ParseErrorKind.UNEXPECTED_TOKEN,
                     position=tok.position,
                     got=tok.token_type,
+                    context=ctx(ParseContextKind.EXPRESSION),
                 )
 
     def _parse_function_call(self, stream: TokenStream, callee_tok: StageFiveToken) -> FunctionCall | ParseError:
@@ -231,20 +233,20 @@ class ExpressionParser:
         so ``foo(a + b, c * d)`` correctly nests the binary ops
         inside the argument list.
         """
-        stream.expect(T.PAREN_LEFT)
+        stream.expect(T.PAREN_LEFT, context=ctx(ParseContextKind.FUNCTION_ARGS))
         args: list[ASTNode] = []
         if stream.peek_type() != T.PAREN_RIGHT:
             first = self.parse(stream)
             if isinstance(first, ParseError):
-                return first
+                return with_context(first, ctx(ParseContextKind.FUNCTION_ARGS))
             args.append(first)
             while stream.peek_type() == T.COMMA:
                 stream.consume()
                 arg = self.parse(stream)
                 if isinstance(arg, ParseError):
-                    return arg
+                    return with_context(arg, ctx(ParseContextKind.FUNCTION_ARGS))
                 args.append(arg)
-        rparen = stream.expect(T.PAREN_RIGHT)
+        rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.FUNCTION_ARGS))
         if isinstance(rparen, ParseError):
             return rparen
         callee = Identifier(position=callee_tok.position, end=callee_tok.position, name=callee_tok.value)

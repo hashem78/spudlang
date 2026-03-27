@@ -2,7 +2,7 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.identifier import Identifier
-from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -34,26 +34,26 @@ class ForLoopParser:
 
     def parse(self, stream: TokenStream) -> ForLoop | ParseError:
         """Consume ``for IDENTIFIER in expression NEWLINE`` and parse the body."""
-        for_tok = stream.expect(T.FOR)
+        for_tok = stream.expect(T.FOR, context=ctx(ParseContextKind.FOR_VARIABLE))
         if isinstance(for_tok, ParseError):
             return for_tok
-        var_tok = stream.expect(T.IDENTIFIER)
+        var_tok = stream.expect(T.IDENTIFIER, context=ctx(ParseContextKind.FOR_VARIABLE))
         if isinstance(var_tok, ParseError):
             return var_tok
-        in_tok = stream.expect(T.IN)
+        in_tok = stream.expect(T.IN, context=ctx(ParseContextKind.FOR_VARIABLE))
         if isinstance(in_tok, ParseError):
             return in_tok
 
         iterable = self._expression_parser.parse(stream)
         if isinstance(iterable, ParseError):
-            return iterable
+            return with_context(iterable, ctx(ParseContextKind.FOR_ITERABLE))
 
-        nl = stream.expect(T.NEW_LINE)
+        nl = stream.expect(T.NEW_LINE, context=ctx(ParseContextKind.FOR_BODY))
         if isinstance(nl, ParseError):
             return nl
         body = self._block_parser.parse(stream)
         if isinstance(body, ParseError):
-            return body
+            return with_context(body, ctx(ParseContextKind.FOR_BODY))
 
         return ForLoop(
             position=for_tok.position,

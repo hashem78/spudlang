@@ -2,7 +2,7 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
-from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -42,24 +42,24 @@ class FunctionDefParser:
 
     def parse(self, stream: TokenStream) -> FunctionDef | ParseError:
         """Consume ``( params ) => NEWLINE`` and parse the body block."""
-        paren_tok = stream.expect(T.PAREN_LEFT)
+        paren_tok = stream.expect(T.PAREN_LEFT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
         if isinstance(paren_tok, ParseError):
             return paren_tok
         params = self._parse_param_list(stream)
         if isinstance(params, ParseError):
             return params
-        rparen = stream.expect(T.PAREN_RIGHT)
+        rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
         if isinstance(rparen, ParseError):
             return rparen
-        arrow = stream.expect(T.FAT_ARROW)
+        arrow = stream.expect(T.FAT_ARROW, context=ctx(ParseContextKind.FUNCTION_BODY))
         if isinstance(arrow, ParseError):
             return arrow
-        nl = stream.expect(T.NEW_LINE)
+        nl = stream.expect(T.NEW_LINE, context=ctx(ParseContextKind.FUNCTION_BODY))
         if isinstance(nl, ParseError):
             return nl
         body = self._block_parser.parse(stream)
         if isinstance(body, ParseError):
-            return body
+            return with_context(body, ctx(ParseContextKind.FUNCTION_BODY))
         end = body[-1].end if body else arrow.position
         return FunctionDef(position=paren_tok.position, end=end, params=params, body=body)
 
@@ -73,13 +73,13 @@ class FunctionDefParser:
         params: list[Identifier] = []
         if stream.peek_type() == T.PAREN_RIGHT:
             return params
-        first = stream.expect(T.IDENTIFIER)
+        first = stream.expect(T.IDENTIFIER, context=ctx(ParseContextKind.FUNCTION_PARAMS))
         if isinstance(first, ParseError):
             return first
         params.append(Identifier(position=first.position, end=first.position, name=first.value))
         while stream.peek_type() == T.COMMA:
             stream.consume()
-            param = stream.expect(T.IDENTIFIER)
+            param = stream.expect(T.IDENTIFIER, context=ctx(ParseContextKind.FUNCTION_PARAMS))
             if isinstance(param, ParseError):
                 return param
             params.append(Identifier(position=param.position, end=param.position, name=param.value))

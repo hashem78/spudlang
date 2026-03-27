@@ -2,7 +2,7 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.condition_branch import ConditionBranch
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -55,13 +55,13 @@ class IfElseParser:
         # First branch: ``if condition NEWLINE block``.
         condition = self._expression_parser.parse(stream)
         if isinstance(condition, ParseError):
-            return condition
-        nl = stream.expect(T.NEW_LINE)
+            return with_context(condition, ctx(ParseContextKind.IF_CONDITION))
+        nl = stream.expect(T.NEW_LINE, context=ctx(ParseContextKind.IF_CONDITION))
         if isinstance(nl, ParseError):
             return nl
         body = self._block_parser.parse(stream)
         if isinstance(body, ParseError):
-            return body
+            return with_context(body, ctx(ParseContextKind.IF_BODY))
         branch_end = body[-1].end if body else condition.end
         branches.append(ConditionBranch(position=if_tok.position, end=branch_end, condition=condition, body=body))
 
@@ -72,13 +72,13 @@ class IfElseParser:
                 return elif_tok
             condition = self._expression_parser.parse(stream)
             if isinstance(condition, ParseError):
-                return condition
-            nl = stream.expect(T.NEW_LINE)
+                return with_context(condition, ctx(ParseContextKind.ELIF_CONDITION))
+            nl = stream.expect(T.NEW_LINE, context=ctx(ParseContextKind.ELIF_CONDITION))
             if isinstance(nl, ParseError):
                 return nl
             body = self._block_parser.parse(stream)
             if isinstance(body, ParseError):
-                return body
+                return with_context(body, ctx(ParseContextKind.ELIF_BODY))
             branch_end = body[-1].end if body else condition.end
             branches.append(ConditionBranch(position=elif_tok.position, end=branch_end, condition=condition, body=body))
 
@@ -88,12 +88,12 @@ class IfElseParser:
             else_tok = stream.expect(T.ELSE)
             if isinstance(else_tok, ParseError):
                 return else_tok
-            nl = stream.expect(T.NEW_LINE)
+            nl = stream.expect(T.NEW_LINE, context=ctx(ParseContextKind.ELSE_BODY))
             if isinstance(nl, ParseError):
                 return nl
             else_body_result = self._block_parser.parse(stream)
             if isinstance(else_body_result, ParseError):
-                return else_body_result
+                return with_context(else_body_result, ctx(ParseContextKind.ELSE_BODY))
             else_body = else_body_result
 
         if else_body:
