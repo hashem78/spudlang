@@ -60,7 +60,8 @@ class FunctionDefParser:
         body = self._block_parser.parse(stream)
         if isinstance(body, ParseError):
             return body
-        return FunctionDef(position=paren_tok.position, params=params, body=body)
+        end = body[-1].end if body else arrow.position
+        return FunctionDef(position=paren_tok.position, end=end, params=params, body=body)
 
     def _parse_param_list(self, stream: TokenStream) -> list[Identifier] | ParseError:
         """Parse a comma-separated list of parameter identifiers.
@@ -75,11 +76,11 @@ class FunctionDefParser:
         first = stream.expect(T.IDENTIFIER)
         if isinstance(first, ParseError):
             return first
-        params.append(Identifier(position=first.position, name=first.value))
+        params.append(Identifier(position=first.position, end=first.position, name=first.value))
         while stream.peek_type() == T.COMMA:
             stream.consume()
             param = stream.expect(T.IDENTIFIER)
             if isinstance(param, ParseError):
                 return param
-            params.append(Identifier(position=param.position, name=param.value))
+            params.append(Identifier(position=param.position, end=param.position, name=param.value))
         return params

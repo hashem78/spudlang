@@ -57,7 +57,8 @@ class ForLoopParser:
 
         return ForLoop(
             position=for_tok.position,
-            variable=Identifier(position=var_tok.position, name=var_tok.value),
+            end=body[-1].end if body else iterable.end,
+            variable=Identifier(position=var_tok.position, end=var_tok.position, name=var_tok.value),
             iterable=iterable,
             body=body,
         )

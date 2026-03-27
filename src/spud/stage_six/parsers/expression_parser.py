@@ -112,7 +112,7 @@ class ExpressionParser:
             right = self._parse_binary(stream, level + 1)
             if isinstance(right, ParseError):
                 return right
-            left = BinaryOp(position=left.position, left=left, operator=op_tok.value, right=right)
+            left = BinaryOp(position=left.position, end=right.end, left=left, operator=op_tok.value, right=right)
             count += 1
         return left
 
@@ -134,8 +134,8 @@ class ExpressionParser:
             operand = self._parse_unary(stream)
             if isinstance(operand, ParseError):
                 return operand
-            zero = NumericLiteral(position=op_tok.position, value=0)
-            return BinaryOp(position=op_tok.position, left=zero, operator="-", right=operand)
+            zero = NumericLiteral(position=op_tok.position, end=op_tok.position, value=0)
+            return BinaryOp(position=op_tok.position, end=operand.end, left=zero, operator="-", right=operand)
         return self._parse_primary(stream)
 
     def _parse_primary(self, stream: TokenStream) -> ASTNode | ParseError:
@@ -178,26 +178,26 @@ class ExpressionParser:
             case T.IDENTIFIER:
                 stream.consume()
                 if tok.value.isdigit():
-                    return NumericLiteral(position=tok.position, value=int(tok.value))
+                    return NumericLiteral(position=tok.position, end=tok.position, value=int(tok.value))
                 if stream.peek_type() == T.PAREN_LEFT:
                     return self._parse_function_call(stream, tok)
-                return Identifier(position=tok.position, name=tok.value)
+                return Identifier(position=tok.position, end=tok.position, name=tok.value)
 
             case T.STRING:
                 stream.consume()
-                return StringLiteral(position=tok.position, value=tok.value)
+                return StringLiteral(position=tok.position, end=tok.position, value=tok.value)
 
             case T.RAW_STRING:
                 stream.consume()
-                return RawStringLiteral(position=tok.position, value=tok.value)
+                return RawStringLiteral(position=tok.position, end=tok.position, value=tok.value)
 
             case T.TRUE:
                 stream.consume()
-                return BooleanLiteral(position=tok.position, value=True)
+                return BooleanLiteral(position=tok.position, end=tok.position, value=True)
 
             case T.FALSE:
                 stream.consume()
-                return BooleanLiteral(position=tok.position, value=False)
+                return BooleanLiteral(position=tok.position, end=tok.position, value=False)
 
             case T.PAREN_LEFT:
                 stream.consume()
@@ -207,7 +207,7 @@ class ExpressionParser:
                 rparen = stream.expect(T.PAREN_RIGHT)
                 if isinstance(rparen, ParseError):
                     return rparen
-                return expr
+                return expr.model_copy(update={"end": rparen.position})
 
             case _:
                 return ParseError(
@@ -247,5 +247,5 @@ class ExpressionParser:
         rparen = stream.expect(T.PAREN_RIGHT)
         if isinstance(rparen, ParseError):
             return rparen
-        callee = Identifier(position=callee_tok.position, name=callee_tok.value)
-        return FunctionCall(position=callee_tok.position, callee=callee, args=args)
+        callee = Identifier(position=callee_tok.position, end=callee_tok.position, name=callee_tok.value)
+        return FunctionCall(position=callee_tok.position, end=rparen.position, callee=callee, args=args)

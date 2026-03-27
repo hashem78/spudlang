@@ -44,7 +44,7 @@ class BindingParser:
         walrus = stream.expect(T.WALRUS)
         if isinstance(walrus, ParseError):
             return walrus
-        target = Identifier(position=target_tok.position, name=target_tok.value)
+        target = Identifier(position=target_tok.position, end=target_tok.position, name=target_tok.value)
 
         # Decide whether the value is a function definition or a
         # general expression. A function def starts with ``(`` and
@@ -57,7 +57,7 @@ class BindingParser:
 
         if isinstance(value, ParseError):
             return value
-        return Binding(position=target_tok.position, target=target, value=value)
+        return Binding(position=target_tok.position, end=value.end, target=target, value=value)
 
     def _is_function_def(self, stream: TokenStream) -> bool:
         """Scan ahead to check if tokens form a ``(params) =>`` pattern.

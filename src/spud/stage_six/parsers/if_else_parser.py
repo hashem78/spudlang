@@ -62,7 +62,8 @@ class IfElseParser:
         body = self._block_parser.parse(stream)
         if isinstance(body, ParseError):
             return body
-        branches.append(ConditionBranch(position=if_tok.position, condition=condition, body=body))
+        branch_end = body[-1].end if body else condition.end
+        branches.append(ConditionBranch(position=if_tok.position, end=branch_end, condition=condition, body=body))
 
         # Elif branches: zero or more ``elif condition NEWLINE block``.
         while stream.peek_type() == T.ELIF:
@@ -78,7 +79,8 @@ class IfElseParser:
             body = self._block_parser.parse(stream)
             if isinstance(body, ParseError):
                 return body
-            branches.append(ConditionBranch(position=elif_tok.position, condition=condition, body=body))
+            branch_end = body[-1].end if body else condition.end
+            branches.append(ConditionBranch(position=elif_tok.position, end=branch_end, condition=condition, body=body))
 
         # Else branch: optional ``else NEWLINE block``.
         else_body = None
@@ -94,4 +96,8 @@ class IfElseParser:
                 return else_body_result
             else_body = else_body_result
 
-        return IfElse(position=if_tok.position, branches=branches, else_body=else_body)
+        if else_body:
+            end = else_body[-1].end
+        else:
+            end = branches[-1].end
+        return IfElse(position=if_tok.position, end=end, branches=branches, else_body=else_body)

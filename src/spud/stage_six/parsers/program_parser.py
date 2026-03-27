@@ -37,7 +37,8 @@ class ProgramParser:
                 return stmt
             body.append(stmt)
             self._skip_newlines(stream)
-        return Program(position=Position(line=0, column=0), body=body)
+        end = body[-1].end if body else Position(line=0, column=0)
+        return Program(position=Position(line=0, column=0), end=end, body=body)
 
     def _skip_newlines(self, stream: TokenStream) -> None:
         while stream.peek_type() == T.NEW_LINE:
