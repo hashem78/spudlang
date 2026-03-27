@@ -59,6 +59,8 @@ _CONTEXT_LABELS: dict[ParseContextKind, str] = {
     ParseContextKind.FOR_BODY: "in for loop body",
     ParseContextKind.BLOCK: "in indented block",
     ParseContextKind.EXPRESSION: "in expression",
+    ParseContextKind.ORPHANED_ELSE: "'else' without matching 'if'",
+    ParseContextKind.ORPHANED_ELIF: "'elif' without matching 'if'",
     ParseContextKind.UNTERMINATED_STRING: "unterminated string literal",
     ParseContextKind.UNTERMINATED_RAW_STRING: "unterminated raw string literal",
 }

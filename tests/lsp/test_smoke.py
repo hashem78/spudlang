@@ -140,6 +140,8 @@ async def main() -> int:
         ("(a + b", "unterminated '('"),
         ("if true", "in if body"),
         ("for in x", "in for loop variable"),
+        ("else\n  x", "'else' without matching 'if'"),
+        ("elif true\n  x", "'elif' without matching 'if'"),
     ]
 
     for i, (code, expected_fragment) in enumerate(diag_cases):

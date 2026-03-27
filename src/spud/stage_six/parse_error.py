@@ -27,6 +27,8 @@ class ParseContextKind(str, Enum):
     FOR_BODY = "for_body"
     BLOCK = "block"
     EXPRESSION = "expression"
+    ORPHANED_ELSE = "orphaned_else"
+    ORPHANED_ELIF = "orphaned_elif"
     UNTERMINATED_STRING = "unterminated_string"
     UNTERMINATED_RAW_STRING = "unterminated_raw_string"
     UNTERMINATED_DELIMITER = "unterminated_delimiter"

@@ -3,7 +3,7 @@ from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binding import Binding
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind, ctx
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -50,6 +50,22 @@ class StatementParser:
                 return self._for_loop_parser.parse(stream)
             case T.IDENTIFIER if self._peek_type_at(stream, 1) == T.WALRUS:
                 return self._binding_parser.parse(stream)
+            case T.ELSE:
+                tok = stream.peek()
+                return ParseError(
+                    kind=ParseErrorKind.UNEXPECTED_TOKEN,
+                    position=tok.position,
+                    got=T.ELSE,
+                    context=ctx(ParseContextKind.ORPHANED_ELSE),
+                )
+            case T.ELIF:
+                tok = stream.peek()
+                return ParseError(
+                    kind=ParseErrorKind.UNEXPECTED_TOKEN,
+                    position=tok.position,
+                    got=T.ELIF,
+                    context=ctx(ParseContextKind.ORPHANED_ELIF),
+                )
             case _:
                 return self._expression_parser.parse(stream)
 
