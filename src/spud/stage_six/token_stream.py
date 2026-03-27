@@ -61,13 +61,27 @@ class TokenStream:
     def skip_to_recovery(self) -> None:
         """Skip tokens until a statement boundary for error recovery.
 
-        Consumes tokens until it finds a NEW_LINE at the current
-        nesting depth, then consumes it so the next token starts a
-        new statement. Skips over entire indented blocks (matching
-        INDENT/DEDENT pairs) to avoid getting stuck on orphaned
-        block structures. Stops without consuming at DEDENT (end
-        of enclosing block) or EOF.
+        Consumes tokens until it finds a NEW_LINE (consumes it),
+        then if an indented block follows (INDENT), skips the
+        entire block (matching INDENT/DEDENT) before returning.
+        Stops without consuming at DEDENT (end of enclosing
+        block) or EOF.
         """
+        while not self.at_end():
+            match self.peek_type():
+                case T.NEW_LINE:
+                    self.consume()
+                    self._skip_trailing_block()
+                    return
+                case T.DEDENT:
+                    return
+                case _:
+                    self.consume()
+
+    def _skip_trailing_block(self) -> None:
+        """If the current token is INDENT, skip the entire block."""
+        if self.peek_type() != T.INDENT:
+            return
         depth: int = 0
         while not self.at_end():
             match self.peek_type():
@@ -75,17 +89,9 @@ class TokenStream:
                     depth += 1
                     self.consume()
                 case T.DEDENT:
-                    if depth > 0:
-                        depth -= 1
-                        self.consume()
-                    else:
-                        return
-                case T.NEW_LINE if depth == 0:
+                    depth -= 1
                     self.consume()
-                    # If an indented block follows, skip it too —
-                    # it belongs to the errored statement.
-                    if self.peek_type() == T.INDENT:
-                        continue
-                    return
+                    if depth == 0:
+                        return
                 case _:
                     self.consume()
