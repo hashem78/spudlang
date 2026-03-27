@@ -41,7 +41,7 @@ class SpudLanguageServer(LanguageServer):
         @self.feature(types.TEXT_DOCUMENT_DID_CHANGE)
         def did_change(params: types.DidChangeTextDocumentParams) -> None:
             uri: str = params.text_document.uri
-            doc: types.TextDocumentItem = self.workspace.get_text_document(uri)
+            doc = self.workspace.get_text_document(uri)
             result: ParseResult = self._parse(doc.source)
             if isinstance(result, Program):
                 self._last_program[uri] = result
