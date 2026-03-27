@@ -1,17 +1,20 @@
 from structlog import BoundLogger
 
 from spud.stage_five.stage_five import StageFive
-from spud.stage_six.parser import TokenStream
+from spud.stage_six.parse_error import ParseError
+from spud.stage_six.parsers.program_parser import ProgramParser
 from spud.stage_six.program import Program
+from spud.stage_six.token_stream import TokenStream
 
 
 class StageSix:
-    def __init__(self, stage_five: StageFive, logger: BoundLogger):
+    def __init__(self, stage_five: StageFive, program_parser: ProgramParser, logger: BoundLogger):
         self._stage_five = stage_five
+        self._program_parser = program_parser
         self._logger = logger
 
-    def parse(self) -> Program:
+    def parse(self) -> Program | ParseError:
         """Parse stage five tokens into an AST."""
         tokens = list(self._stage_five.parse())
-        _stream = TokenStream(tokens)
-        return Program(body=[])
+        stream = TokenStream(tokens)
+        return self._program_parser.parse(stream)

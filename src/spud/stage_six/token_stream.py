@@ -1,22 +1,7 @@
-from enum import Enum
-
-from pydantic import BaseModel
-
 from spud.core.position import Position
 from spud.stage_five.stage_five_token import StageFiveToken
-from spud.stage_five.stage_five_token_type import StageFiveTokenType
-
-
-class ParseErrorKind(str, Enum):
-    UNEXPECTED_END = "unexpected_end"
-    UNEXPECTED_TOKEN = "unexpected_token"
-
-
-class ParseError(BaseModel, frozen=True):
-    kind: ParseErrorKind
-    position: Position
-    expected: StageFiveTokenType | None = None
-    got: StageFiveTokenType | None = None
+from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
+from spud.stage_six.parse_error import ParseError, ParseErrorKind
 
 
 class TokenStream:
@@ -34,6 +19,16 @@ class TokenStream:
             return None
         return self._tokens[self._pos]
 
+    def peek_type(self) -> T | None:
+        tok = self.peek()
+        return tok.token_type if tok else None
+
+    def peek_at(self, offset: int) -> StageFiveToken | None:
+        idx = self._pos + offset
+        if idx >= len(self._tokens):
+            return None
+        return self._tokens[idx]
+
     def consume(self) -> StageFiveToken | ParseError:
         """Advance past the current token and return it."""
         if self.at_end():
@@ -43,7 +38,7 @@ class TokenStream:
         self._pos += 1
         return token
 
-    def expect(self, token_type: StageFiveTokenType) -> StageFiveToken | ParseError:
+    def expect(self, token_type: T) -> StageFiveToken | ParseError:
         """Consume the current token, asserting it matches the expected type."""
         result = self.consume()
         if isinstance(result, ParseError):

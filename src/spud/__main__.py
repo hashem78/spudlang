@@ -2,21 +2,37 @@
 #
 # SPDX-License-Identifier: MIT
 
-import cyclopts
+from pathlib import Path
 
+import cyclopts
+from dependency_injector import providers
+
+from spud.core.file_reader import FileReader
 from spud.di import Container
+from spud.stage_six.parse_error import ParseError
 
 app = cyclopts.App()
 
+container = Container()
+
 
 @app.default
-def main() -> None:
-    pass
+def main(file: Path, tree: bool = False) -> None:
+    container.reader.override(providers.Factory(FileReader, path=file))
+    stage_six = container.stage_six()
+    result = stage_six.parse()
+    match result:
+        case ParseError():
+            print(result)
+        case program if tree:
+            from spud.core.ast_printer import print_ast
+
+            print_ast(program)
+        case program:
+            print(program)
 
 
 def entrypoint() -> None:
-    container = Container()
-    container.wire(modules=[__name__])
     app()
 
 
