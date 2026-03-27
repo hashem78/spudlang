@@ -24,7 +24,7 @@ from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
 
-def _create_parsers() -> dict:
+def _create_program_parser() -> ProgramParser:
     """Wire parser dependency graph, resolving circular deps manually."""
     expression = ExpressionParser()
     block = BlockParser.__new__(BlockParser)
@@ -39,8 +39,7 @@ def _create_parsers() -> dict:
         for_loop_parser=for_loop,
     )
     block.__init__(statement_parser=statement)
-    program = ProgramParser(statement_parser=statement)
-    return {"program_parser": program}
+    return ProgramParser(statement_parser=statement)
 
 
 class Container(containers.DeclarativeContainer):
@@ -55,7 +54,6 @@ class Container(containers.DeclarativeContainer):
     stage_four = providers.Factory(StageFour, stage_three=stage_three, trie=stage_four_trie, logger=logger)
     stage_five = providers.Factory(StageFive, stage_four=stage_four, logger=logger)
 
-    _parsers = providers.Singleton(_create_parsers)
-    program_parser = providers.Singleton(lambda p: p["program_parser"], _parsers)
+    program_parser = providers.Singleton(_create_program_parser)
 
     stage_six = providers.Factory(StageSix, stage_five=stage_five, program_parser=program_parser, logger=logger)

@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from spud.core.string_reader import StringReader
-from spud.di.container import _create_parsers
+from spud.di.container import _create_program_parser
 from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
@@ -29,8 +29,7 @@ class LspContainer(containers.DeclarativeContainer):
     stage_four = providers.Factory(StageFour, stage_three=stage_three, trie=stage_four_trie, logger=logger)
     stage_five = providers.Factory(StageFive, stage_four=stage_four, logger=logger)
 
-    _parsers = providers.Singleton(_create_parsers)
-    program_parser = providers.Singleton(lambda p: p["program_parser"], _parsers)
+    program_parser = providers.Singleton(_create_program_parser)
 
     stage_six = providers.Factory(StageSix, stage_five=stage_five, program_parser=program_parser, logger=logger)
 

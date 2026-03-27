@@ -46,7 +46,7 @@ class _StringReader:
             yield char
 
 
-def _create_parsers() -> dict:
+def _create_program_parser() -> dict:
     expression = ExpressionParser()
     block = BlockParser.__new__(BlockParser)
     function_def = FunctionDefParser(block_parser=block)
@@ -73,7 +73,7 @@ def _parse(text: str) -> Program:
     s5 = StageFive(s4, structlog.get_logger())
     tokens = list(s5.parse())
     stream = TokenStream(tokens)
-    parsers = _create_parsers()
+    parsers = _create_program_parser()
     return parsers["program_parser"].parse(stream)
 
 

@@ -9,7 +9,7 @@ from pathlib import Path
 import structlog
 
 from spud.core.file_reader import FileReader
-from spud.di.container import _create_parsers
+from spud.di.container import _create_program_parser
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
@@ -77,7 +77,7 @@ def _serialize_stage_five(path: Path) -> str:
     return "\n".join(lines)
 
 
-_PROGRAM_PARSER = _create_parsers()["program_parser"]
+_PROGRAM_PARSER = _create_program_parser()
 
 
 def _serialize_stage_six(path: Path) -> str:

@@ -11,7 +11,7 @@ import structlog
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from spud.di.container import _create_parsers
+from spud.di.container import _create_program_parser
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
@@ -24,7 +24,7 @@ from spud.stage_two.stage_two import StageTwo
 
 _S2_TRIE = create_stage_two_trie()
 _S4_TRIE = create_stage_four_trie()
-_PROGRAM_PARSER = _create_parsers()["program_parser"]
+_PROGRAM_PARSER = _create_program_parser()
 _LOGGER = structlog.get_logger()
 
 
