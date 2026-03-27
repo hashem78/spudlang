@@ -4,8 +4,8 @@ from pygls.lsp.server import LanguageServer
 from spud.lsp.completion import CompletionHandler
 from spud.lsp.diagnostics import DiagnosticsHandler
 from spud.lsp.hover import HoverHandler
-from spud.lsp.symbols import SymbolsHandler
 from spud.lsp.lsp_types import ParseFn, ParseResult
+from spud.lsp.symbols import SymbolsHandler
 from spud.stage_six.program import Program
 
 
@@ -41,7 +41,8 @@ class SpudLanguageServer(LanguageServer):
         @self.feature(types.TEXT_DOCUMENT_DID_CHANGE)
         def did_change(params: types.DidChangeTextDocumentParams) -> None:
             uri: str = params.text_document.uri
-            result: ParseResult = self._parse(params.content_changes[-1].text)
+            doc: types.TextDocumentItem = self.workspace.get_text_document(uri)
+            result: ParseResult = self._parse(doc.source)
             if isinstance(result, Program):
                 self._last_program[uri] = result
             self.text_document_publish_diagnostics(
