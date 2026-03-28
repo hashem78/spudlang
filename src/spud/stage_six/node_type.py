@@ -15,4 +15,6 @@ class NodeType(str, Enum):
     CONDITION_BRANCH = "condition_branch"
     IF_ELSE = "if_else"
     FOR_LOOP = "for_loop"
+    INLINE_FUNCTION_DEF = "inline_function_def"
+    UNIT_LITERAL = "unit_literal"
     PROGRAM = "program"

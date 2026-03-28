@@ -8,11 +8,13 @@ from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six.unit_literal import UnitLiteral
 
 
 def print_ast(program: Program) -> None:
@@ -46,6 +48,9 @@ def _label(node: ASTNode) -> str:
             return f"BOOLEAN {value}"
         case Binding(target=target):
             return f"BINDING {target.name}"
+        case InlineFunctionDef(params=params):
+            names = ", ".join(p.name for p in params)
+            return f"INLINE_FUNCTION_DEF ({names})"
         case FunctionDef(params=params):
             names = ", ".join(p.name for p in params)
             return f"FUNCTION_DEF ({names})"
@@ -55,6 +60,8 @@ def _label(node: ASTNode) -> str:
             return f"BINARY_OP {op}"
         case UnaryOp(operator=op):
             return f"UNARY_OP {op}"
+        case UnitLiteral():
+            return "UNIT"
         case ConditionBranch():
             return "BRANCH"
         case IfElse():
@@ -69,6 +76,8 @@ def _children(node: ASTNode) -> list[ASTNode]:
     match node:
         case Binding(value=value):
             return [value]
+        case InlineFunctionDef(body=body):
+            return [body]
         case FunctionDef(body=body):
             return list(body)
         case FunctionCall(args=args):

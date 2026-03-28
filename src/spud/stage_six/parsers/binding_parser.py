@@ -60,15 +60,17 @@ class BindingParser:
         return Binding(position=target_tok.position, end=value.end, target=target, value=value)
 
     def _is_function_def(self, stream: TokenStream) -> bool:
-        """Scan ahead to check if tokens form a ``(params) =>`` pattern.
+        """Scan ahead to check if tokens form a block ``(params) => NEWLINE`` pattern.
 
         Walks forward from the current ``(`` without consuming,
         tracking parenthesis depth. When the matching ``)`` is found
-        (depth returns to zero), checks whether the next token is
-        ``=>``. Handles nested parentheses in the parameter list
-        correctly by counting depth.
+        (depth returns to zero), checks whether the next tokens are
+        ``=>`` followed by ``NEWLINE`` — indicating a block function
+        definition.
 
-        Returns False if the stream ends before finding the match.
+        Inline functions (``(params) => expr``) return False here so
+        they fall through to the expression parser which handles them
+        as ``InlineFunctionDef`` nodes.
         """
         depth = 0
         offset = 0
@@ -82,6 +84,9 @@ class BindingParser:
                 case T.PAREN_RIGHT:
                     depth -= 1
                     if depth == 0:
-                        next_tok = stream.peek_at(offset + 1)
-                        return next_tok is not None and next_tok.token_type == T.FAT_ARROW
+                        arrow = stream.peek_at(offset + 1)
+                        if arrow is None or arrow.token_type != T.FAT_ARROW:
+                            return False
+                        newline = stream.peek_at(offset + 2)
+                        return newline is not None and newline.token_type == T.NEW_LINE
             offset += 1

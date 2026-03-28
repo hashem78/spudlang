@@ -8,12 +8,15 @@ from spud.stage_six.binary_op import BinaryOp
 from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
+from spud.stage_six.parsers.param_list_parser import parse_param_list
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
 from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six.unit_literal import UnitLiteral
 
 # The precedence table is defined in spud.core.operator_precedence
 # and imported as _PRECEDENCE (aliased from LEVELS).
@@ -203,7 +206,13 @@ class ExpressionParser:
                 return BooleanLiteral(position=tok.position, end=tok.position, value=False)
 
             case T.PAREN_LEFT:
+                if self._is_inline_function(stream):
+                    return self._parse_inline_function(stream)
                 stream.consume()
+                if stream.peek_type() == T.PAREN_RIGHT:
+                    rparen = stream.consume()
+                    assert not isinstance(rparen, ParseError)
+                    return UnitLiteral(position=tok.position, end=rparen.position)
                 paren_ctx = ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.PAREN_LEFT)
                 expr = self.parse(stream)
                 if isinstance(expr, ParseError):
@@ -220,6 +229,48 @@ class ExpressionParser:
                     got=tok.token_type,
                     context=ctx(ParseContextKind.EXPRESSION),
                 )
+
+    def _is_inline_function(self, stream: TokenStream) -> bool:
+        """Scan ahead to check if tokens form a ``(params) =>`` pattern.
+
+        Walks forward from the current ``(`` without consuming,
+        tracking parenthesis depth. When the matching ``)`` is found,
+        checks whether the next token is ``=>``.
+        """
+        depth = 0
+        offset = 0
+        while True:
+            tok = stream.peek_at(offset)
+            if tok is None:
+                return False
+            match tok.token_type:
+                case T.PAREN_LEFT:
+                    depth += 1
+                case T.PAREN_RIGHT:
+                    depth -= 1
+                    if depth == 0:
+                        next_tok = stream.peek_at(offset + 1)
+                        return next_tok is not None and next_tok.token_type == T.FAT_ARROW
+            offset += 1
+
+    def _parse_inline_function(self, stream: TokenStream) -> InlineFunctionDef | ParseError:
+        """Parse an inline function: ``(params) => expression``."""
+        paren_tok = stream.expect(T.PAREN_LEFT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
+        if isinstance(paren_tok, ParseError):
+            return paren_tok
+        params = parse_param_list(stream)
+        if isinstance(params, ParseError):
+            return params
+        rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
+        if isinstance(rparen, ParseError):
+            return rparen
+        arrow = stream.expect(T.FAT_ARROW, context=ctx(ParseContextKind.FUNCTION_BODY))
+        if isinstance(arrow, ParseError):
+            return arrow
+        body = self.parse(stream)
+        if isinstance(body, ParseError):
+            return with_context(body, ctx(ParseContextKind.FUNCTION_BODY))
+        return InlineFunctionDef(position=paren_tok.position, end=body.end, params=params, body=body)
 
     def _parse_function_call(self, stream: TokenStream, callee_tok: StageFiveToken) -> FunctionCall | ParseError:
         """Parse a function call after the callee identifier was consumed.
