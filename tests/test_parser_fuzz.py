@@ -6,11 +6,11 @@ never crashes, never loops, and always returns a valid Program.
 
 from datetime import timedelta
 
-from tests.fuzz_helpers import load_valid_golden_programs, parse_text
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from spud.stage_six.program import Program
+from tests.fuzz_helpers import load_valid_golden_programs, parse_text
 
 _SPUD_TOKENS: list[str] = [
     "x",

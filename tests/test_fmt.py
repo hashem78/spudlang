@@ -16,6 +16,7 @@ from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.unary_op import UnaryOp
 from spud_fmt.config import FmtConfig, QuoteStyle
 from spud_fmt.container import _create_formatter
 from spud_fmt.formatter import Formatter
@@ -49,6 +50,14 @@ def _bool(value: bool) -> BooleanLiteral:
 
 def _binop(left, op: str, right) -> BinaryOp:
     return BinaryOp(position=P, end=P, left=left, operator=op, right=right)
+
+
+def _neg(operand) -> UnaryOp:
+    return UnaryOp(position=P, end=P, operator="-", operand=operand)
+
+
+def _pos(operand) -> UnaryOp:
+    return UnaryOp(position=P, end=P, operator="+", operand=operand)
 
 
 def _call(name: str, *args) -> FunctionCall:
@@ -207,6 +216,74 @@ class TestBinaryOp:
         for op in ["+", "-", "*", "/", "%", "==", "!=", "<", ">", "<=", ">=", "&&", "||"]:
             result = _fmt().format_node(_binop(_id("a"), op, _id("b")), 0)
             assert f"a {op} b" == result
+
+
+# ── Unary Op ─────────────────────────────────────────────────────────
+
+
+class TestUnaryOp:
+    def test_negative_number(self):
+        assert _fmt().format_node(_neg(_num(5)), 0) == "-5"
+
+    def test_negative_identifier(self):
+        assert _fmt().format_node(_neg(_id("x")), 0) == "-x"
+
+    def test_double_negation_collapses(self):
+        assert _fmt().format_node(_neg(_neg(_id("x"))), 0) == "x"
+
+    def test_triple_negation_collapses(self):
+        assert _fmt().format_node(_neg(_neg(_neg(_id("x")))), 0) == "-x"
+
+    def test_quad_negation_collapses(self):
+        assert _fmt().format_node(_neg(_neg(_neg(_neg(_id("x"))))), 0) == "x"
+
+    def test_negative_expression(self):
+        assert _fmt().format_node(_neg(_binop(_id("a"), "+", _id("b"))), 0) == "-(a + b)"
+
+    def test_negative_function_call(self):
+        assert _fmt().format_node(_neg(_call("foo", _num(1))), 0) == "-foo(1)"
+
+    def test_binding_to_negative(self):
+        assert _fmt().format_node(_bind("x", _neg(_num(5))), 0) == "x := -5"
+
+    def test_unary_plus(self):
+        assert _fmt().format_node(_pos(_num(5)), 0) == "+5"
+
+    def test_unary_plus_collapses_to_one(self):
+        assert _fmt().format_node(_pos(_pos(_id("x"))), 0) == "+x"
+
+    def test_unary_plus_triple(self):
+        assert _fmt().format_node(_pos(_pos(_pos(_id("x")))), 0) == "+x"
+
+    def test_plus_minus(self):
+        assert _fmt().format_node(_pos(_neg(_id("x"))), 0) == "-x"
+
+    def test_minus_plus(self):
+        assert _fmt().format_node(_neg(_pos(_id("x"))), 0) == "-x"
+
+    def test_plus_plus_minus(self):
+        assert _fmt().format_node(_pos(_pos(_neg(_id("x")))), 0) == "-x"
+
+    def test_minus_minus_plus(self):
+        assert _fmt().format_node(_neg(_neg(_pos(_id("x")))), 0) == "+x"
+
+    def test_plus_minus_minus(self):
+        assert _fmt().format_node(_pos(_neg(_neg(_id("x")))), 0) == "+x"
+
+    def test_collapse_unary_plus_config(self):
+        cfg = FmtConfig(collapse_unary_plus=True)
+        assert _fmt(cfg).format_node(_pos(_num(5)), 0) == "5"
+
+    def test_collapse_unary_plus_config_double(self):
+        cfg = FmtConfig(collapse_unary_plus=True)
+        assert _fmt(cfg).format_node(_pos(_pos(_id("x"))), 0) == "x"
+
+    def test_collapse_unary_plus_neg_still_works(self):
+        cfg = FmtConfig(collapse_unary_plus=True)
+        assert _fmt(cfg).format_node(_neg(_num(5)), 0) == "-5"
+
+    def test_unary_plus_on_binary_op(self):
+        assert _fmt().format_node(_pos(_binop(_id("a"), "+", _id("b"))), 0) == "+(a + b)"
 
 
 # ── Function Call ────────────────────────────────────────────────────
