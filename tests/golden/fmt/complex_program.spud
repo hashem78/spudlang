@@ -1,0 +1,11 @@
+max:=100
+validate:=(input)=>
+    if input>0
+        "positive"
+    elif input<0
+        "negative"
+    else
+        "zero"
+for i in range(max)
+    result:=validate(i)
+    print(result)

@@ -9,6 +9,7 @@ from pathlib import Path
 import structlog
 
 from spud.core.file_reader import FileReader
+from spud.core.string_reader import StringReader
 from spud.di.container import _create_program_parser
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
@@ -138,6 +139,27 @@ def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
         _print_node_to_buf(child, child_prefix, i == len(_children(node)) - 1, buf)
 
 
+def _serialize_fmt(path: Path) -> str:
+    """Parse and format a spud file, return the formatted source."""
+    from spud_fmt.config import FmtConfig
+    from spud_fmt.container import _create_formatter
+
+    text = path.read_text()
+    reader = StringReader(text)
+    stage_one = StageOne(reader)
+    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
+    stage_three = StageThree(stage_two, LOGGER)
+    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    stage_five = StageFive(stage_four, LOGGER)
+    tokens = list(stage_five.parse())
+    stream = TokenStream(tokens)
+    program = _PROGRAM_PARSER.parse(stream)
+    if program.errors:
+        return text.rstrip("\n")
+    formatter = _create_formatter(FmtConfig())
+    return formatter.format_program(program).rstrip("\n")
+
+
 def _run_case(spud_path: Path, serializer, expected_suffix: str = ".expected") -> tuple[str, str | None]:
     """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
@@ -185,6 +207,7 @@ def main() -> int:
         ("Stage Four", GOLDEN_DIR / "stage_four", _serialize_stage_four, ".expected"),
         ("Stage Five", GOLDEN_DIR / "stage_five", _serialize_stage_five, ".expected"),
         ("Stage Six", GOLDEN_DIR / "stage_six", _serialize_stage_six, ".expected.yaml"),
+        ("Formatter", GOLDEN_DIR / "fmt", _serialize_fmt, ".expected"),
     ]
 
     all_failures: list[tuple[str, str]] = []

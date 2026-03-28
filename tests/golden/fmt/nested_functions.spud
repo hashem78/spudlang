@@ -1,0 +1,4 @@
+outer:=(x)=>
+    inner:=(y)=>
+        x+y
+    inner(x)

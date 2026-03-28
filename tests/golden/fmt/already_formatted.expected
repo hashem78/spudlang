@@ -1,0 +1,9 @@
+x := 1
+y := 2
+
+f := (a, b) =>
+  result := a + b
+  result
+
+for i in range(10)
+  print(i)
