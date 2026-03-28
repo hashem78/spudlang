@@ -12,6 +12,7 @@ from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.unary_op import UnaryOp
 
 
 def print_ast(program: Program) -> None:
@@ -52,6 +53,8 @@ def _label(node: ASTNode) -> str:
             return f"CALL {callee.name}"
         case BinaryOp(operator=op):
             return f"BINARY_OP {op}"
+        case UnaryOp(operator=op):
+            return f"UNARY_OP {op}"
         case ConditionBranch():
             return "BRANCH"
         case IfElse():
@@ -72,6 +75,8 @@ def _children(node: ASTNode) -> list[ASTNode]:
             return list(args)
         case BinaryOp(left=left, right=right):
             return [left, right]
+        case UnaryOp(operand=operand):
+            return [operand]
         case ConditionBranch(condition=condition, body=body):
             return [condition, *body]
         case IfElse(branches=branches, else_body=else_body):

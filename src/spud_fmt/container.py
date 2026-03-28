@@ -25,6 +25,7 @@ from spud_fmt.formatters.if_else_fmt import IfElseFormatter
 from spud_fmt.formatters.numeric_fmt import NumericFormatter
 from spud_fmt.formatters.raw_string_fmt import RawStringFormatter
 from spud_fmt.formatters.string_fmt import StringFormatter
+from spud_fmt.formatters.unary_op_fmt import UnaryOpFormatter
 
 
 def _create_formatter(config: FmtConfig) -> Formatter:
@@ -54,6 +55,7 @@ def _create_formatter(config: FmtConfig) -> Formatter:
         function_def_fmt=FunctionDefFormatter(config=config, fmt=fmt_provider),
         if_else_fmt=IfElseFormatter(config=config, fmt=fmt_provider),
         for_loop_fmt=ForLoopFormatter(config=config, fmt=fmt_provider),
+        unary_op_fmt=UnaryOpFormatter(config=config, fmt=fmt_provider),
     )
     return formatter
 

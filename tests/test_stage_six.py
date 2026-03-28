@@ -33,6 +33,7 @@ from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
+from spud.stage_six.unary_op import UnaryOp
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
@@ -347,27 +348,21 @@ class TestBinaryOperations:
         result = _parse("-x")
         assert isinstance(result, Program)
         node = result.body[0]
-        assert isinstance(node, BinaryOp)
+        assert isinstance(node, UnaryOp)
         assert node.operator == "-"
-        assert isinstance(node.left, NumericLiteral)
-        assert node.left.value == 0
-        assert isinstance(node.right, Identifier)
-        assert node.right.name == "x"
+        assert isinstance(node.operand, Identifier)
+        assert node.operand.name == "x"
 
     def test_double_negation(self):
         result = _parse("--x")
         assert isinstance(result, Program)
         node = result.body[0]
-        assert isinstance(node, BinaryOp)
+        assert isinstance(node, UnaryOp)
         assert node.operator == "-"
-        assert isinstance(node.left, NumericLiteral)
-        assert node.left.value == 0
-        assert isinstance(node.right, BinaryOp)
-        assert node.right.operator == "-"
-        assert isinstance(node.right.left, NumericLiteral)
-        assert node.right.left.value == 0
-        assert isinstance(node.right.right, Identifier)
-        assert node.right.right.name == "x"
+        assert isinstance(node.operand, UnaryOp)
+        assert node.operand.operator == "-"
+        assert isinstance(node.operand.operand, Identifier)
+        assert node.operand.operand.name == "x"
 
     def test_complex_expression(self):
         result = _parse("a + b * c - d / e")

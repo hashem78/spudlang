@@ -1,4 +1,5 @@
 from spud.core.operator_precedence import LEVELS as _PRECEDENCE
+from spud.core.operator_precedence import UNARY_PREFIX_OPS
 from spud.core.position import Position
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
@@ -12,6 +13,7 @@ from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseErro
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
+from spud.stage_six.unary_op import UnaryOp
 
 # The precedence table is defined in spud.core.operator_precedence
 # and imported as _PRECEDENCE (aliased from LEVELS).
@@ -113,25 +115,15 @@ class ExpressionParser:
         return left
 
     def _parse_unary(self, stream: TokenStream) -> ASTNode | ParseError:
-        """Parse a unary prefix expression.
-
-        Currently only handles unary minus. Desugars ``-x`` into
-        ``BinaryOp(0, "-", x)`` so the AST doesn't need a separate
-        unary node type. Recurses into itself for chained negation
-        (``--x`` becomes ``BinaryOp(0, "-", BinaryOp(0, "-", x))``).
-
-        If the current token is not ``-``, falls through to
-        ``_parse_primary``.
-        """
-        if stream.peek_type() == T.MINUS:
+        """Parse a unary prefix expression."""
+        if stream.peek_type() in UNARY_PREFIX_OPS:
             op_tok = stream.consume()
             if isinstance(op_tok, ParseError):
                 return op_tok
             operand = self._parse_unary(stream)
             if isinstance(operand, ParseError):
                 return operand
-            zero = NumericLiteral(position=op_tok.position, end=op_tok.position, value=0)
-            return BinaryOp(position=op_tok.position, end=operand.end, left=zero, operator="-", right=operand)
+            return UnaryOp(position=op_tok.position, end=operand.end, operator=op_tok.value, operand=operand)
         return self._parse_primary(stream)
 
     def _parse_primary(self, stream: TokenStream) -> ASTNode | ParseError:

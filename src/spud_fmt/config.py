@@ -17,3 +17,4 @@ class FmtConfig(BaseModel):
     spaces_around_fat_arrow: bool = True
     space_after_comma: bool = True
     trailing_newline: bool = True
+    collapse_unary_plus: bool = False

@@ -28,6 +28,7 @@ class Formatter:
         function_def_fmt: NodeFormatter,
         if_else_fmt: NodeFormatter,
         for_loop_fmt: NodeFormatter,
+        unary_op_fmt: NodeFormatter,
     ) -> None:
         self._config = config
         self._registry: dict[NodeType, NodeFormatter] = {
@@ -37,6 +38,7 @@ class Formatter:
             NodeType.RAW_STRING_LITERAL: raw_string_fmt,
             NodeType.BOOLEAN_LITERAL: boolean_fmt,
             NodeType.BINARY_OP: binary_op_fmt,
+            NodeType.UNARY_OP: unary_op_fmt,
             NodeType.FUNCTION_CALL: function_call_fmt,
             NodeType.BINDING: binding_fmt,
             NodeType.FUNCTION_DEF: function_def_fmt,

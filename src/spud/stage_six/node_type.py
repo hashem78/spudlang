@@ -11,6 +11,7 @@ class NodeType(str, Enum):
     FUNCTION_DEF = "function_def"
     FUNCTION_CALL = "function_call"
     BINARY_OP = "binary_op"
+    UNARY_OP = "unary_op"
     CONDITION_BRANCH = "condition_branch"
     IF_ELSE = "if_else"
     FOR_LOOP = "for_loop"

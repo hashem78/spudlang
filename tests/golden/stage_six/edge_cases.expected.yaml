@@ -2,8 +2,7 @@ errors: []
 tree: |-
   ├── NUMERIC 42
   ├── CALL foo
-  ├── BINARY_OP -
-  │   ├── NUMERIC 0
+  ├── UNARY_OP -
   │   └── NUMERIC 5
   └── BINARY_OP *
       ├── BINARY_OP +

@@ -19,6 +19,8 @@ LEVELS: list[tuple[set[T], int | None]] = [
     ({T.MULTIPLY, T.DIVIDE, T.MODULO}, None),
 ]
 
+UNARY_PREFIX_OPS = {T.MINUS, T.PLUS}
+
 OPERATOR_PRECEDENCE: dict[str, int] = {}
 for level, (ops, _) in enumerate(LEVELS, start=1):
     for op in ops:
