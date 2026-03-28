@@ -22,8 +22,8 @@ tree: |-
   │           │   ├── BINARY_OP >
   │           │   │   ├── IDENTIFIER x
   │           │   │   └── NUMERIC 0
-  │           │   └── STRING "yes"
-  │           └── STRING "no"
+  │           │   └── STRING yes
+  │           └── STRING no
   ├── BINDING c
   │   └── BINARY_OP +
   │       ├── IDENTIFIER a

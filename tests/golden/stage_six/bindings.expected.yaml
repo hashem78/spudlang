@@ -3,7 +3,7 @@ tree: |-
   ├── BINDING x
   │   └── NUMERIC 5
   ├── BINDING name
-  │   └── STRING "spud"
+  │   └── STRING spud
   ├── BINDING flag
   │   └── BOOLEAN True
   └── BINDING result

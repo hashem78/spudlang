@@ -9,13 +9,13 @@ tree: |-
   │           │   ├── BINARY_OP >
   │           │   │   ├── IDENTIFIER input
   │           │   │   └── IDENTIFIER max
-  │           │   └── STRING "too large"
+  │           │   └── STRING too large
   │           ├── BRANCH
   │           │   ├── BINARY_OP <
   │           │   │   ├── IDENTIFIER input
   │           │   │   └── NUMERIC 0
-  │           │   └── STRING "negative"
-  │           └── STRING "ok"
+  │           │   └── STRING negative
+  │           └── STRING ok
   └── BINDING main
       └── FUNCTION_DEF ()
           └── FOR i

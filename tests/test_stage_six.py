@@ -118,7 +118,7 @@ class TestLiterals:
         assert len(result.body) == 1
         node = result.body[0]
         assert isinstance(node, StringLiteral)
-        assert node.value == '"hello"'
+        assert node.value == "hello"
 
     def test_raw_string(self):
         result = _parse("`raw`")
@@ -126,7 +126,7 @@ class TestLiterals:
         assert len(result.body) == 1
         node = result.body[0]
         assert isinstance(node, RawStringLiteral)
-        assert node.value == "`raw`"
+        assert node.value == "raw"
 
     def test_boolean_true(self):
         result = _parse("true")
@@ -422,7 +422,7 @@ class TestBindings:
         assert isinstance(node, Binding)
         assert node.target.name == "name"
         assert isinstance(node.value, StringLiteral)
-        assert node.value.value == '"spud"'
+        assert node.value.value == "spud"
 
     def test_binding_to_boolean(self):
         result = _parse("flag := true")
@@ -633,7 +633,7 @@ class TestIfElse:
         assert branch.condition.operator == ">"
         assert len(branch.body) == 1
         assert isinstance(branch.body[0], StringLiteral)
-        assert branch.body[0].value == '"positive"'
+        assert branch.body[0].value == "positive"
 
     def test_if_else(self):
         result = _parse('if x > 0\n  "positive"\nelse\n  "negative"')
@@ -644,7 +644,7 @@ class TestIfElse:
         assert node.else_body is not None
         assert len(node.else_body) == 1
         assert isinstance(node.else_body[0], StringLiteral)
-        assert node.else_body[0].value == '"negative"'
+        assert node.else_body[0].value == "negative"
 
     def test_if_elif_else(self):
         result = _parse('if x > 0\n  "positive"\nelif x == 0\n  "zero"\nelse\n  "negative"')
@@ -654,13 +654,13 @@ class TestIfElse:
         assert len(node.branches) == 2
         assert node.branches[0].condition.operator == ">"
         assert isinstance(node.branches[0].body[0], StringLiteral)
-        assert node.branches[0].body[0].value == '"positive"'
+        assert node.branches[0].body[0].value == "positive"
         assert node.branches[1].condition.operator == "=="
         assert isinstance(node.branches[1].body[0], StringLiteral)
-        assert node.branches[1].body[0].value == '"zero"'
+        assert node.branches[1].body[0].value == "zero"
         assert node.else_body is not None
         assert isinstance(node.else_body[0], StringLiteral)
-        assert node.else_body[0].value == '"negative"'
+        assert node.else_body[0].value == "negative"
 
     def test_multiple_elif(self):
         text = 'if x > 2\n  "a"\nelif x > 1\n  "b"\nelif x > 0\n  "c"\nelif x == 0\n  "d"\nelse\n  "e"'
@@ -681,7 +681,7 @@ class TestIfElse:
         assert isinstance(inner, IfElse)
         assert len(inner.branches) == 1
         assert isinstance(inner.branches[0].body[0], StringLiteral)
-        assert inner.branches[0].body[0].value == '"both"'
+        assert inner.branches[0].body[0].value == "both"
 
     def test_complex_condition(self):
         result = _parse('if a > 0 && b < 10\n  "ok"')
@@ -845,10 +845,10 @@ class TestComplexPrograms:
         assert len(if_else.branches) == 1
         assert if_else.branches[0].condition.operator == ">"
         assert isinstance(if_else.branches[0].body[0], StringLiteral)
-        assert if_else.branches[0].body[0].value == '"big"'
+        assert if_else.branches[0].body[0].value == "big"
         assert if_else.else_body is not None
         assert isinstance(if_else.else_body[0], StringLiteral)
-        assert if_else.else_body[0].value == '"small"'
+        assert if_else.else_body[0].value == "small"
 
 
 # ── Edge Cases ────────────────────────────────────────────────────
@@ -871,7 +871,7 @@ class TestEdgeCases:
         assert node.callee.name == "print"
         assert len(node.args) == 1
         assert isinstance(node.args[0], StringLiteral)
-        assert node.args[0].value == '"hello"'
+        assert node.args[0].value == "hello"
 
     def test_all_precedence_levels(self):
         result = _parse("a || b && c == d + e * f")

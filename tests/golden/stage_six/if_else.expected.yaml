@@ -5,10 +5,10 @@ tree: |-
       │   ├── BINARY_OP >
       │   │   ├── IDENTIFIER x
       │   │   └── NUMERIC 0
-      │   └── STRING "positive"
+      │   └── STRING positive
       ├── BRANCH
       │   ├── BINARY_OP ==
       │   │   ├── IDENTIFIER x
       │   │   └── NUMERIC 0
-      │   └── STRING "zero"
-      └── STRING "negative"
+      │   └── STRING zero
+      └── STRING negative

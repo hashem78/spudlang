@@ -1,3 +1,4 @@
+from spud.core.operator_precedence import LEVELS as _PRECEDENCE
 from spud.core.position import Position
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
@@ -12,8 +13,11 @@ from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
 
-# Operator precedence table, ordered from lowest to highest binding
-# strength. Each entry is (operator_tokens, max_applications).
+# The precedence table is defined in spud.core.operator_precedence
+# and imported as _PRECEDENCE (aliased from LEVELS).
+#
+# It is ordered from lowest to highest binding strength. Each entry
+# is (operator_tokens, max_applications).
 #
 # max_applications controls associativity:
 #   None  — left-associative, loops until no more matching operators
@@ -22,7 +26,7 @@ from spud.stage_six.token_stream import TokenStream
 # The table is walked by _parse_binary: level 0 is the loosest
 # (logical or), and once all levels are exhausted it falls through
 # to _parse_unary. Adding a new precedence level is just appending
-# a tuple here — no new method needed.
+# a tuple in the shared module — no new method needed.
 #
 #   Level  Operators                          Associativity
 #   ─────  ─────────────────────────────────  ─────────────
@@ -31,14 +35,6 @@ from spud.stage_six.token_stream import TokenStream
 #   2      == != < > <= >=                    none (single)
 #   3      + -                                left
 #   4      * / %                              left
-#
-_PRECEDENCE: list[tuple[set[T], int | None]] = [
-    ({T.LOGICAL_OR}, None),
-    ({T.LOGICAL_AND}, None),
-    ({T.EQUALS, T.NOT_EQUALS, T.LESS_THAN, T.GREATER_THAN, T.LESS_THAN_OR_EQUAL, T.GREATER_THAN_OR_EQUAL}, 1),
-    ({T.PLUS, T.MINUS}, None),
-    ({T.MULTIPLY, T.DIVIDE, T.MODULO}, None),
-]
 
 
 class ExpressionParser:
@@ -194,7 +190,7 @@ class ExpressionParser:
                         position=tok.position,
                         context=ctx(ParseContextKind.UNTERMINATED_STRING),
                     )
-                return StringLiteral(position=tok.position, end=tok.position, value=tok.value)
+                return StringLiteral(position=tok.position, end=tok.position, value=tok.value[1:-1])
 
             case T.RAW_STRING:
                 stream.consume()
@@ -204,7 +200,7 @@ class ExpressionParser:
                         position=tok.position,
                         context=ctx(ParseContextKind.UNTERMINATED_RAW_STRING),
                     )
-                return RawStringLiteral(position=tok.position, end=tok.position, value=tok.value)
+                return RawStringLiteral(position=tok.position, end=tok.position, value=tok.value[1:-1])
 
             case T.TRUE:
                 stream.consume()
