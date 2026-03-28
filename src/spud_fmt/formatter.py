@@ -26,9 +26,11 @@ class Formatter:
         function_call_fmt: NodeFormatter,
         binding_fmt: NodeFormatter,
         function_def_fmt: NodeFormatter,
+        inline_function_def_fmt: NodeFormatter,
         if_else_fmt: NodeFormatter,
         for_loop_fmt: NodeFormatter,
         unary_op_fmt: NodeFormatter,
+        unit_literal_fmt: NodeFormatter,
     ) -> None:
         self._config = config
         self._registry: dict[NodeType, NodeFormatter] = {
@@ -42,8 +44,10 @@ class Formatter:
             NodeType.FUNCTION_CALL: function_call_fmt,
             NodeType.BINDING: binding_fmt,
             NodeType.FUNCTION_DEF: function_def_fmt,
+            NodeType.INLINE_FUNCTION_DEF: inline_function_def_fmt,
             NodeType.IF_ELSE: if_else_fmt,
             NodeType.FOR_LOOP: for_loop_fmt,
+            NodeType.UNIT_LITERAL: unit_literal_fmt,
         }
 
     def format_node(self, node: ASTNode, depth: int) -> str:

@@ -5,12 +5,15 @@ from spud.stage_six.binding import Binding
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.if_else import IfElse
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 
 
 def is_block_node(node: ASTNode) -> bool:
     match node:
+        case Binding(value=InlineFunctionDef()):
+            return False
         case Binding(value=FunctionDef()):
             return True
         case IfElse() | ForLoop():
@@ -33,6 +36,8 @@ def format_body(body: list[ASTNode], depth: int, config: FmtConfig, fmt: Callabl
         match node:
             case Binding() | IfElse() | ForLoop() | FunctionDef():
                 lines.append(fmt().format_node(node, depth))
+            case InlineFunctionDef():
+                lines.append(f"{indent}{fmt().format_node(node, depth)}")
             case _:
                 lines.append(f"{indent}{fmt().format_node(node, depth)}")
 

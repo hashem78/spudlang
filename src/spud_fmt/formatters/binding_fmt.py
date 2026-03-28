@@ -3,6 +3,7 @@ from typing import Callable
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binding import Binding
 from spud.stage_six.function_def import FunctionDef
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 from spud_fmt.formatters.body_fmt import format_body
@@ -26,6 +27,9 @@ class BindingFormatter:
                 header = f"{indent}{node.target.name}{walrus}({separator.join(param_names)}){arrow}"
                 body_lines = format_body(body, depth + 1, self._config, self._fmt)
                 return f"{header}\n{body_lines}"
+            case InlineFunctionDef():
+                formatted_value = self._fmt().format_node(node.value, depth)
+                return f"{indent}{node.target.name}{walrus}{formatted_value}"
             case _:
                 formatted_value = self._fmt().format_node(node.value, depth)
                 return f"{indent}{node.target.name}{walrus}{formatted_value}"
