@@ -1,6 +1,6 @@
 from typing import Callable
 
-from spud.core.operator_precedence import NON_ASSOCIATIVE_OPS, OPERATOR_PRECEDENCE
+from spud.core.operator_precedence import NON_ASSOCIATIVE_OPS, NON_COMMUTATIVE_OPS, OPERATOR_PRECEDENCE
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binary_op import BinaryOp
 from spud_fmt.config import FmtConfig
@@ -29,7 +29,12 @@ class BinaryOpFormatter:
         child_prec = OPERATOR_PRECEDENCE.get(operand.operator, 0)
 
         needs_parens = child_prec < parent_prec
-        if is_right and child_prec == parent_prec and parent_op in NON_ASSOCIATIVE_OPS:
-            needs_parens = True
+        if is_right and child_prec == parent_prec:
+            if (
+                parent_op in NON_ASSOCIATIVE_OPS
+                or parent_op in NON_COMMUTATIVE_OPS
+                or operand.operator in NON_COMMUTATIVE_OPS
+            ):
+                needs_parens = True
 
         return f"({formatted})" if needs_parens else formatted

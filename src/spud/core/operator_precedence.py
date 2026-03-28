@@ -1,33 +1,29 @@
-"""Operator precedence table shared across parser and formatter.
+"""Derived lookup tables built from the operator definitions.
 
-Levels are ordered from lowest (1) to highest binding strength.
-Higher number = binds tighter. Operators at the same level have
-equal precedence.
-
-The ``max_applications`` field controls associativity:
-- ``None`` means left-associative (unlimited chaining)
-- ``1`` means non-associative (comparison operators)
+All tables are computed from ``OPERATORS`` in ``spud.core.operators``.
 """
 
+from spud.core.operator_info import Associativity, OperatorKind
+from spud.core.operators import OPERATORS
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 
-LEVELS: list[tuple[set[T], int | None]] = [
-    ({T.LOGICAL_OR}, None),
-    ({T.LOGICAL_AND}, None),
-    ({T.EQUALS, T.NOT_EQUALS, T.LESS_THAN, T.GREATER_THAN, T.LESS_THAN_OR_EQUAL, T.GREATER_THAN_OR_EQUAL}, 1),
-    ({T.PLUS, T.MINUS}, None),
-    ({T.MULTIPLY, T.DIVIDE, T.MODULO}, None),
-]
+LEVELS: list[tuple[set[T], int | None]] = []
+_level_map: dict[int, tuple[set[T], int | None]] = {}
+for _op in OPERATORS:
+    if _op.kind != OperatorKind.BINARY:
+        continue
+    _max_apps = 1 if _op.associativity == Associativity.NONE else None
+    if _op.precedence not in _level_map:
+        _level_map[_op.precedence] = (set(), _max_apps)
+    _level_map[_op.precedence][0].add(_op.token)
+LEVELS = [_level_map[p] for p in sorted(_level_map)]
 
-UNARY_PREFIX_OPS = {T.MINUS, T.PLUS}
+UNARY_PREFIX_OPS: set[T] = {op.token for op in OPERATORS if op.kind == OperatorKind.UNARY_PREFIX}
 
-OPERATOR_PRECEDENCE: dict[str, int] = {}
-for level, (ops, _) in enumerate(LEVELS, start=1):
-    for op in ops:
-        OPERATOR_PRECEDENCE[op.value] = level
+OPERATOR_PRECEDENCE: dict[str, int] = {
+    op.token.value: op.precedence for op in OPERATORS if op.kind == OperatorKind.BINARY
+}
 
-NON_ASSOCIATIVE_OPS: set[str] = set()
-for ops, max_apps in LEVELS:
-    if max_apps == 1:
-        for op in ops:
-            NON_ASSOCIATIVE_OPS.add(op.value)
+NON_ASSOCIATIVE_OPS: set[str] = {op.token.value for op in OPERATORS if op.associativity == Associativity.NONE}
+
+NON_COMMUTATIVE_OPS: set[str] = {op.token.value for op in OPERATORS if not op.commutative}
