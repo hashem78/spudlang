@@ -9,6 +9,7 @@ from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
@@ -60,6 +61,8 @@ def _label(node: ASTNode) -> str:
             return f"BINARY_OP {op}"
         case UnaryOp(operator=op):
             return f"UNARY_OP {op}"
+        case ListLiteral(elements=elements):
+            return f"LIST [{len(elements)}]"
         case UnitLiteral():
             return "UNIT"
         case ConditionBranch():
@@ -76,6 +79,8 @@ def _children(node: ASTNode) -> list[ASTNode]:
     match node:
         case Binding(value=value):
             return [value]
+        case ListLiteral(elements=elements):
+            return list(elements)
         case InlineFunctionDef(body=body):
             return [body]
         case FunctionDef(body=body):

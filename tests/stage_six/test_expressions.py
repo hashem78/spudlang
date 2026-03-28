@@ -1,6 +1,12 @@
 from spud.stage_six.binary_op import BinaryOp
+from spud.stage_six.binding import Binding
+from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
+from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.list_literal import ListLiteral
+from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
+from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.unary_op import UnaryOp
 
 from tests.stage_six.helpers import parse
@@ -218,3 +224,81 @@ class TestBinaryOperations:
         assert node.right.left.name == "d"
         assert isinstance(node.right.right, Identifier)
         assert node.right.right.name == "e"
+
+
+class TestListLiteral:
+    def test_empty_list(self):
+        result = parse("[]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert node.elements == []
+
+    def test_single_element(self):
+        result = parse("[1]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 1
+        assert isinstance(node.elements[0], NumericLiteral)
+        assert node.elements[0].value == 1
+
+    def test_multiple_elements(self):
+        result = parse("[1, 2, 3]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 3
+        assert all(isinstance(e, NumericLiteral) for e in node.elements)
+
+    def test_mixed_expressions(self):
+        result = parse('[1, "hello", true]')
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 3
+        assert isinstance(node.elements[0], NumericLiteral)
+        assert isinstance(node.elements[1], StringLiteral)
+
+    def test_nested_lists(self):
+        result = parse("[[1, 2], [3, 4]]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 2
+        assert isinstance(node.elements[0], ListLiteral)
+        assert isinstance(node.elements[1], ListLiteral)
+        assert len(node.elements[0].elements) == 2
+
+    def test_expression_elements(self):
+        result = parse("[a + b, max(1, 2)]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 2
+        assert isinstance(node.elements[0], BinaryOp)
+        assert isinstance(node.elements[1], FunctionCall)
+
+    def test_inline_function_element(self):
+        result = parse("[(a, b) => a + b]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, ListLiteral)
+        assert len(node.elements) == 1
+        assert isinstance(node.elements[0], InlineFunctionDef)
+
+    def test_list_in_binding(self):
+        result = parse("x := [1, 2, 3]")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, Binding)
+        assert isinstance(node.value, ListLiteral)
+        assert len(node.value.elements) == 3
+
+    def test_list_as_function_arg(self):
+        result = parse("f([1, 2])")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, FunctionCall)
+        assert len(node.args) == 1
+        assert isinstance(node.args[0], ListLiteral)

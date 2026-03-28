@@ -16,5 +16,6 @@ class NodeType(str, Enum):
     IF_ELSE = "if_else"
     FOR_LOOP = "for_loop"
     INLINE_FUNCTION_DEF = "inline_function_def"
+    LIST_LITERAL = "list_literal"
     UNIT_LITERAL = "unit_literal"
     PROGRAM = "program"

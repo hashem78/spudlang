@@ -9,6 +9,7 @@ from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
 from spud.stage_six.parsers.param_list_parser import parse_param_list
@@ -222,6 +223,9 @@ class ExpressionParser:
                     return rparen
                 return expr.model_copy(update={"end": rparen.position})
 
+            case T.BRACKET_LEFT:
+                return self._parse_list_literal(stream)
+
             case _:
                 return ParseError(
                     kind=ParseErrorKind.UNEXPECTED_TOKEN,
@@ -229,6 +233,29 @@ class ExpressionParser:
                     got=tok.token_type,
                     context=ctx(ParseContextKind.EXPRESSION),
                 )
+
+    def _parse_list_literal(self, stream: TokenStream) -> ListLiteral | ParseError:
+        """Parse a list literal: ``[ expression ( ',' expression )* ]``."""
+        lbracket = stream.expect(T.BRACKET_LEFT, context=ctx(ParseContextKind.EXPRESSION))
+        if isinstance(lbracket, ParseError):
+            return lbracket
+        elements: list[ASTNode] = []
+        if stream.peek_type() != T.BRACKET_RIGHT:
+            first = self.parse(stream)
+            if isinstance(first, ParseError):
+                return with_context(first, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT))
+            elements.append(first)
+            while stream.peek_type() == T.COMMA:
+                stream.consume()
+                elem = self.parse(stream)
+                if isinstance(elem, ParseError):
+                    return with_context(elem, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT))
+                elements.append(elem)
+        bracket_ctx = ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT)
+        rbracket = stream.expect(T.BRACKET_RIGHT, context=bracket_ctx)
+        if isinstance(rbracket, ParseError):
+            return rbracket
+        return ListLiteral(position=lbracket.position, end=rbracket.position, elements=elements)
 
     def _is_inline_function(self, stream: TokenStream) -> bool:
         """Scan ahead to check if tokens form a ``(params) =>`` pattern.

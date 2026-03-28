@@ -9,6 +9,7 @@ from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
@@ -84,6 +85,10 @@ def forloop(var: str, iterable, body: list) -> ForLoop:
 
 def inline_funcdef(params: list[str], body) -> InlineFunctionDef:
     return InlineFunctionDef(position=P, end=P, params=[id(p) for p in params], body=body)
+
+
+def list_(*elements) -> ListLiteral:
+    return ListLiteral(position=P, end=P, elements=list(elements))
 
 
 def unit() -> UnitLiteral:

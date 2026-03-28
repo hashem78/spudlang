@@ -1,6 +1,6 @@
 from spud_fmt.config import FmtConfig, QuoteStyle
 
-from tests.fmt.helpers import bool_, fmt, id, num, raw, str_
+from tests.fmt.helpers import bind, binop, bool_, call, fmt, id, inline_funcdef, list_, num, raw, str_
 
 
 class TestIdentifier:
@@ -67,3 +67,28 @@ class TestBoolean:
 
     def test_false(self):
         assert fmt().format_node(bool_(False), 0) == "false"
+
+
+class TestListLiteral:
+    def test_empty(self):
+        assert fmt().format_node(list_(), 0) == "[]"
+
+    def test_single_element(self):
+        assert fmt().format_node(list_(num(1)), 0) == "[1]"
+
+    def test_multiple_elements(self):
+        assert fmt().format_node(list_(num(1), num(2), num(3)), 0) == "[1, 2, 3]"
+
+    def test_no_comma_space(self):
+        cfg = FmtConfig(space_after_comma=False)
+        assert fmt(cfg).format_node(list_(num(1), num(2)), 0) == "[1,2]"
+
+    def test_nested_lists(self):
+        assert fmt().format_node(list_(list_(num(1)), list_(num(2))), 0) == "[[1], [2]]"
+
+    def test_mixed_expressions(self):
+        node = list_(num(1), call("max", num(1), num(2)), inline_funcdef(["a", "b"], num(33)))
+        assert fmt().format_node(node, 0) == "[1, max(1, 2), (a, b) => 33]"
+
+    def test_in_binding(self):
+        assert fmt().format_node(bind("x", list_(num(1), num(2))), 0) == "x := [1, 2]"
