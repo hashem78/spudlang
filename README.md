@@ -172,6 +172,49 @@ spud-lsp
 
 Communicates over stdio. Point your editor's LSP client at the `spud-lsp` binary.
 
+#### Neovim
+
+Register `.spud` as a filetype in `filetype.lua`:
+
+```lua
+vim.filetype.add({
+  extension = {
+    spud = "spud",
+  },
+})
+```
+
+Add the LSP server config in `lsp/spud.lua`:
+
+```lua
+return {
+  cmd = { "spud-lsp" },
+  filetypes = { "spud" },
+  root_markers = { "pyproject.toml", ".git" },
+}
+```
+
+Then enable it in your LSP setup:
+
+```lua
+vim.lsp.enable("spud")
+```
+
+For format-on-save with [conform.nvim](https://github.com/stevearc/conform.nvim), register the formatter and map it to the `spud` filetype:
+
+```lua
+require("conform").setup({
+  formatters = {
+    spud_fmt = {
+      command = "spud-fmt",
+    },
+  },
+  formatters_by_ft = {
+    spud = { "spud_fmt" },
+  },
+})
+```
+
 ## Testing
 
 Run the full test suite (unit tests, fuzz tests, and golden tests):
