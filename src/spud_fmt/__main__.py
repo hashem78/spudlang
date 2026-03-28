@@ -4,8 +4,7 @@ from pathlib import Path
 import cyclopts
 from dependency_injector import providers
 
-from spud.core.file_reader import FileReader
-from spud.core.stdin_reader import StdinReader
+from spud.core.string_reader import StringReader
 from spud_fmt.config_loader import load_config
 from spud_fmt.container import FmtContainer
 
@@ -20,15 +19,19 @@ def main(file: Path | None = None, *, write: bool = False, config: Path | None =
     container.config.override(providers.Object(fmt_config))
 
     if file is not None:
-        container.reader.override(providers.Factory(FileReader, path=file))
+        original = file.read_text()
     else:
-        container.reader.override(providers.Factory(StdinReader))
+        original = sys.stdin.read()
+    container.reader.override(providers.Factory(StringReader, text=original))
 
     stage_six = container.stage_six()
     program = stage_six.parse()
 
-    for error in program.errors:
-        print(f"error: {error.kind.value} at {error.position.line}:{error.position.column}", file=sys.stderr)
+    if program.errors:
+        for error in program.errors:
+            print(f"error: {error.kind.value} at {error.position.line}:{error.position.column}", file=sys.stderr)
+        sys.stdout.write(original)
+        sys.exit(1)
 
     formatter = container.formatter()
     formatted = formatter.format_program(program)
