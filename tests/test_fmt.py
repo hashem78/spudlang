@@ -12,11 +12,13 @@ from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six.unit_literal import UnitLiteral
 from spud_fmt.config import FmtConfig, QuoteStyle
 from spud_fmt.container import _create_formatter
 from spud_fmt.formatter import Formatter
@@ -82,6 +84,14 @@ def _ifelse(branches: list, else_body=None) -> IfElse:
 
 def _forloop(var: str, iterable, body: list) -> ForLoop:
     return ForLoop(position=P, end=P, variable=_id(var), iterable=iterable, body=body)
+
+
+def _inline_funcdef(params: list[str], body) -> InlineFunctionDef:
+    return InlineFunctionDef(position=P, end=P, params=[_id(p) for p in params], body=body)
+
+
+def _unit() -> UnitLiteral:
+    return UnitLiteral(position=P, end=P)
 
 
 def _program(*body) -> Program:
@@ -399,6 +409,70 @@ class TestFunctionDef:
         result = _fmt().format_node(_funcdef(["x"], body), 0)
         lines = result.split("\n")
         assert len(lines) == 3
+
+
+# ── Inline Function Def ──────────────────────────────────────────────
+
+
+class TestInlineFunctionDef:
+    def test_two_params(self):
+        result = _fmt().format_node(_inline_funcdef(["a", "b"], _binop(_id("a"), "+", _id("b"))), 0)
+        assert result == "(a, b) => a + b"
+
+    def test_single_param(self):
+        result = _fmt().format_node(_inline_funcdef(["a"], _id("a")), 0)
+        assert result == "(a) => a"
+
+    def test_no_params(self):
+        result = _fmt().format_node(_inline_funcdef([], _num(42)), 0)
+        assert result == "() => 42"
+
+    def test_void_callback(self):
+        result = _fmt().format_node(_inline_funcdef([], _unit()), 0)
+        assert result == "() => ()"
+
+    def test_no_comma_space(self):
+        cfg = FmtConfig(space_after_comma=False)
+        result = _fmt(cfg).format_node(_inline_funcdef(["a", "b"], _id("a")), 0)
+        assert result == "(a,b) => a"
+
+    def test_no_fat_arrow_space(self):
+        cfg = FmtConfig(spaces_around_fat_arrow=False)
+        result = _fmt(cfg).format_node(_inline_funcdef(["x"], _id("x")), 0)
+        assert result == "(x)=>x"
+
+    def test_body_with_binary_op(self):
+        body = _binop(_id("x"), "*", _binop(_id("y"), "+", _num(1)))
+        result = _fmt().format_node(_inline_funcdef(["x", "y"], body), 0)
+        assert result == "(x, y) => x * (y + 1)"
+
+    def test_binding_inline_function(self):
+        node = _bind("add", _inline_funcdef(["a", "b"], _binop(_id("a"), "+", _id("b"))))
+        result = _fmt().format_node(node, 0)
+        assert result == "add := (a, b) => a + b"
+
+    def test_binding_inline_not_block_node(self):
+        from spud_fmt.formatters.body_fmt import is_block_node
+        node = _bind("f", _inline_funcdef(["x"], _id("x")))
+        assert not is_block_node(node)
+
+    def test_binding_block_function_is_block_node(self):
+        from spud_fmt.formatters.body_fmt import is_block_node
+        node = _bind("f", _funcdef(["x"], [_id("x")]))
+        assert is_block_node(node)
+
+
+# ── Unit Literal ─────────────────────────────────────────────────────
+
+
+class TestUnitLiteral:
+    def test_format(self):
+        result = _fmt().format_node(_unit(), 0)
+        assert result == "()"
+
+    def test_in_binding(self):
+        result = _fmt().format_node(_bind("x", _unit()), 0)
+        assert result == "x := ()"
 
 
 # ── If/Else ──────────────────────────────────────────────────────────

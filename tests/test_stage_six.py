@@ -33,7 +33,9 @@ from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
+from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six.unit_literal import UnitLiteral
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
@@ -915,6 +917,109 @@ class TestEdgeCases:
 
 
 # ── Parse Errors ──────────────────────────────────────────────────
+
+
+class TestInlineFunctionDefs:
+    def test_two_params(self):
+        result = _parse("(a, b) => a + b")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert len(node.params) == 2
+        assert node.params[0].name == "a"
+        assert node.params[1].name == "b"
+        assert isinstance(node.body, BinaryOp)
+        assert node.body.operator == "+"
+
+    def test_single_param(self):
+        result = _parse("(a) => a")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert len(node.params) == 1
+        assert node.params[0].name == "a"
+        assert isinstance(node.body, Identifier)
+        assert node.body.name == "a"
+
+    def test_no_params(self):
+        result = _parse("() => 42")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert node.params == []
+        assert isinstance(node.body, NumericLiteral)
+        assert node.body.value == 42
+
+    def test_void_callback(self):
+        result = _parse("() => ()")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert node.params == []
+        assert isinstance(node.body, UnitLiteral)
+
+    def test_binding_inline_function(self):
+        result = _parse("add := (a, b) => a + b")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, Binding)
+        assert node.target.name == "add"
+        assert isinstance(node.value, InlineFunctionDef)
+        assert len(node.value.params) == 2
+        assert isinstance(node.value.body, BinaryOp)
+
+    def test_as_function_argument(self):
+        result = _parse("map(items, (x) => x + 1)")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, FunctionCall)
+        assert node.callee.name == "map"
+        assert len(node.args) == 2
+        assert isinstance(node.args[0], Identifier)
+        assert isinstance(node.args[1], InlineFunctionDef)
+        assert len(node.args[1].params) == 1
+        assert isinstance(node.args[1].body, BinaryOp)
+
+    def test_nested_inline_functions(self):
+        result = _parse("(f) => (x) => f(x)")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert len(node.params) == 1
+        assert isinstance(node.body, InlineFunctionDef)
+        assert len(node.body.params) == 1
+        assert isinstance(node.body.body, FunctionCall)
+
+    def test_inline_with_unary(self):
+        result = _parse("(x) => -x")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, InlineFunctionDef)
+        assert isinstance(node.body, UnaryOp)
+        assert node.body.operator == "-"
+
+
+class TestUnitLiteral:
+    def test_standalone(self):
+        result = _parse("()")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, UnitLiteral)
+
+    def test_in_binding(self):
+        result = _parse("x := ()")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, Binding)
+        assert isinstance(node.value, UnitLiteral)
+
+    def test_as_function_argument(self):
+        result = _parse("f(())")
+        assert not result.errors
+        node = result.body[0]
+        assert isinstance(node, FunctionCall)
+        assert len(node.args) == 1
+        assert isinstance(node.args[0], UnitLiteral)
 
 
 class TestParseErrors:

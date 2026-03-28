@@ -1,0 +1,19 @@
+errors: []
+tree: |-
+  ├── BINDING add
+  │   └── INLINE_FUNCTION_DEF (a, b)
+  │       └── BINARY_OP +
+  │           ├── IDENTIFIER a
+  │           └── IDENTIFIER b
+  ├── BINDING identity
+  │   └── INLINE_FUNCTION_DEF (x)
+  │       └── IDENTIFIER x
+  ├── BINDING noop
+  │   └── INLINE_FUNCTION_DEF ()
+  │       └── UNIT
+  └── CALL map
+      ├── IDENTIFIER items
+      └── INLINE_FUNCTION_DEF (x)
+          └── BINARY_OP +
+              ├── IDENTIFIER x
+              └── NUMERIC 1

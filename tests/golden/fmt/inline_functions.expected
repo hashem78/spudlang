@@ -1,0 +1,6 @@
+add := (a, b) => a + b
+identity := (x) => x
+noop := () => ()
+double := (x) => x * 2
+map(items, (x) => x + 1)
+filter(items, (x) => x > 0)

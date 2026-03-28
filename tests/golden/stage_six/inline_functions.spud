@@ -1,0 +1,4 @@
+add := (a, b) => a + b
+identity := (x) => x
+noop := () => ()
+map(items, (x) => x + 1)
