@@ -192,6 +192,22 @@ class TestBinaryOp:
         node = _binop(_binop(_id("a"), "+", _id("b")), "*", _id("c"))
         assert _fmt().format_node(node, 0) == "(a + b) * c"
 
+    def test_non_commutative_right_child_gets_parens(self):
+        node = _binop(_id("a"), "*", _binop(_num(1), "/", _num(2)))
+        assert _fmt().format_node(node, 0) == "a * (1 / 2)"
+
+    def test_non_commutative_parent_right_gets_parens(self):
+        node = _binop(_num(6), "/", _binop(_num(2), "*", _num(3)))
+        assert _fmt().format_node(node, 0) == "6 / (2 * 3)"
+
+    def test_subtract_grouped_add(self):
+        node = _binop(_id("a"), "-", _binop(_id("b"), "+", _id("c")))
+        assert _fmt().format_node(node, 0) == "a - (b + c)"
+
+    def test_commutative_same_prec_no_parens(self):
+        node = _binop(_id("a"), "+", _binop(_id("b"), "+", _id("c")))
+        assert _fmt().format_node(node, 0) == "a + b + c"
+
     def test_comparison(self):
         assert _fmt().format_node(_binop(_id("x"), "==", _num(5)), 0) == "x == 5"
 
