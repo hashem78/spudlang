@@ -4,7 +4,18 @@
 
 from dependency_injector import containers, providers
 
-from spud.core.file_reader import FileReader
+from spud.core.pipeline import (
+    ParsedProgram,
+    ParseStep,
+    Pipeline,
+    ResolvedProgram,
+    ResolveStep,
+    StageFiveStep,
+    StageFourStep,
+    StageOneStep,
+    StageThreeStep,
+    StageTwoStep,
+)
 from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
@@ -20,7 +31,6 @@ from spud.stage_six.parsers.function_def_parser import FunctionDefParser
 from spud.stage_six.parsers.if_else_parser import IfElseParser
 from spud.stage_six.parsers.program_parser import ProgramParser
 from spud.stage_six.parsers.statement_parser import StatementParser
-from spud.stage_six.stage_six import StageSix
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 
@@ -43,20 +53,46 @@ def _create_program_parser() -> ProgramParser:
     return ProgramParser(statement_parser=statement)
 
 
+def _create_pipeline(
+    s2_trie: object,
+    s4_trie: object,
+    program_parser: ProgramParser,
+    resolver: StageSeven,
+    logger: object,
+) -> Pipeline:
+    s1 = StageOneStep()
+    s2 = StageTwoStep(prev=s1, trie=s2_trie, logger=logger)
+    s3 = StageThreeStep(prev=s2, logger=logger)
+    s4 = StageFourStep(prev=s3, trie=s4_trie, logger=logger)
+    s5 = StageFiveStep(prev=s4, logger=logger)
+    parse = ParseStep(prev=s5, parser=program_parser)
+    resolve = ResolveStep(prev=parse, resolver=resolver)
+
+    return Pipeline(
+        {
+            StageOne: s1,
+            StageTwo: s2,
+            StageThree: s3,
+            StageFour: s4,
+            StageFive: s5,
+            ParsedProgram: parse,
+            ResolvedProgram: resolve,
+        }
+    )
+
+
 class Container(containers.DeclarativeContainer):
     logger = providers.Factory(create_logger)
-
-    reader = providers.Factory(FileReader)
-    stage_one = providers.Factory(StageOne, handle=reader)
-    stage_two_trie = providers.Singleton(create_stage_two_trie)
-    stage_two = providers.Factory(StageTwo, stage_one=stage_one, trie=stage_two_trie, logger=logger)
-    stage_three = providers.Factory(StageThree, stage_two=stage_two, logger=logger)
-    stage_four_trie = providers.Singleton(create_stage_four_trie)
-    stage_four = providers.Factory(StageFour, stage_three=stage_three, trie=stage_four_trie, logger=logger)
-    stage_five = providers.Factory(StageFive, stage_four=stage_four, logger=logger)
-
+    s2_trie = providers.Singleton(create_stage_two_trie)
+    s4_trie = providers.Singleton(create_stage_four_trie)
     program_parser = providers.Singleton(_create_program_parser)
+    resolver = providers.Singleton(StageSeven, logger=logger)
 
-    stage_six = providers.Factory(StageSix, stage_five=stage_five, program_parser=program_parser, logger=logger)
-
-    stage_seven = providers.Factory(StageSeven, logger=logger)
+    pipeline = providers.Singleton(
+        _create_pipeline,
+        s2_trie=s2_trie,
+        s4_trie=s4_trie,
+        program_parser=program_parser,
+        resolver=resolver,
+        logger=logger,
+    )

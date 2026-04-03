@@ -4,6 +4,7 @@ from pathlib import Path
 import cyclopts
 from dependency_injector import providers
 
+from spud.core.pipeline import ParsedProgram
 from spud.core.string_reader import StringReader
 from spud_fmt.config_loader import load_config
 from spud_fmt.container import FmtContainer
@@ -22,19 +23,18 @@ def main(file: Path | None = None, *, write: bool = False, config: Path | None =
         original = file.read_text()
     else:
         original = sys.stdin.read()
-    container.reader.override(providers.Factory(StringReader, text=original))
 
-    stage_six = container.stage_six()
-    program = stage_six.parse()
+    pipeline = container.pipeline()
+    parsed = pipeline.get(ParsedProgram, StringReader(original))
 
-    if program.errors:
-        for error in program.errors:
-            print(f"error: {error.kind.value} at {error.position.line}:{error.position.column}", file=sys.stderr)
+    if parsed.program.errors:
+        for error in parsed.program.errors:
+            print(f"error: {error}", file=sys.stderr)
         sys.stdout.write(original)
         sys.exit(1)
 
     formatter = container.formatter()
-    formatted = formatter.format_program(program)
+    formatted = formatter.format_program(parsed.program)
 
     if write and file is not None:
         file.write_text(formatted)
