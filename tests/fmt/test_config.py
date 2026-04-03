@@ -1,6 +1,5 @@
 from spud_fmt.config import FmtConfig
-
-from tests.fmt.helpers import bind, bool_, fmt, funcdef, id, num, program
+from tests.fmt.helpers import bind, fmt, funcdef, id, num, program
 
 
 class TestConfigIndent:

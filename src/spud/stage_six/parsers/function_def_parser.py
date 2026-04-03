@@ -2,8 +2,8 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
-from spud.stage_six.parsers.param_list_parser import parse_param_list
 from spud.stage_six.parser_protocol import IParser
+from spud.stage_six.parsers.param_list_parser import parse_param_list
 from spud.stage_six.token_stream import TokenStream
 
 

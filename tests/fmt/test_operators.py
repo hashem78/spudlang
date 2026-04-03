@@ -1,6 +1,5 @@
 from spud_fmt.config import FmtConfig
-
-from tests.fmt.helpers import binop, bool_, call, fmt, id, neg, num, pos
+from tests.fmt.helpers import binop, call, fmt, id, neg, num, pos
 
 
 class TestBinaryOp:
@@ -88,6 +87,7 @@ class TestUnaryOp:
 
     def test_binding_to_negative(self):
         from tests.fmt.helpers import bind
+
         assert fmt().format_node(bind("x", neg(num(5))), 0) == "x := -5"
 
     def test_unary_plus(self):

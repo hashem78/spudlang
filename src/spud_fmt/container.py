@@ -22,11 +22,11 @@ from spud_fmt.formatters.function_call_fmt import FunctionCallFormatter
 from spud_fmt.formatters.function_def_fmt import FunctionDefFormatter
 from spud_fmt.formatters.identifier_fmt import IdentifierFormatter
 from spud_fmt.formatters.if_else_fmt import IfElseFormatter
+from spud_fmt.formatters.inline_function_def_fmt import InlineFunctionDefFormatter
+from spud_fmt.formatters.list_literal_fmt import ListLiteralFormatter
 from spud_fmt.formatters.numeric_fmt import NumericFormatter
 from spud_fmt.formatters.raw_string_fmt import RawStringFormatter
 from spud_fmt.formatters.string_fmt import StringFormatter
-from spud_fmt.formatters.inline_function_def_fmt import InlineFunctionDefFormatter
-from spud_fmt.formatters.list_literal_fmt import ListLiteralFormatter
 from spud_fmt.formatters.unary_op_fmt import UnaryOpFormatter
 from spud_fmt.formatters.unit_literal_fmt import UnitLiteralFormatter
 

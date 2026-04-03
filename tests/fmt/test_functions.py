@@ -1,5 +1,4 @@
 from spud_fmt.config import FmtConfig
-
 from tests.fmt.helpers import (
     bind,
     binop,
@@ -105,11 +104,13 @@ class TestInlineFunctionDef:
 
     def test_binding_inline_not_block_node(self):
         from spud_fmt.formatters.body_fmt import is_block_node
+
         node = bind("f", inline_funcdef(["x"], id("x")))
         assert not is_block_node(node)
 
     def test_binding_block_function_is_block_node(self):
         from spud_fmt.formatters.body_fmt import is_block_node
+
         node = bind("f", funcdef(["x"], [id("x")]))
         assert is_block_node(node)
 

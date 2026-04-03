@@ -8,7 +8,6 @@ from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.unary_op import UnaryOp
-
 from tests.stage_six.helpers import parse
 
 

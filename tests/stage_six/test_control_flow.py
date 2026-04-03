@@ -8,7 +8,6 @@ from spud.stage_six.if_else import IfElse
 from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
-
 from tests.stage_six.helpers import parse
 
 

@@ -1,6 +1,5 @@
 from spud_fmt.config import FmtConfig, QuoteStyle
-
-from tests.fmt.helpers import bind, binop, bool_, call, fmt, id, inline_funcdef, list_, num, raw, str_
+from tests.fmt.helpers import bind, bool_, call, fmt, id, inline_funcdef, list_, num, raw, str_
 
 
 class TestIdentifier:

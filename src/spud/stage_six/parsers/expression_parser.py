@@ -243,13 +243,17 @@ class ExpressionParser:
         if stream.peek_type() != T.BRACKET_RIGHT:
             first = self.parse(stream)
             if isinstance(first, ParseError):
-                return with_context(first, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT))
+                return with_context(
+                    first, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT)
+                )
             elements.append(first)
             while stream.peek_type() == T.COMMA:
                 stream.consume()
                 elem = self.parse(stream)
                 if isinstance(elem, ParseError):
-                    return with_context(elem, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT))
+                    return with_context(
+                        elem, ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT)
+                    )
                 elements.append(elem)
         bracket_ctx = ParseContext(kind=ParseContextKind.UNTERMINATED_DELIMITER, delimiter=T.BRACKET_LEFT)
         rbracket = stream.expect(T.BRACKET_RIGHT, context=bracket_ctx)

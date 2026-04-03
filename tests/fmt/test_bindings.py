@@ -1,5 +1,4 @@
 from spud_fmt.config import FmtConfig
-
 from tests.fmt.helpers import bind, binop, bool_, call, fmt, funcdef, id, num, str_
 
 
