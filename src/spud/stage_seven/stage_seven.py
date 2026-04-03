@@ -111,23 +111,25 @@ class StageSeven:
             case Binding(target=target, value=value):
                 return self._resolve_binding(target, value, node, env, errors)
             case FunctionDef(params=params, body=body):
-                self._resolve_function(params, body, env, errors)
-                return env
+                final_child = self._resolve_function(params, body, env, errors)
+                return env.with_child(final_child)
             case InlineFunctionDef(params=params, body=body):
-                self._resolve_function(params, [body], env, errors)
-                return env
+                final_child = self._resolve_function(params, [body], env, errors)
+                return env.with_child(final_child)
             case ForLoop(variable=variable, iterable=iterable, body=body):
                 self._resolve_node(iterable, env, errors)
                 child = env.child()
                 child = self._define_checked(variable.name, variable.position, node, child, env, errors)
-                self._resolve_body(body, child, errors)
-                return env
+                final_child = self._resolve_body(body, child, errors)
+                return env.with_child(final_child)
             case IfElse(branches=branches, else_body=else_body):
                 for branch in branches:
-                    self._resolve_branch(branch, env, errors)
+                    final_child = self._resolve_branch(branch, env, errors)
+                    env = env.with_child(final_child)
                 if else_body:
                     child = env.child()
-                    self._resolve_body(else_body, child, errors)
+                    final_child = self._resolve_body(else_body, child, errors)
+                    env = env.with_child(final_child)
                 return env
             case Identifier(name=name):
                 if env.lookup(name) is None:
@@ -177,7 +179,7 @@ class StageSeven:
         is_function = isinstance(value, FunctionDef | InlineFunctionDef)
         if is_function and not has_error:
             env = env.with_binding(target.name, node)
-        self._resolve_node(value, env, errors)
+        env = self._resolve_node(value, env, errors)
         if not is_function and not has_error:
             env = env.with_binding(target.name, node)
         return env
@@ -188,33 +190,34 @@ class StageSeven:
         body: list[ASTNode],
         env: Environment[ASTNode],
         errors: list[ResolveError],
-    ) -> None:
+    ) -> Environment[ASTNode]:
         """Resolve a function definition (block or inline).
 
         Creates a child scope, defines each parameter (checking for
         duplicates among the parameters and shadowing against the
-        enclosing scope), then walks the function body.
+        enclosing scope), then walks the function body.  Returns the
+        final child environment.
         """
         child = env.child()
         for param in params:
             child = self._define_checked(param.name, param.position, param, child, env, errors)
-        self._resolve_body(body, child, errors)
+        return self._resolve_body(body, child, errors)
 
     def _resolve_branch(
         self,
         branch: ConditionBranch,
         env: Environment[ASTNode],
         errors: list[ResolveError],
-    ) -> None:
+    ) -> Environment[ASTNode]:
         """Resolve a single ``if`` or ``elif`` branch.
 
         The condition is resolved in the current scope.  The branch
         body gets its own child scope so bindings inside the branch
-        do not leak out.
+        do not leak out.  Returns the final child environment.
         """
         self._resolve_node(branch.condition, env, errors)
         child = env.child()
-        self._resolve_body(branch.body, child, errors)
+        return self._resolve_body(branch.body, child, errors)
 
     def _resolve_body(
         self,

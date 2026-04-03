@@ -38,6 +38,9 @@ class Environment(BaseModel, Generic[T], frozen=True):
     parent: "Environment[T] | None" = None
     """The enclosing scope, or ``None`` for the global scope."""
 
+    children: tuple["Environment[T]", ...] = ()
+    """Child scopes branching off from this environment."""
+
     def with_binding(self, name: str, value: T) -> "Environment[T]":
         """Return a copy of this environment with *name* bound to *value*.
 
@@ -76,6 +79,14 @@ class Environment(BaseModel, Generic[T], frozen=True):
             False
         """
         return Environment(parent=self)
+
+    def with_child(self, child: "Environment[T]") -> "Environment[T]":
+        """Return a copy of this environment with *child* appended.
+
+        :param child: The child scope to attach.
+        :returns: A new ``Environment`` with *child* in ``children``.
+        """
+        return self.model_copy(update={"children": (*self.children, child)})
 
     def lookup(self, name: str) -> T | None:
         """Search for *name* in this scope and all ancestor scopes.
