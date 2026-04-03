@@ -142,6 +142,9 @@ async def main() -> int:
         ("for in x", "in for loop variable"),
         ("else\n  x", "'else' without matching 'if'"),
         ("elif true\n  x", "'elif' without matching 'if'"),
+        ("x := y + 1", "undefined variable 'y'"),
+        ("x := 1\nx := 2", "duplicate binding 'x'"),
+        ("x := 1\nf := (x) =>\n  x", "'x' shadows an outer binding"),
     ]
 
     for i, (code, expected_fragment) in enumerate(diag_cases):
