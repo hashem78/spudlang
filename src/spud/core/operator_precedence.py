@@ -27,3 +27,5 @@ OPERATOR_PRECEDENCE: dict[str, int] = {
 NON_ASSOCIATIVE_OPS: set[str] = {op.token.value for op in OPERATORS if op.associativity == Associativity.NONE}
 
 NON_COMMUTATIVE_OPS: set[str] = {op.token.value for op in OPERATORS if not op.commutative}
+
+OPERATOR_TOKENS: frozenset[T] = frozenset({op.token for op in OPERATORS} | {T.WALRUS})
