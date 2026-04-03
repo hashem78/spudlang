@@ -168,10 +168,12 @@ class ExpressionParser:
             )
 
         match tok.token_type:
+            case T.NUMERIC:
+                stream.consume()
+                return NumericLiteral(position=tok.position, end=tok.position, value=int(tok.value))
+
             case T.IDENTIFIER:
                 stream.consume()
-                if tok.value.isdigit():
-                    return NumericLiteral(position=tok.position, end=tok.position, value=int(tok.value))
                 if stream.peek_type() == T.PAREN_LEFT:
                     return self._parse_function_call(stream, tok)
                 return Identifier(position=tok.position, end=tok.position, name=tok.value)

@@ -3,6 +3,7 @@ from enum import Enum
 
 class StageThreeTokenType(str, Enum):
     IDENTIFIER = "identifier"
+    NUMERIC = "NUMERIC"
     NEW_LINE = "\n"
     HYPHEN = "-"
     COMMA = ","

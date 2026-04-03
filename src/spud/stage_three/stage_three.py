@@ -8,6 +8,19 @@ from spud.stage_two.stage_two import StageTwo
 from spud.stage_two.stage_two_token import DefinedStageTwoToken, StageTwoToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
+_DIGIT_TYPES = {
+    StageTwoTokenType.ZERO,
+    StageTwoTokenType.ONE,
+    StageTwoTokenType.TWO,
+    StageTwoTokenType.THREE,
+    StageTwoTokenType.FOUR,
+    StageTwoTokenType.FIVE,
+    StageTwoTokenType.SIX,
+    StageTwoTokenType.SEVEN,
+    StageTwoTokenType.EIGHT,
+    StageTwoTokenType.NINE,
+}
+
 
 class StageThree:
     _SYMBOL_TYPES = {
@@ -47,19 +60,11 @@ class StageThree:
             match token.token_type:
                 case StageTwoTokenType.SPACE:
                     if buff:
-                        yield StageThreeToken(
-                            token_type=StageThreeTokenType.IDENTIFIER,
-                            position=buff[0].position,
-                            value="".join(t.token_type.value for t in buff),
-                        )
+                        yield self._flush(buff)
                         buff.clear()
                 case StageTwoTokenType.NEW_LINE:
                     if buff:
-                        yield StageThreeToken(
-                            token_type=StageThreeTokenType.IDENTIFIER,
-                            position=buff[0].position,
-                            value="".join(t.token_type.value for t in buff),
-                        )
+                        yield self._flush(buff)
                         buff.clear()
                     yield StageThreeToken(
                         token_type=StageThreeTokenType.NEW_LINE,
@@ -68,11 +73,7 @@ class StageThree:
                     )
                 case token_type if token_type in self._SYMBOL_TYPES:
                     if buff:
-                        yield StageThreeToken(
-                            token_type=StageThreeTokenType.IDENTIFIER,
-                            position=buff[0].position,
-                            value="".join(t.token_type.value for t in buff),
-                        )
+                        yield self._flush(buff)
                         buff.clear()
                     yield StageThreeToken(
                         token_type=StageThreeTokenType[token_type.name],
@@ -81,11 +82,7 @@ class StageThree:
                     )
                 case token_type if len(token_type.value) > 1:
                     if buff:
-                        yield StageThreeToken(
-                            token_type=StageThreeTokenType.IDENTIFIER,
-                            position=buff[0].position,
-                            value="".join(t.token_type.value for t in buff),
-                        )
+                        yield self._flush(buff)
                         buff.clear()
                     yield StageThreeToken(
                         token_type=StageThreeTokenType[token_type.name],
@@ -98,8 +95,15 @@ class StageThree:
                     buff.append(token)
 
         if buff:
-            yield StageThreeToken(
-                token_type=StageThreeTokenType.IDENTIFIER,
-                position=buff[0].position,
-                value="".join(t.token_type.value for t in buff),
-            )
+            yield self._flush(buff)
+
+    @staticmethod
+    def _flush(buff: list[StageTwoToken]) -> StageThreeToken:
+        value = "".join(t.token_type.value for t in buff)
+        is_numeric = all(t.token_type in _DIGIT_TYPES for t in buff)
+        token_type = StageThreeTokenType.NUMERIC if is_numeric else StageThreeTokenType.IDENTIFIER
+        return StageThreeToken(
+            token_type=token_type,
+            position=buff[0].position,
+            value=value,
+        )
