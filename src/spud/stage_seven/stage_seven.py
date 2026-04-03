@@ -89,7 +89,8 @@ class StageSeven:
         env: Environment[ASTNode] = Environment()
         for node in program.body:
             env = self._resolve_node(node, env, errors)
-        return ResolveResult(errors=errors, environment=env)
+        updated_program = program.model_copy(update={"errors": [*program.errors, *errors]})
+        return ResolveResult(errors=errors, environment=env, program=updated_program)
 
     def _resolve_node(
         self,

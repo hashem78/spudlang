@@ -18,8 +18,9 @@ container = Container()
 @app.default
 def main(file: Path, tree: bool = False, env: bool = False) -> None:
     container.reader.override(providers.Factory(FileReader, path=file))
-    stage_six = container.stage_six()
-    program = stage_six.parse()
+    program = container.stage_six().parse()
+    result = container.stage_seven().resolve(program)
+    program = result.program
     for error in program.errors:
         print(f"error: {error}")
     if tree:
@@ -27,11 +28,6 @@ def main(file: Path, tree: bool = False, env: bool = False) -> None:
 
         print_ast(program)
     elif env:
-        stage_seven = container.stage_seven()
-        result = stage_seven.resolve(program)
-        for error in result.errors:
-            print(f"resolve error: {error.kind.value} '{error.name}' at {error.position.line}:{error.position.column}")
-
         from spud.core.environment_printer import print_environment
 
         print_environment(result.environment)

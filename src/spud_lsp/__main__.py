@@ -9,11 +9,13 @@ from spud_lsp.server import SpudLanguageServer
 def entrypoint() -> None:
     container: LspContainer = LspContainer()
 
+    stage_seven = container.stage_seven()
+
     def parse(text: str) -> Program:
         container.reader.override(providers.Factory(StringReader, text=text))
-        result: Program = container.stage_six().parse()
+        program: Program = container.stage_six().parse()
         container.reader.reset_override()
-        return result
+        return stage_seven.resolve(program).program
 
     server: SpudLanguageServer = SpudLanguageServer(
         parse=parse,

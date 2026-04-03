@@ -8,6 +8,7 @@ from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
+from spud.stage_seven.stage_seven import StageSeven
 from spud.stage_six.stage_six import StageSix
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
@@ -32,6 +33,7 @@ class LspContainer(containers.DeclarativeContainer):
     program_parser = providers.Singleton(_create_program_parser)
 
     stage_six = providers.Factory(StageSix, stage_five=stage_five, program_parser=program_parser, logger=logger)
+    stage_seven = providers.Singleton(StageSeven, logger=logger)
 
     diagnostics_handler = providers.Singleton(DiagnosticsHandler)
     hover_handler = providers.Singleton(HoverHandler)
