@@ -11,6 +11,7 @@ from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
+from spud.stage_seven.stage_seven import StageSeven
 from spud.stage_six.parsers.binding_parser import BindingParser
 from spud.stage_six.parsers.block_parser import BlockParser
 from spud.stage_six.parsers.expression_parser import ExpressionParser
@@ -57,3 +58,5 @@ class Container(containers.DeclarativeContainer):
     program_parser = providers.Singleton(_create_program_parser)
 
     stage_six = providers.Factory(StageSix, stage_five=stage_five, program_parser=program_parser, logger=logger)
+
+    stage_seven = providers.Factory(StageSeven, logger=logger)
