@@ -109,6 +109,26 @@ async def main() -> int:
         return 1
     print("OK: document symbols include bindings")
 
+    # Request semantic tokens.
+    sem_tokens = await client.protocol.send_request_async(
+        "textDocument/semanticTokens/full",
+        types.SemanticTokensParams(
+            text_document=types.TextDocumentIdentifier(uri="file:///test.spud"),
+        ),
+    )
+    if sem_tokens is None:
+        print("FAIL: no semantic tokens returned")
+        return 1
+    token_data: list[int] = sem_tokens.get("data", []) if isinstance(sem_tokens, dict) else sem_tokens.data
+    if not token_data:
+        print("FAIL: semantic tokens data is empty")
+        return 1
+    if len(token_data) % 5 != 0:
+        print(f"FAIL: semantic tokens data length {len(token_data)} is not a multiple of 5")
+        return 1
+    print(f"Semantic tokens: {len(token_data) // 5} tokens")
+    print("OK: semantic tokens returned with valid data")
+
     # Open an invalid document — should produce diagnostics.
     diagnostics_received.clear()
     client.protocol.notify(
