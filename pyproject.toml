@@ -50,7 +50,7 @@ lint = "ruff check {args:src/spud tests}"
 fmt = "ruff format {args:src/spud tests}"
 fmt-check = "ruff format --check {args:src/spud tests}"
 typecheck = "ty check {args}"
-test = "pytest {args:tests} && python tests/test_golden.py"
+test = "pytest {args:tests} && python tests/test_golden.py && python tests/test_golden_stage_seven.py"
 test-lsp = "python tests/lsp/test_smoke.py"
 
 [tool.hatch.envs.build]
