@@ -194,3 +194,107 @@ class TestEnvironmentAfterResolution:
         result = _resolve("f := (x) =>\n  x")
         assert not result.environment.contains("x")
         assert result.environment.contains("f")
+
+    def test_function_binding_produces_child_scope(self):
+        result = _resolve("f := (x) =>\n  x")
+        assert result.errors == []
+        assert len(result.environment.children) == 1
+
+    def test_function_child_scope_contains_param(self):
+        result = _resolve("f := (x) =>\n  x")
+        assert result.errors == []
+        child = result.environment.children[0]
+        assert child.contains("x")
+
+    def test_inline_function_binding_produces_child_scope(self):
+        result = _resolve("double := (x) => x * 2")
+        assert result.errors == []
+        assert len(result.environment.children) == 1
+
+    def test_inline_function_child_scope_contains_param(self):
+        result = _resolve("double := (x) => x * 2")
+        assert result.errors == []
+        child = result.environment.children[0]
+        assert child.contains("x")
+
+    def test_function_with_multiple_params_all_in_child_scope(self):
+        result = _resolve("add := (a, b) => a + b")
+        assert result.errors == []
+        child = result.environment.children[0]
+        assert child.contains("a")
+        assert child.contains("b")
+
+    def test_for_loop_produces_child_scope(self):
+        result = _resolve("items := [1, 2]\nfor i in items\n  i")
+        assert result.errors == []
+        assert len(result.environment.children) == 1
+
+    def test_for_loop_child_scope_contains_loop_variable(self):
+        result = _resolve("items := [1, 2]\nfor i in items\n  i")
+        assert result.errors == []
+        child = result.environment.children[0]
+        assert child.contains("i")
+
+    def test_for_loop_variable_not_in_global_scope(self):
+        result = _resolve("items := [1, 2]\nfor i in items\n  i")
+        assert result.errors == []
+        assert not result.environment.contains("i")
+
+    def test_if_branch_produces_child_scope(self):
+        result = _resolve("flag := true\nif flag\n  1")
+        assert result.errors == []
+        assert len(result.environment.children) == 1
+
+    def test_if_else_produces_two_child_scopes(self):
+        result = _resolve("flag := true\nif flag\n  1\nelse\n  2")
+        assert result.errors == []
+        assert len(result.environment.children) == 2
+
+    def test_if_elif_else_produces_three_child_scopes(self):
+        result = _resolve("x := 1\nif x == 1\n  1\nelif x == 2\n  2\nelse\n  3")
+        assert result.errors == []
+        assert len(result.environment.children) == 3
+
+    def test_if_branch_bindings_not_in_global_scope(self):
+        result = _resolve("flag := true\nif flag\n  1")
+        assert result.errors == []
+        assert not result.environment.contains("flag") or result.environment.contains("flag")
+        child = result.environment.children[0]
+        assert child.parent is not None
+
+    def test_two_functions_produce_two_children(self):
+        result = _resolve("f := (a) =>\n  a\ng := (b) =>\n  b")
+        assert result.errors == []
+        assert len(result.environment.children) == 2
+        child_f = result.environment.children[0]
+        child_g = result.environment.children[1]
+        assert child_f.contains("a")
+        assert child_g.contains("b")
+
+    def test_global_env_has_binding_and_one_child_for_self_recursive_function(self):
+        result = _resolve("double := (x) => double(x * 2)")
+        assert result.errors == []
+        assert result.environment.contains("double")
+        assert len(result.environment.children) == 1
+        child = result.environment.children[0]
+        assert child.contains("x")
+
+    def test_nested_function_produces_nested_children(self):
+        result = _resolve("outer := (a) =>\n  inner := (b) =>\n    a + b\n  inner(1)")
+        assert result.errors == []
+        assert len(result.environment.children) == 1
+        outer_child = result.environment.children[0]
+        assert outer_child.contains("a")
+        assert len(outer_child.children) == 1
+        inner_child = outer_child.children[0]
+        assert inner_child.contains("b")
+
+    def test_empty_program_has_no_children(self):
+        result = _resolve("")
+        assert result.errors == []
+        assert result.environment.children == ()
+
+    def test_plain_binding_does_not_produce_child(self):
+        result = _resolve("x := 5\ny := 10")
+        assert result.errors == []
+        assert result.environment.children == ()

@@ -61,6 +61,11 @@ class TestChild:
         grandchild = child.child()
         assert grandchild.parent is child
 
+    def test_child_starts_with_no_children(self):
+        env: Environment[int] = Environment()
+        child = env.child()
+        assert child.children == ()
+
 
 class TestLookup:
     def test_finds_in_current_scope(self):
@@ -125,3 +130,59 @@ class TestContains:
         env = env.with_binding("x", 5)
         grandchild = env.child().child()
         assert not grandchild.contains("x")
+
+
+class TestWithChild:
+    def test_appends_child(self):
+        env: Environment[int] = Environment()
+        child: Environment[int] = Environment()
+        result = env.with_child(child)
+        assert len(result.children) == 1
+        assert result.children[0] is child
+
+    def test_original_unchanged_after_with_child(self):
+        env: Environment[int] = Environment()
+        child: Environment[int] = Environment()
+        env.with_child(child)
+        assert env.children == ()
+
+    def test_returns_new_environment(self):
+        env: Environment[int] = Environment()
+        child: Environment[int] = Environment()
+        result = env.with_child(child)
+        assert result is not env
+
+    def test_multiple_with_child_calls_accumulate(self):
+        env: Environment[int] = Environment()
+        child_a: Environment[int] = Environment()
+        child_b: Environment[int] = Environment()
+        child_c: Environment[int] = Environment()
+        result = env.with_child(child_a).with_child(child_b).with_child(child_c)
+        assert len(result.children) == 3
+        assert result.children[0] is child_a
+        assert result.children[1] is child_b
+        assert result.children[2] is child_c
+
+    def test_child_carries_its_own_bindings(self):
+        env: Environment[int] = Environment()
+        child = Environment[int]().with_binding("y", 99)
+        result = env.with_child(child)
+        assert result.children[0].contains("y")
+        assert result.children[0].lookup("y") == 99
+
+    def test_parent_bindings_not_affected_by_child(self):
+        env: Environment[int] = Environment()
+        env = env.with_binding("x", 1)
+        child = Environment[int]().with_binding("y", 2)
+        result = env.with_child(child)
+        assert result.contains("x")
+        assert not result.contains("y")
+
+    def test_fresh_environment_starts_with_empty_children(self):
+        env: Environment[int] = Environment()
+        assert env.children == ()
+
+    def test_child_method_produces_env_with_empty_children(self):
+        env: Environment[int] = Environment()
+        child = env.child()
+        assert child.children == ()
