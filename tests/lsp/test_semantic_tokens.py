@@ -1,37 +1,16 @@
-import structlog
-
+from spud.core.pipeline import Pipeline
 from spud.core.string_reader import StringReader
-from spud.di.container import _create_program_parser
-from spud.di.stage_four_trie import create_stage_four_trie
-from spud.di.stage_two_trie import create_stage_two_trie
-from spud.stage_five.stage_five import StageFive
-from spud.stage_four.stage_four import StageFour
-from spud.stage_one.stage_one import StageOne
-from spud.stage_seven.stage_seven import StageSeven
-from spud.stage_six.token_stream import TokenStream
-from spud.stage_three.stage_three import StageThree
-from spud.stage_two.stage_two import StageTwo
+from spud.di.container import Container
 from spud_lsp.semantic_tokens import TOKEN_TYPES, SemanticTokensHandler
 
-LOGGER = structlog.get_logger()
-STAGE_TWO_TRIE = create_stage_two_trie()
-STAGE_FOUR_TRIE = create_stage_four_trie()
-PROGRAM_PARSER = _create_program_parser()
+_CONTAINER = Container()
+PIPELINE: Pipeline = _CONTAINER.pipeline()
 
 
 def _run(text: str) -> list[tuple[int, int, int, str, bool]]:
-    reader = StringReader(text)
-    s1 = StageOne(reader)
-    s2 = StageTwo(s1, STAGE_TWO_TRIE, LOGGER)
-    s3 = StageThree(s2, LOGGER)
-    s4 = StageFour(s3, STAGE_FOUR_TRIE, LOGGER)
-    s5 = StageFive(s4, LOGGER)
-    tokens = list(s5.parse())
-    stream = TokenStream(tokens)
-    program = PROGRAM_PARSER.parse(stream)
-    result = StageSeven(LOGGER).resolve(program)
+    result = PIPELINE.run(StringReader(text))
     handler = SemanticTokensHandler()
-    st = handler.semantic_tokens(result, tokens)
+    st = handler.semantic_tokens(result.resolve_result, result.tokens)
     return _decode(st.data)
 
 

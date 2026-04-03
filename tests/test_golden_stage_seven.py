@@ -6,44 +6,22 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import structlog
-
 from spud.core.file_reader import FileReader
-from spud.di.container import _create_program_parser
-from spud.di.stage_four_trie import create_stage_four_trie
-from spud.di.stage_two_trie import create_stage_two_trie
-from spud.stage_five.stage_five import StageFive
-from spud.stage_four.stage_four import StageFour
-from spud.stage_one.stage_one import StageOne
-from spud.stage_seven.stage_seven import StageSeven
-from spud.stage_six.token_stream import TokenStream
-from spud.stage_three.stage_three import StageThree
-from spud.stage_two.stage_two import StageTwo
+from spud.core.pipeline import Pipeline
+from spud.di.container import Container
 
 GOLDEN_DIR = Path(__file__).parent / "golden" / "stage_seven"
-STAGE_TWO_TRIE = create_stage_two_trie()
-STAGE_FOUR_TRIE = create_stage_four_trie()
-LOGGER = structlog.get_logger()
 
-_PROGRAM_PARSER = _create_program_parser()
-_RESOLVER = StageSeven(logger=LOGGER)
+_CONTAINER = Container()
+PIPELINE: Pipeline = _CONTAINER.pipeline()
 
 
 def _serialize_stage_seven(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
-    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
-    stage_five = StageFive(stage_four, LOGGER)
-    tokens = list(stage_five.parse())
-    stream = TokenStream(tokens)
-    program = _PROGRAM_PARSER.parse(stream)
-    result = _RESOLVER.resolve(program)
-    if not result.errors:
+    result = PIPELINE.run(FileReader(path))
+    if not result.resolve_result.errors:
         return "OK"
     lines = []
-    for error in result.errors:
+    for error in result.resolve_result.errors:
         lines.append(f"{error.kind.name} {error.name} {error.position.line}:{error.position.column}")
     return "\n".join(lines)
 

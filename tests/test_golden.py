@@ -2,99 +2,69 @@
 #
 # SPDX-License-Identifier: MIT
 
+import io
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import structlog
+import yaml
 
+from spud.core.ast_printer import _children, _label
 from spud.core.file_reader import FileReader
-from spud.core.string_reader import StringReader
-from spud.di.container import _create_program_parser
-from spud.di.stage_four_trie import create_stage_four_trie
-from spud.di.stage_two_trie import create_stage_two_trie
+from spud.core.pipeline import ParsedProgram, Pipeline
+from spud.di.container import Container
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
-from spud.stage_six.token_stream import TokenStream
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
+from spud_fmt.config import FmtConfig
+from spud_fmt.container import _create_formatter
 
-GOLDEN_DIR = Path(__file__).parent / "golden"
-STAGE_TWO_TRIE = create_stage_two_trie()
-STAGE_FOUR_TRIE = create_stage_four_trie()
-LOGGER = structlog.get_logger()
+_CONTAINER = Container()
+PIPELINE: Pipeline = _CONTAINER.pipeline()
 
 
 def _serialize_stage_one(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    return "\n".join(token.token_type.name for token in stage_one.parse())
+    s1 = PIPELINE.get(StageOne, FileReader(path))
+    return "\n".join(token.token_type.name for token in s1.parse())
 
 
 def _serialize_stage_two(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    return "\n".join(token.token_type.name for token in stage_two.parse())
+    s2 = PIPELINE.get(StageTwo, FileReader(path))
+    return "\n".join(token.token_type.name for token in s2.parse())
 
 
 def _serialize_stage_three(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
+    s3 = PIPELINE.get(StageThree, FileReader(path))
     lines = []
-    for token in stage_three.parse():
+    for token in s3.parse():
         value = token.value.replace("\n", r"\n")
         lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
 def _serialize_stage_four(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
-    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
+    s4 = PIPELINE.get(StageFour, FileReader(path))
     lines = []
-    for token in stage_four.parse():
+    for token in s4.parse():
         value = token.value.replace("\n", r"\n")
         lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
 def _serialize_stage_five(path: Path) -> str:
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
-    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
-    stage_five = StageFive(stage_four, LOGGER)
+    s5 = PIPELINE.get(StageFive, FileReader(path))
     lines = []
-    for token in stage_five.parse():
+    for token in s5.parse():
         value = token.value.replace("\n", r"\n")
         lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
-_PROGRAM_PARSER = _create_program_parser()
-
-
 def _serialize_stage_six(path: Path) -> str:
-    import io
-
-    import yaml
-
-    reader = FileReader(path)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
-    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
-    stage_five = StageFive(stage_four, LOGGER)
-    tokens = list(stage_five.parse())
-    stream = TokenStream(tokens)
-    program = _PROGRAM_PARSER.parse(stream)
+    parsed = PIPELINE.get(ParsedProgram, FileReader(path))
+    program = parsed.program
 
     errors = []
     for error in program.errors:
@@ -102,11 +72,11 @@ def _serialize_stage_six(path: Path) -> str:
             "position": f"{error.position.line}:{error.position.column}",
             "kind": error.kind.value,
         }
-        if error.got:
+        if hasattr(error, "got") and error.got:
             entry["got"] = error.got.value
-        if error.expected:
+        if hasattr(error, "expected") and error.expected:
             entry["expected"] = error.expected.value
-        if error.context:
+        if hasattr(error, "context") and error.context:
             entry["context"] = error.context.kind.value
         errors.append(entry)
 
@@ -130,8 +100,6 @@ def _serialize_stage_six(path: Path) -> str:
 
 
 def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
-    from spud.core.ast_printer import _children, _label
-
     connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
     child_prefix = prefix + ("    " if is_last else "\u2502   ")
     buf.write(f"{prefix}{connector}{_label(node)}\n")
@@ -140,28 +108,20 @@ def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
 
 
 def _serialize_fmt(path: Path) -> str:
-    """Parse and format a spud file, return the formatted source."""
-    from spud_fmt.config import FmtConfig
-    from spud_fmt.container import _create_formatter
+    from spud.core.string_reader import StringReader
 
     text = path.read_text()
-    reader = StringReader(text)
-    stage_one = StageOne(reader)
-    stage_two = StageTwo(stage_one, STAGE_TWO_TRIE, LOGGER)
-    stage_three = StageThree(stage_two, LOGGER)
-    stage_four = StageFour(stage_three, STAGE_FOUR_TRIE, LOGGER)
-    stage_five = StageFive(stage_four, LOGGER)
-    tokens = list(stage_five.parse())
-    stream = TokenStream(tokens)
-    program = _PROGRAM_PARSER.parse(stream)
-    if program.errors:
+    parsed = PIPELINE.get(ParsedProgram, StringReader(text))
+    if parsed.program.errors:
         return text.rstrip("\n")
     formatter = _create_formatter(FmtConfig())
-    return formatter.format_program(program).rstrip("\n")
+    return formatter.format_program(parsed.program).rstrip("\n")
+
+
+GOLDEN_DIR = Path(__file__).parent / "golden"
 
 
 def _run_case(spud_path: Path, serializer, expected_suffix: str = ".expected") -> tuple[str, str | None]:
-    """Run a single golden test case. Returns (name, failure_message or None)."""
     name = f"{spud_path.parent.name}/{spud_path.stem}"
     expected_path = spud_path.with_suffix(expected_suffix)
 
@@ -180,7 +140,6 @@ def _run_case(spud_path: Path, serializer, expected_suffix: str = ".expected") -
 def _run_stage(
     stage_dir: Path, serializer, expected_suffix: str = ".expected"
 ) -> tuple[int, int, list[tuple[str, str]]]:
-    """Run all cases in a stage directory in parallel. Returns (passed, total, failures)."""
     spud_files = sorted(stage_dir.glob("*.spud"))
     failures: list[tuple[str, str]] = []
     passed = 0
