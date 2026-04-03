@@ -18,3 +18,5 @@ class FmtConfig(BaseModel):
     space_after_comma: bool = True
     trailing_newline: bool = True
     collapse_unary_plus: bool = False
+    normalize_leading_zero: bool = True
+    normalize_trailing_zero: bool = True

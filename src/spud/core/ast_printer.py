@@ -3,6 +3,7 @@ from spud.stage_six.binary_op import BinaryOp
 from spud.stage_six.binding import Binding
 from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.condition_branch import ConditionBranch
+from spud.stage_six.float_literal import FloatLiteral
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
@@ -41,6 +42,8 @@ def _label(node: ASTNode) -> str:
             return f"IDENTIFIER {name}"
         case NumericLiteral(value=value):
             return f"NUMERIC {value}"
+        case FloatLiteral(value=value):
+            return f"FLOAT {value}"
         case StringLiteral(value=value):
             return f"STRING {value}"
         case RawStringLiteral(value=value):

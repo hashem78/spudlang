@@ -20,6 +20,9 @@ class StageFour:
         self._logger = logger
 
     def parse(self) -> Generator[StageFourToken, None, None]:
+        yield from self._combine_floats(self._parse_operators())
+
+    def _parse_operators(self) -> Generator[StageFourToken, None, None]:
         """Combine symbol tokens into multi-character operators via trie matching.
 
         No word-boundary logic is needed since stage three already splits
@@ -96,3 +99,65 @@ class StageFour:
             position=token.position,
             value=token.value,
         )
+
+    @staticmethod
+    def _combine_floats(
+        stream: Generator[StageFourToken, None, None],
+    ) -> Generator[StageFourToken, None, None]:
+        T = StageFourTokenType
+        pending: list[StageFourToken] = []
+
+        def _make_float(tokens: list[StageFourToken]) -> StageFourToken:
+            return StageFourToken(
+                token_type=T.FLOAT,
+                position=tokens[0].position,
+                value="".join(t.value for t in tokens),
+            )
+
+        def _start(tok: StageFourToken) -> bool:
+            if tok.token_type in (T.NUMERIC, T.DOT):
+                pending.append(tok)
+                return True
+            return False
+
+        for token in stream:
+            if not pending:
+                if not _start(token):
+                    yield token
+                continue
+
+            match len(pending):
+                case 1 if pending[0].token_type == T.NUMERIC:
+                    if token.token_type == T.DOT:
+                        pending.append(token)
+                    else:
+                        yield pending[0]
+                        pending.clear()
+                        if not _start(token):
+                            yield token
+
+                case 1 if pending[0].token_type == T.DOT:
+                    if token.token_type == T.NUMERIC:
+                        yield _make_float([pending[0], token])
+                        pending.clear()
+                    else:
+                        yield pending[0]
+                        pending.clear()
+                        if not _start(token):
+                            yield token
+
+                case 2:
+                    if token.token_type == T.NUMERIC:
+                        yield _make_float([pending[0], pending[1], token])
+                        pending.clear()
+                    else:
+                        yield _make_float(pending)
+                        pending.clear()
+                        if not _start(token):
+                            yield token
+
+        if pending:
+            if len(pending) == 2:
+                yield _make_float(pending)
+            else:
+                yield pending[0]

@@ -6,6 +6,7 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binary_op import BinaryOp
 from spud.stage_six.boolean_literal import BooleanLiteral
+from spud.stage_six.float_literal import FloatLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.inline_function_def import InlineFunctionDef
@@ -171,6 +172,10 @@ class ExpressionParser:
             case T.NUMERIC:
                 stream.consume()
                 return NumericLiteral(position=tok.position, end=tok.position, value=int(tok.value))
+
+            case T.FLOAT:
+                stream.consume()
+                return FloatLiteral(position=tok.position, end=tok.position, value=float(tok.value))
 
             case T.IDENTIFIER:
                 stream.consume()

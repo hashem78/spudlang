@@ -24,6 +24,7 @@ from spud_fmt.formatters.identifier_fmt import IdentifierFormatter
 from spud_fmt.formatters.if_else_fmt import IfElseFormatter
 from spud_fmt.formatters.inline_function_def_fmt import InlineFunctionDefFormatter
 from spud_fmt.formatters.list_literal_fmt import ListLiteralFormatter
+from spud_fmt.formatters.float_fmt import FloatFormatter
 from spud_fmt.formatters.numeric_fmt import NumericFormatter
 from spud_fmt.formatters.raw_string_fmt import RawStringFormatter
 from spud_fmt.formatters.string_fmt import StringFormatter
@@ -49,6 +50,7 @@ def _create_formatter(config: FmtConfig) -> Formatter:
         config=config,
         identifier_fmt=IdentifierFormatter(),
         numeric_fmt=NumericFormatter(),
+        float_fmt=FloatFormatter(config=config),
         string_fmt=StringFormatter(config=config),
         raw_string_fmt=RawStringFormatter(),
         boolean_fmt=BooleanFormatter(),

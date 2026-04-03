@@ -19,6 +19,7 @@ class Formatter:
         config: FmtConfig,
         identifier_fmt: NodeFormatter,
         numeric_fmt: NodeFormatter,
+        float_fmt: NodeFormatter,
         string_fmt: NodeFormatter,
         raw_string_fmt: NodeFormatter,
         boolean_fmt: NodeFormatter,
@@ -37,6 +38,7 @@ class Formatter:
         self._registry: dict[NodeType, NodeFormatter] = {
             NodeType.IDENTIFIER: identifier_fmt,
             NodeType.NUMERIC_LITERAL: numeric_fmt,
+            NodeType.FLOAT_LITERAL: float_fmt,
             NodeType.STRING_LITERAL: string_fmt,
             NodeType.RAW_STRING_LITERAL: raw_string_fmt,
             NodeType.BOOLEAN_LITERAL: boolean_fmt,

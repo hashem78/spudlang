@@ -1,0 +1,10 @@
+errors: []
+tree: |-
+  ├── BINDING x
+  │   └── BINARY_OP +
+  │       ├── NUMERIC 1
+  │       └── FLOAT 3.14
+  └── BINDING y
+      └── BINARY_OP *
+          ├── FLOAT 0.5
+          └── NUMERIC 2

@@ -1,0 +1,8 @@
+errors: []
+tree: |-
+  ├── BINDING x
+  │   └── FLOAT 3.14
+  ├── BINDING y
+  │   └── FLOAT 0.5
+  └── BINDING z
+      └── FLOAT 3.0
