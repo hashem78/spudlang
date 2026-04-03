@@ -13,9 +13,10 @@ class ForLoopFormatter:
         self._fmt = fmt
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, ForLoop)
-        indent = " " * (depth * self._config.indent_size)
-        iterable_str = self._fmt().format_node(node.iterable, depth)
-        header = f"{indent}for {node.variable.name} in {iterable_str}"
-        body_lines = format_body(node.body, depth + 1, self._config, self._fmt)
-        return f"{header}\n{body_lines}"
+        match node:
+            case ForLoop(variable=variable, iterable=iterable, body=body):
+                indent = " " * (depth * self._config.indent_size)
+                iterable_str = self._fmt().format_node(iterable, depth)
+                header = f"{indent}for {variable.name} in {iterable_str}"
+                body_lines = format_body(body, depth + 1, self._config, self._fmt)
+                return f"{header}\n{body_lines}"

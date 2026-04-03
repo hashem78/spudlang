@@ -12,9 +12,10 @@ class InlineFunctionDefFormatter:
         self._fmt = fmt
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, InlineFunctionDef)
-        param_names = [p.name for p in node.params]
-        separator = ", " if self._config.space_after_comma else ","
-        arrow = " => " if self._config.spaces_around_fat_arrow else "=>"
-        body = self._fmt().format_node(node.body, depth)
-        return f"({separator.join(param_names)}){arrow}{body}"
+        match node:
+            case InlineFunctionDef(params=params, body=body):
+                param_names = [p.name for p in params]
+                separator = ", " if self._config.space_after_comma else ","
+                arrow = " => " if self._config.spaces_around_fat_arrow else "=>"
+                formatted_body = self._fmt().format_node(body, depth)
+                return f"({separator.join(param_names)}){arrow}{formatted_body}"

@@ -12,7 +12,8 @@ class ListLiteralFormatter:
         self._fmt = fmt
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, ListLiteral)
-        separator = ", " if self._config.space_after_comma else ","
-        elements = [self._fmt().format_node(elem, depth) for elem in node.elements]
-        return f"[{separator.join(elements)}]"
+        match node:
+            case ListLiteral(elements=elements):
+                separator = ", " if self._config.space_after_comma else ","
+                formatted = [self._fmt().format_node(elem, depth) for elem in elements]
+                return f"[{separator.join(formatted)}]"

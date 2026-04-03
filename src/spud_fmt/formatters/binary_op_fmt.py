@@ -13,12 +13,13 @@ class BinaryOpFormatter:
         self._fmt = fmt
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, BinaryOp)
-        left = self._format_operand(node.left, node.operator, is_right=False, depth=depth)
-        right = self._format_operand(node.right, node.operator, is_right=True, depth=depth)
-        if self._config.spaces_around_operators:
-            return f"{left} {node.operator} {right}"
-        return f"{left}{node.operator}{right}"
+        match node:
+            case BinaryOp(left=left, operator=operator, right=right):
+                left_str = self._format_operand(left, operator, is_right=False, depth=depth)
+                right_str = self._format_operand(right, operator, is_right=True, depth=depth)
+                if self._config.spaces_around_operators:
+                    return f"{left_str} {operator} {right_str}"
+                return f"{left_str}{operator}{right_str}"
 
     def _format_operand(self, operand: ASTNode, parent_op: str, is_right: bool, depth: int) -> str:
         formatted = self._fmt().format_node(operand, depth)

@@ -8,11 +8,12 @@ class StringFormatter:
         self._config = config
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, StringLiteral)
-        match self._config.quote_style:
-            case QuoteStyle.SINGLE:
-                escaped = node.value.replace("\\", "\\\\").replace("'", "\\'")
-                return f"'{escaped}'"
-            case QuoteStyle.DOUBLE:
-                escaped = node.value.replace("\\", "\\\\").replace('"', '\\"')
-                return f'"{escaped}"'
+        match node:
+            case StringLiteral(value=value):
+                match self._config.quote_style:
+                    case QuoteStyle.SINGLE:
+                        escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+                        return f"'{escaped}'"
+                    case QuoteStyle.DOUBLE:
+                        escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+                        return f'"{escaped}"'

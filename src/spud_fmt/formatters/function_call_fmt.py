@@ -12,7 +12,8 @@ class FunctionCallFormatter:
         self._fmt = fmt
 
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, FunctionCall)
-        formatted_args = [self._fmt().format_node(arg, depth) for arg in node.args]
-        separator = ", " if self._config.space_after_comma else ","
-        return f"{node.callee.name}({separator.join(formatted_args)})"
+        match node:
+            case FunctionCall(callee=callee, args=args):
+                formatted_args = [self._fmt().format_node(arg, depth) for arg in args]
+                separator = ", " if self._config.space_after_comma else ","
+                return f"{callee.name}({separator.join(formatted_args)})"
