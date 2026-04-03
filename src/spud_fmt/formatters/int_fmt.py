@@ -1,8 +1,8 @@
 from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 
 
-class NumericFormatter:
+class IntFormatter:
     def format(self, node: ASTNode, depth: int) -> str:
-        assert isinstance(node, NumericLiteral)
+        assert isinstance(node, IntLiteral)
         return str(node.value)

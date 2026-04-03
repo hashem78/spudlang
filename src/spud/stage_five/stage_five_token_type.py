@@ -3,7 +3,7 @@ from enum import Enum
 
 class StageFiveTokenType(str, Enum):
     IDENTIFIER = "identifier"
-    NUMERIC = "NUMERIC"
+    INT = "INT"
     FLOAT = "FLOAT"
     NEW_LINE = "\n"
     STRING = "STRING"

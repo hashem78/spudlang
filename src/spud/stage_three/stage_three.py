@@ -101,7 +101,7 @@ class StageThree:
     def _flush(buff: list[StageTwoToken]) -> StageThreeToken:
         value = "".join(t.token_type.value for t in buff)
         is_numeric = all(t.token_type in _DIGIT_TYPES for t in buff)
-        token_type = StageThreeTokenType.NUMERIC if is_numeric else StageThreeTokenType.IDENTIFIER
+        token_type = StageThreeTokenType.INT if is_numeric else StageThreeTokenType.IDENTIFIER
         return StageThreeToken(
             token_type=token_type,
             position=buff[0].position,

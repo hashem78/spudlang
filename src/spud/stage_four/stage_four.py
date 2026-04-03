@@ -115,7 +115,7 @@ class StageFour:
             )
 
         def _start(tok: StageFourToken) -> bool:
-            if tok.token_type in (T.NUMERIC, T.DOT):
+            if tok.token_type in (T.INT, T.DOT):
                 pending.append(tok)
                 return True
             return False
@@ -127,7 +127,7 @@ class StageFour:
                 continue
 
             match len(pending):
-                case 1 if pending[0].token_type == T.NUMERIC:
+                case 1 if pending[0].token_type == T.INT:
                     if token.token_type == T.DOT:
                         pending.append(token)
                     else:
@@ -137,7 +137,7 @@ class StageFour:
                             yield token
 
                 case 1 if pending[0].token_type == T.DOT:
-                    if token.token_type == T.NUMERIC:
+                    if token.token_type == T.INT:
                         yield _make_float([pending[0], token])
                         pending.clear()
                     else:
@@ -147,7 +147,7 @@ class StageFour:
                             yield token
 
                 case 2:
-                    if token.token_type == T.NUMERIC:
+                    if token.token_type == T.INT:
                         yield _make_float([pending[0], pending[1], token])
                         pending.clear()
                     else:

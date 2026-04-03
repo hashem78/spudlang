@@ -10,8 +10,8 @@ from spud.stage_six.float_literal import FloatLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
 from spud.stage_six.parsers.param_list_parser import parse_param_list
 from spud.stage_six.raw_string_literal import RawStringLiteral
@@ -138,7 +138,7 @@ class ExpressionParser:
 
         ``IDENTIFIER``
             Could be three things depending on what follows:
-            - All digits (``42``) → ``NumericLiteral``. Stage three
+            - All digits (``42``) → ``IntLiteral``. Stage three
               groups character runs into identifiers, so numbers
               arrive here as identifiers with digit-only values.
             - Followed by ``(`` → function call, dispatched to
@@ -169,9 +169,9 @@ class ExpressionParser:
             )
 
         match tok.token_type:
-            case T.NUMERIC:
+            case T.INT:
                 stream.consume()
-                return NumericLiteral(position=tok.position, end=tok.position, value=int(tok.value))
+                return IntLiteral(position=tok.position, end=tok.position, value=int(tok.value))
 
             case T.FLOAT:
                 stream.consume()

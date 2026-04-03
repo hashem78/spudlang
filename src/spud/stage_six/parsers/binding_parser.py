@@ -26,7 +26,7 @@ class BindingParser:
 
     Examples::
 
-        x := 5                      → Binding(x, NumericLiteral(5))
+        x := 5                      → Binding(x, IntLiteral(5))
         name := "spud"              → Binding(name, StringLiteral("spud"))
         add := (a, b) =>            → Binding(add, FunctionDef([a, b], [...]))
           a + b
