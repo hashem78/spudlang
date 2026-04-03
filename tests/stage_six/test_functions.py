@@ -4,7 +4,7 @@ from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.inline_function_def import InlineFunctionDef
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.unary_op import UnaryOp
 from spud.stage_six.unit_literal import UnitLiteral
@@ -23,7 +23,7 @@ class TestFunctionDefs:
         assert isinstance(fdef, FunctionDef)
         assert fdef.params == []
         assert len(fdef.body) == 1
-        assert isinstance(fdef.body[0], NumericLiteral)
+        assert isinstance(fdef.body[0], IntLiteral)
         assert fdef.body[0].value == 42
 
     def test_one_param(self):
@@ -88,7 +88,7 @@ class TestFunctionDefs:
         assert isinstance(call, FunctionCall)
         assert call.callee.name == "inner"
         assert len(call.args) == 1
-        assert isinstance(call.args[0], NumericLiteral)
+        assert isinstance(call.args[0], IntLiteral)
         assert call.args[0].value == 1
 
 
@@ -108,7 +108,7 @@ class TestFunctionCalls:
         assert isinstance(node, FunctionCall)
         assert node.callee.name == "foo"
         assert len(node.args) == 1
-        assert isinstance(node.args[0], NumericLiteral)
+        assert isinstance(node.args[0], IntLiteral)
         assert node.args[0].value == 1
 
     def test_two_args(self):
@@ -118,9 +118,9 @@ class TestFunctionCalls:
         assert isinstance(node, FunctionCall)
         assert node.callee.name == "foo"
         assert len(node.args) == 2
-        assert isinstance(node.args[0], NumericLiteral)
+        assert isinstance(node.args[0], IntLiteral)
         assert node.args[0].value == 1
-        assert isinstance(node.args[1], NumericLiteral)
+        assert isinstance(node.args[1], IntLiteral)
         assert node.args[1].value == 2
 
     def test_expression_arg(self):
@@ -143,7 +143,7 @@ class TestFunctionCalls:
         assert isinstance(inner, FunctionCall)
         assert inner.callee.name == "bar"
         assert len(inner.args) == 1
-        assert isinstance(inner.args[0], NumericLiteral)
+        assert isinstance(inner.args[0], IntLiteral)
         assert inner.args[0].value == 1
 
     def test_call_as_arg(self):
@@ -187,7 +187,7 @@ class TestInlineFunctionDefs:
         node = result.body[0]
         assert isinstance(node, InlineFunctionDef)
         assert node.params == []
-        assert isinstance(node.body, NumericLiteral)
+        assert isinstance(node.body, IntLiteral)
         assert node.body.value == 42
 
     def test_void_callback(self):

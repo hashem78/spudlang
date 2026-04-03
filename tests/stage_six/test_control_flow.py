@@ -5,7 +5,7 @@ from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
 from tests.stage_six.helpers import parse
@@ -113,7 +113,7 @@ class TestForLoop:
         assert isinstance(node.iterable, FunctionCall)
         assert node.iterable.callee.name == "range"
         assert len(node.iterable.args) == 1
-        assert isinstance(node.iterable.args[0], NumericLiteral)
+        assert isinstance(node.iterable.args[0], IntLiteral)
         assert node.iterable.args[0].value == 10
 
     def test_nested_for(self):

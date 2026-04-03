@@ -15,4 +15,4 @@ tree: |-
   ├── CALL process
   │   └── IDENTIFIER i
   └── BINDING valid
-      └── NUMERIC 42
+      └── INT 42

@@ -8,4 +8,4 @@ tree: |-
           │           ├── IDENTIFIER x
           │           └── IDENTIFIER y
           └── CALL inner
-              └── NUMERIC 1
+              └── INT 1

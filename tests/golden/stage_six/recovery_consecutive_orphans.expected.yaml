@@ -13,4 +13,4 @@ errors:
   context: orphaned_else
 tree: |-
   └── BINDING x
-      └── NUMERIC 1
+      └── INT 1

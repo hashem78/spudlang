@@ -1,6 +1,6 @@
 errors: []
 tree: |-
-  ├── NUMERIC 42
+  ├── INT 42
   ├── STRING hello
   ├── RAW_STRING raw
   ├── BOOLEAN True

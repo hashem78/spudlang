@@ -5,6 +5,6 @@ errors:
   context: expression
 tree: |-
   ├── BINDING x
-  │   └── NUMERIC 5
+  │   └── INT 5
   └── BINDING y
-      └── NUMERIC 10
+      └── INT 10

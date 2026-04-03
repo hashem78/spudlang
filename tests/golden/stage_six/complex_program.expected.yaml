@@ -1,7 +1,7 @@
 errors: []
 tree: |-
   ├── BINDING max
-  │   └── NUMERIC 100
+  │   └── INT 100
   ├── BINDING validate
   │   └── FUNCTION_DEF (input)
   │       └── IF_ELSE
@@ -13,7 +13,7 @@ tree: |-
   │           ├── BRANCH
   │           │   ├── BINARY_OP <
   │           │   │   ├── IDENTIFIER input
-  │           │   │   └── NUMERIC 0
+  │           │   │   └── INT 0
   │           │   └── STRING negative
   │           └── STRING ok
   └── BINDING main

@@ -10,8 +10,8 @@ from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.numeric_literal import NumericLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
@@ -32,8 +32,8 @@ def id(name: str) -> Identifier:
     return Identifier(position=P, end=P, name=name)
 
 
-def num(value: int) -> NumericLiteral:
-    return NumericLiteral(position=P, end=P, value=value)
+def num(value: int) -> IntLiteral:
+    return IntLiteral(position=P, end=P, value=value)
 
 
 def float_(value: float) -> FloatLiteral:

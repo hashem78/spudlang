@@ -3,7 +3,7 @@ from spud.stage_six.binding import Binding
 from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.identifier import Identifier
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
 from tests.stage_six.helpers import parse
@@ -18,7 +18,7 @@ class TestBindings:
         assert isinstance(node, Binding)
         assert isinstance(node.target, Identifier)
         assert node.target.name == "x"
-        assert isinstance(node.value, NumericLiteral)
+        assert isinstance(node.value, IntLiteral)
         assert node.value.value == 5
 
     def test_binding_to_expression(self):
@@ -57,7 +57,7 @@ class TestBindings:
         assert isinstance(node.value, FunctionCall)
         assert node.value.callee.name == "foo"
         assert len(node.value.args) == 1
-        assert isinstance(node.value.args[0], NumericLiteral)
+        assert isinstance(node.value.args[0], IntLiteral)
         assert node.value.args[0].value == 1
 
     def test_multiple_bindings(self):
@@ -68,9 +68,9 @@ class TestBindings:
         second = result.body[1]
         assert isinstance(first, Binding)
         assert first.target.name == "x"
-        assert isinstance(first.value, NumericLiteral)
+        assert isinstance(first.value, IntLiteral)
         assert first.value.value == 1
         assert isinstance(second, Binding)
         assert second.target.name == "y"
-        assert isinstance(second.value, NumericLiteral)
+        assert isinstance(second.value, IntLiteral)
         assert second.value.value == 2

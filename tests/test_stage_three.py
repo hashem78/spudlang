@@ -42,31 +42,31 @@ def _values(tokens: list[StageThreeToken]) -> list[str]:
 class TestNumericTokens:
     def test_single_digit_produces_numeric(self):
         tokens = _parse("0")
-        assert _types(tokens) == [StageThreeTokenType.NUMERIC]
+        assert _types(tokens) == [StageThreeTokenType.INT]
 
     def test_single_digit_zero(self):
         tokens = _parse("0")
-        assert tokens[0].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[0].token_type == StageThreeTokenType.INT
         assert tokens[0].value == "0"
 
     def test_single_digit_nine(self):
         tokens = _parse("9")
-        assert tokens[0].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[0].token_type == StageThreeTokenType.INT
         assert tokens[0].value == "9"
 
     def test_multi_digit_produces_numeric(self):
         tokens = _parse("42")
-        assert _types(tokens) == [StageThreeTokenType.NUMERIC]
+        assert _types(tokens) == [StageThreeTokenType.INT]
         assert tokens[0].value == "42"
 
     def test_large_number_produces_numeric(self):
         tokens = _parse("1234567890")
-        assert tokens[0].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[0].token_type == StageThreeTokenType.INT
         assert tokens[0].value == "1234567890"
 
     def test_all_digits_zero_through_nine(self):
         tokens = _parse("1234567890")
-        assert tokens[0].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[0].token_type == StageThreeTokenType.INT
 
     def test_numeric_value_preserved(self):
         tokens = _parse("999")
@@ -79,7 +79,7 @@ class TestNumericTokens:
     def test_two_numbers_separated_by_space(self):
         tokens = _parse("1 2")
         types = _types(tokens)
-        assert types == [StageThreeTokenType.NUMERIC, StageThreeTokenType.NUMERIC]
+        assert types == [StageThreeTokenType.INT, StageThreeTokenType.INT]
 
     def test_two_numbers_values(self):
         tokens = _parse("10 20")
@@ -122,17 +122,17 @@ class TestIdentifierTokens:
 class TestNumericAndIdentifierMixed:
     def test_number_then_identifier(self):
         tokens = _parse("42 foo")
-        assert tokens[0].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[0].token_type == StageThreeTokenType.INT
         assert tokens[1].token_type == StageThreeTokenType.IDENTIFIER
 
     def test_identifier_then_number(self):
         tokens = _parse("foo 42")
         assert tokens[0].token_type == StageThreeTokenType.IDENTIFIER
-        assert tokens[1].token_type == StageThreeTokenType.NUMERIC
+        assert tokens[1].token_type == StageThreeTokenType.INT
 
     def test_binding_with_numeric_rhs(self):
         tokens = _parse("x := 1")
-        numeric_tokens = [t for t in tokens if t.token_type == StageThreeTokenType.NUMERIC]
+        numeric_tokens = [t for t in tokens if t.token_type == StageThreeTokenType.INT]
         assert len(numeric_tokens) == 1
         assert numeric_tokens[0].value == "1"
 

@@ -5,7 +5,7 @@ from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
 from tests.stage_six.helpers import parse
@@ -112,7 +112,7 @@ class TestEdgeCases:
         result = parse("42")
         assert isinstance(result, Program)
         assert len(result.body) == 1
-        assert isinstance(result.body[0], NumericLiteral)
+        assert isinstance(result.body[0], IntLiteral)
         assert result.body[0].value == 42
 
     def test_function_call_as_statement(self):

@@ -1,9 +1,9 @@
 errors: []
 tree: |-
-  ├── NUMERIC 42
+  ├── INT 42
   ├── CALL foo
   ├── UNARY_OP -
-  │   └── NUMERIC 5
+  │   └── INT 5
   └── BINARY_OP *
       ├── BINARY_OP +
       │   ├── IDENTIFIER a

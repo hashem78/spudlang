@@ -16,4 +16,4 @@ tree: |-
       └── INLINE_FUNCTION_DEF (x)
           └── BINARY_OP +
               ├── IDENTIFIER x
-              └── NUMERIC 1
+              └── INT 1

@@ -10,4 +10,4 @@ tree: |-
   │           └── IDENTIFIER b
   └── BINDING constant
       └── FUNCTION_DEF ()
-          └── NUMERIC 42
+          └── INT 42

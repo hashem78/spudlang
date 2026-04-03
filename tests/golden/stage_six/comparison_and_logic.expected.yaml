@@ -9,10 +9,10 @@ tree: |-
   ├── BINARY_OP &&
   │   ├── BINARY_OP >
   │   │   ├── IDENTIFIER x
-  │   │   └── NUMERIC 0
+  │   │   └── INT 0
   │   └── BINARY_OP <
   │       ├── IDENTIFIER y
-  │       └── NUMERIC 10
+  │       └── INT 10
   ├── BINARY_OP ||
   │   ├── IDENTIFIER a
   │   └── BINARY_OP &&

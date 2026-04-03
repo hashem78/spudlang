@@ -6,7 +6,7 @@ tree: |-
   │       └── IDENTIFIER i
   └── FOR x
       ├── CALL range
-      │   └── NUMERIC 10
+      │   └── INT 10
       └── BINARY_OP +
           ├── IDENTIFIER x
-          └── NUMERIC 1
+          └── INT 1

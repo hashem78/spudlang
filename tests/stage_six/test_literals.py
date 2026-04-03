@@ -1,6 +1,6 @@
 from spud.stage_six.boolean_literal import BooleanLiteral
 from spud.stage_six.identifier import Identifier
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
@@ -25,7 +25,7 @@ class TestLiterals:
         assert isinstance(result, Program)
         assert len(result.body) == 1
         node = result.body[0]
-        assert isinstance(node, NumericLiteral)
+        assert isinstance(node, IntLiteral)
         assert node.value == 42
 
     def test_zero(self):
@@ -33,7 +33,7 @@ class TestLiterals:
         assert isinstance(result, Program)
         assert len(result.body) == 1
         node = result.body[0]
-        assert isinstance(node, NumericLiteral)
+        assert isinstance(node, IntLiteral)
         assert node.value == 0
 
     def test_string(self):

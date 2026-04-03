@@ -4,11 +4,11 @@ tree: |-
       ├── BRANCH
       │   ├── BINARY_OP >
       │   │   ├── IDENTIFIER x
-      │   │   └── NUMERIC 0
+      │   │   └── INT 0
       │   └── STRING positive
       ├── BRANCH
       │   ├── BINARY_OP ==
       │   │   ├── IDENTIFIER x
-      │   │   └── NUMERIC 0
+      │   │   └── INT 0
       │   └── STRING zero
       └── STRING negative

@@ -9,8 +9,8 @@ errors:
   context: orphaned_elif
 tree: |-
   ├── BINDING x
-  │   └── NUMERIC 1
+  │   └── INT 1
   ├── BINDING y
-  │   └── NUMERIC 2
+  │   └── INT 2
   └── BINDING z
-      └── NUMERIC 3
+      └── INT 3

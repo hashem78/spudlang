@@ -6,7 +6,7 @@ from spud.stage_six.binary_op import BinaryOp
 from spud.stage_six.binding import Binding
 from spud.stage_six.float_literal import FloatLiteral
 from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.numeric_literal import NumericLiteral
+from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from tests.stage_six.helpers import parse
 
@@ -54,18 +54,18 @@ class TestFloatLiteralParsing:
         assert isinstance(node, FloatLiteral)
         assert node.value == 9999.9999
 
-    def test_float_not_numeric_literal(self):
+    def test_float_not_int_literal(self):
         result = parse("1.5")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, FloatLiteral)
-        assert not isinstance(node, NumericLiteral)
+        assert not isinstance(node, IntLiteral)
 
-    def test_integer_still_produces_numeric_literal(self):
+    def test_integer_still_produces_int_literal(self):
         result = parse("42")
         assert isinstance(result, Program)
         node = result.body[0]
-        assert isinstance(node, NumericLiteral)
+        assert isinstance(node, IntLiteral)
         assert not isinstance(node, FloatLiteral)
         assert node.value == 42
 
@@ -115,7 +115,7 @@ class TestFloatInExpressions:
         assert isinstance(node, BinaryOp)
         assert isinstance(node.left, FloatLiteral)
         assert node.left.value == 1.5
-        assert isinstance(node.right, NumericLiteral)
+        assert isinstance(node.right, IntLiteral)
         assert node.right.value == 2
 
     def test_float_in_nested_expression(self):
