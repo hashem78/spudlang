@@ -1,39 +1,68 @@
 # spud
 
-A small programming language with a multi-stage parser pipeline, an LSP server, and a code formatter.
+A small programming language with a multi-stage parser pipeline, scope resolution, an LSP server with semantic highlighting, and a code formatter.
 
 ## Language
 
 spud uses indentation-based blocks, `:=` for bindings, and `=>` for function definitions. Every expression produces a value.
 
 ```
-max := 100
+pi := 3.14159
+radius := 5
+area := pi * radius * radius
 
-validate := (input) =>
-  if input > 0
-    'positive'
-  elif input < 0
-    'negative'
+greet := (name) => 'hello ' + name
+
+factorial := (n) =>
+  if n == 0
+    1
   else
-    'zero'
+    n * factorial(n - 1)
 
-for i in range(max)
-  result := validate(i)
-  print(result)
+result := factorial(10)
+numbers := [1, 2, 3, 4, 5]
+
+for item in numbers
+  doubled := item * 2
+  greet('world')
+
+max := (a, b) =>
+  if a > b
+    a
+  else
+    b
+
+biggest := max(42, 17)
+
+compose := (f, g) =>
+  (x) => f(g(x))
+```
+
+### Literals
+
+```
+x := 42
+pi := 3.14
+half := .5
+name := 'hello'
+raw := `raw string`
+flag := true
+items := [1, 2, 3]
+nothing := ()
 ```
 
 ### Bindings
 
+All bindings are immutable. Rebinding and shadowing are not allowed.
+
 ```
 x := 42
 name := 'hello'
-flag := true
-items := [1, 2, 3]
 ```
 
 ### Functions
 
-Block functions have an indented body. Inline functions use a single expression.
+Block functions have an indented body. Inline functions use a single expression. Self-recursion is supported.
 
 ```
 add := (a, b) =>
@@ -42,6 +71,12 @@ add := (a, b) =>
 
 double := (x) => x * 2
 noop := () => ()
+
+factorial := (n) =>
+  if n == 0
+    1
+  else
+    n * factorial(n - 1)
 ```
 
 ### Control flow
@@ -122,8 +157,51 @@ Example output:
 ```
 └── BINDING x
     └── BINARY_OP +
-        ├── NUMERIC 1
-        └── NUMERIC 2
+        ├── INT 1
+        └── INT 2
+```
+
+### Scope resolution
+
+Print the resolved environment tree:
+
+```sh
+spud program.spud --env
+```
+
+Example output:
+
+```
+global
+  pi
+  radius
+  area
+  greet
+  factorial
+  result
+  numbers
+  max
+  biggest
+  compose
+  scope
+    name
+  scope
+    n
+    scope
+    scope
+  scope
+    item
+    doubled
+  scope
+    a
+    b
+    scope
+    scope
+  scope
+    f
+    g
+    scope
+      x
 ```
 
 ### Formatter
@@ -160,6 +238,8 @@ spaces_around_fat_arrow: true
 space_after_comma: true
 trailing_newline: true
 collapse_unary_plus: false
+normalize_leading_zero: true    # .5 → 0.5
+normalize_trailing_zero: true   # 3. → 3.0
 ```
 
 All options are optional and fall back to the defaults shown above.
@@ -171,6 +251,14 @@ spud-lsp
 ```
 
 Communicates over stdio. Point your editor's LSP client at the `spud-lsp` binary.
+
+Features:
+
+- **Diagnostics** - parse errors and scope resolution errors (undefined variables, duplicate bindings, shadowed names)
+- **Semantic highlighting** - functions, parameters, variables, keywords, operators, numbers, and strings each get distinct colors
+- **Hover** - shows type information for identifiers, literals, and operators
+- **Completion** - keywords and in-scope bindings
+- **Document symbols** - top-level bindings
 
 #### Neovim
 
@@ -245,14 +333,17 @@ hatch run dev:typecheck
 
 ## Architecture
 
-The parser is a six-stage pipeline. Each stage transforms its input and passes it to the next.
+The parser is a seven-stage pipeline. Each stage transforms its input and passes it to the next.
 
 1. **Stage one** - Character lexer. Reads raw characters and emits single-character tokens with position data.
 2. **Stage two** - Keyword matching. Trie-based pass that groups character tokens into keyword tokens (`if`, `for`, `true`, etc.) with word boundary detection.
-3. **Stage three** - Identifier grouping. Merges runs of non-symbol characters into identifier tokens, splitting on whitespace and symbols.
-4. **Stage four** - Operator matching. Trie-based pass that recognizes multi-character operators (`:=`, `=>`, `==`, `!=`, `<=`, `>=`, `&&`, `||`).
+3. **Stage three** - Identifier and numeric grouping. Merges runs of non-symbol characters into identifier or integer tokens, splitting on whitespace and symbols.
+4. **Stage four** - Operator and float matching. Trie-based pass that recognizes multi-character operators (`:=`, `=>`, `==`, `!=`, `<=`, `>=`, `&&`, `||`). A streaming combiner merges adjacent `INT DOT INT` patterns into float tokens.
 5. **Stage five** - Indentation. Streaming pass that tracks column depth and emits synthetic `INDENT`/`DEDENT` tokens.
-6. **Stage six** - AST. Recursive descent parser producing a typed AST from the token stream. Two-pass design: decompose (structural splitting) then classify (type assignment).
+6. **Stage six** - AST. Recursive descent parser producing a typed AST from the token stream.
+7. **Stage seven** - Scope resolution. Walks the AST with an immutable environment tree, validating bindings and references. Reports undefined variables, duplicate bindings, and shadowed names.
+
+The `Environment` in `spud.core` is generic and reusable — stage seven uses `Environment[ASTNode]`, and a future type-checker could use `Environment[Type]` over the same tree structure.
 
 The formatter and LSP server are separate packages (`spud_fmt`, `spud_lsp`) under `src/` that depend on the core `spud` package.
 
