@@ -2,6 +2,7 @@ from typing import Generator
 
 from structlog import BoundLogger
 
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.trie import Trie
 from spud.stage_one.stage_one import StageOne
 from spud.stage_one.stage_one_token_type import StageOneTokenType
@@ -11,7 +12,7 @@ from spud.stage_two.stage_two_token_type import StageTwoTokenType
 from spud.stage_two.string_pass import StringPass
 
 
-class StageTwo:
+class StageTwo(PipelineStage):
     def __init__(
         self,
         stage_one: StageOne,

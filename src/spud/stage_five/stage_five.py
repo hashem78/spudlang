@@ -2,6 +2,7 @@ from typing import Generator
 
 from structlog import BoundLogger
 
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.position import Position
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_five.stage_five_token_type import StageFiveTokenType
@@ -19,7 +20,7 @@ _TYPE_MAP = {
 }
 
 
-class StageFive:
+class StageFive(PipelineStage):
     """Transform a stream of stage four tokens into a flat stream with
     INDENT/DEDENT markers that encode nesting structure.
 

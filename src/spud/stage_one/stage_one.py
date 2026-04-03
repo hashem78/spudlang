@@ -1,12 +1,13 @@
 from typing import Generator
 
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.position import Position
 from spud.core.reader_protocol import IReader
 from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_one.stage_one_token_type import StageOneTokenType
 
 
-class StageOne:
+class StageOne(PipelineStage):
     def __init__(self, handle: IReader):
         self._handle = handle
 

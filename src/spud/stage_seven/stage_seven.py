@@ -1,6 +1,7 @@
 from structlog import BoundLogger
 
 from spud.core.environment import Environment
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.position import Position
 from spud.stage_seven.resolve_error import ResolveError, ResolveErrorKind
 from spud.stage_seven.resolve_result import ResolveResult
@@ -19,7 +20,7 @@ from spud.stage_six.program import Program
 from spud.stage_six.unary_op import UnaryOp
 
 
-class StageSeven:
+class StageSeven(PipelineStage):
     """Scope resolution pass over a parsed spud program.
 
     Walks the AST produced by stage 6 and validates that every

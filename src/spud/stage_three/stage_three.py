@@ -2,6 +2,7 @@ from typing import Generator
 
 from structlog import BoundLogger
 
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.stage_three.stage_three_token import StageThreeToken
 from spud.stage_three.stage_three_token_type import StageThreeTokenType
 from spud.stage_two.stage_two import StageTwo
@@ -22,7 +23,7 @@ _DIGIT_TYPES = {
 }
 
 
-class StageThree:
+class StageThree(PipelineStage):
     _SYMBOL_TYPES = {
         StageTwoTokenType.DOT,
         StageTwoTokenType.HYPHEN,

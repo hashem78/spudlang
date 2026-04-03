@@ -2,6 +2,7 @@ from typing import Generator
 
 from structlog import BoundLogger
 
+from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.trie import Trie, TrieNode
 from spud.stage_four.stage_four_token import StageFourToken
 from spud.stage_four.stage_four_token_type import StageFourTokenType
@@ -13,7 +14,7 @@ _TrieNode = TrieNode[StageThreeTokenType, StageFourTokenType]
 _Trie = Trie[StageThreeTokenType, StageFourTokenType]
 
 
-class StageFour:
+class StageFour(PipelineStage):
     def __init__(self, stage_three: StageThree, trie: _Trie, logger: BoundLogger):
         self._stage_three = stage_three
         self._trie = trie
