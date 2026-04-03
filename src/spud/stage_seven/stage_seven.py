@@ -20,10 +20,71 @@ from spud.stage_six.unary_op import UnaryOp
 
 
 class StageSeven:
+    """Scope resolution pass over a parsed spud program.
+
+    Walks the AST produced by stage 6 and validates that every
+    variable reference resolves to a binding, that no name is bound
+    twice in the same scope, and that inner scopes do not shadow
+    names from outer scopes.
+
+    The resolver is a single-pass, top-to-bottom walk.  It threads
+    an immutable :class:`~spud.core.environment.Environment` through
+    the tree — each binding produces a new environment snapshot, and
+    child scopes branch off via :meth:`Environment.child`.
+
+    **Scope rules:**
+
+    - ``Binding`` adds to the current scope.
+    - ``FunctionDef`` / ``InlineFunctionDef`` open a child scope
+      with parameters as initial bindings.
+    - ``ForLoop`` opens a child scope with the loop variable.
+    - Each ``IfElse`` branch (including ``else``) opens its own
+      child scope.
+    - No shadowing is allowed: a name bound in a child scope must
+      not collide with any name in an ancestor scope.
+    - No reassignment: binding a name that already exists in the
+      same scope is a ``DUPLICATE_BINDING`` error.
+
+    **Self-recursion support:**
+
+    When a binding's value is a function (``FunctionDef`` or
+    ``InlineFunctionDef``), the binding name is registered in the
+    environment **before** the function body is walked.  This lets
+    the function reference itself::
+
+        factorial := (n) =>
+          if n == 0
+            1
+          else
+            n * factorial(n - 1)
+
+    For non-function bindings, the value is walked first, so forward
+    self-references are correctly rejected::
+
+        x := x + 1    # UNDEFINED_VARIABLE — x is not yet defined
+
+    Example usage::
+
+        >>> from spud.stage_seven.stage_seven import StageSeven
+        >>> resolver = StageSeven(logger=logger)
+        >>> result = resolver.resolve(program)
+        >>> result.errors
+        []
+        >>> "x" in result.environment.bindings
+        True
+    """
+
     def __init__(self, logger: BoundLogger):
         self._logger = logger
 
     def resolve(self, program: Program) -> ResolveResult:
+        """Resolve all scopes in *program* and return the result.
+
+        :param program: The parsed AST from stage 6.
+        :returns: A :class:`~spud.stage_seven.resolve_result.ResolveResult`
+            containing any semantic errors and the final global
+            environment.
+        """
         errors: list[ResolveError] = []
         env: Environment[ASTNode] = Environment()
         for node in program.body:
@@ -36,6 +97,15 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> Environment[ASTNode]:
+        """Resolve a single AST node and return the (possibly updated) environment.
+
+        Dispatches on the node type via pattern matching.  Nodes that
+        introduce bindings (``Binding``) return a new environment with
+        the binding added.  Nodes that introduce scopes (``FunctionDef``,
+        ``ForLoop``, ``IfElse``) create child environments internally
+        but return the **original** environment unchanged — their
+        bindings do not leak into the enclosing scope.
+        """
         match node:
             case Binding(target=target, value=value):
                 return self._resolve_binding(target, value, node, env, errors)
@@ -95,6 +165,13 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> Environment[ASTNode]:
+        """Resolve a ``Binding`` node.
+
+        Checks for duplicate and shadowed names, then registers the
+        binding.  For function values the name is registered **before**
+        walking the body (enabling self-recursion); for all other values
+        the expression is walked first (preventing ``x := x + 1``).
+        """
         has_error = self._check_binding(target.name, target.position, env, errors)
         is_function = isinstance(value, FunctionDef | InlineFunctionDef)
         if is_function and not has_error:
@@ -111,6 +188,12 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> None:
+        """Resolve a function definition (block or inline).
+
+        Creates a child scope, defines each parameter (checking for
+        duplicates among the parameters and shadowing against the
+        enclosing scope), then walks the function body.
+        """
         child = env.child()
         for param in params:
             child = self._define_checked(param.name, param.position, param, child, env, errors)
@@ -122,6 +205,12 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> None:
+        """Resolve a single ``if`` or ``elif`` branch.
+
+        The condition is resolved in the current scope.  The branch
+        body gets its own child scope so bindings inside the branch
+        do not leak out.
+        """
         self._resolve_node(branch.condition, env, errors)
         child = env.child()
         self._resolve_body(branch.body, child, errors)
@@ -132,6 +221,11 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> Environment[ASTNode]:
+        """Resolve a sequence of statements, threading the environment.
+
+        Each statement may add bindings (via ``Binding`` nodes), so the
+        environment is updated after each one and passed to the next.
+        """
         for node in body:
             env = self._resolve_node(node, env, errors)
         return env
@@ -143,6 +237,13 @@ class StageSeven:
         env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> bool:
+        """Check whether *name* can be legally bound in *env*.
+
+        Reports a ``DUPLICATE_BINDING`` error if *name* already exists
+        in the current scope, or a ``SHADOWED_BINDING`` error if it
+        exists in any ancestor scope.  Returns ``True`` if a conflict
+        was found.
+        """
         if env.contains(name):
             errors.append(
                 ResolveError(
@@ -172,6 +273,13 @@ class StageSeven:
         parent_env: Environment[ASTNode],
         errors: list[ResolveError],
     ) -> Environment[ASTNode]:
+        """Define *name* in *env* after checking for conflicts.
+
+        Used for function parameters and loop variables where the
+        binding lives in a child scope but must be checked against
+        both the child (for duplicate params) and the parent chain
+        (for shadowing).
+        """
         if env.contains(name):
             errors.append(
                 ResolveError(
