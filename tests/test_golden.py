@@ -47,7 +47,7 @@ def _serialize_stage_three(path: Path) -> str:
     lines = []
     for token in stage_three.parse():
         value = token.value.replace("\n", r"\n")
-        lines.append(f"{token.token_type.name} {value}")
+        lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
@@ -60,7 +60,7 @@ def _serialize_stage_four(path: Path) -> str:
     lines = []
     for token in stage_four.parse():
         value = token.value.replace("\n", r"\n")
-        lines.append(f"{token.token_type.name} {value}")
+        lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
@@ -74,7 +74,7 @@ def _serialize_stage_five(path: Path) -> str:
     lines = []
     for token in stage_five.parse():
         value = token.value.replace("\n", r"\n")
-        lines.append(f"{token.token_type.name} {value}")
+        lines.append(f"{token.token_type.name} {value}".rstrip())
     return "\n".join(lines)
 
 
