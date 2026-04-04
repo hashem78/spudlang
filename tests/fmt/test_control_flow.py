@@ -66,12 +66,12 @@ class TestForLoop:
     def test_simple(self):
         node = forloop("x", id("items"), [call("print", id("x"))])
         result = fmt().format_node(node, 0)
-        assert result == "for x : Int in items\n  print(x)"
+        assert result == "for x: Int in items\n  print(x)"
 
     def test_function_call_iterable(self):
         node = forloop("i", call("range", num(10)), [call("print", id("i"))])
         result = fmt().format_node(node, 0)
-        assert result == "for i : Int in range(10)\n  print(i)"
+        assert result == "for i: Int in range(10)\n  print(i)"
 
     def test_multi_statement_body(self):
         body = [bind("y", binop(id("x"), "*", num(2))), call("print", id("y"))]
@@ -84,8 +84,8 @@ class TestForLoop:
         inner = forloop("j", id("cols"), [call("draw", id("i"), id("j"))])
         node = forloop("i", id("rows"), [inner])
         result = fmt().format_node(node, 0)
-        assert "for i : Int in rows" in result
-        assert "  for j : Int in cols" in result
+        assert "for i: Int in rows" in result
+        assert "  for j: Int in cols" in result
         assert "    draw(i, j)" in result
 
     def test_indented(self):

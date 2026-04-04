@@ -19,6 +19,6 @@ class ForLoopFormatter:
                 indent = " " * (depth * self._config.indent_size)
                 type_str = format_type(variable_type)
                 iterable_str = self._fmt().format_node(iterable, depth)
-                header = f"{indent}for {variable.name} : {type_str} in {iterable_str}"
+                header = f"{indent}for {variable.name}: {type_str} in {iterable_str}"
                 body_lines = format_body(body, depth + 1, self._config, self._fmt)
                 return f"{header}\n{body_lines}"

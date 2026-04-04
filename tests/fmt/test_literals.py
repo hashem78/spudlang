@@ -87,7 +87,7 @@ class TestListLiteral:
 
     def test_mixed_expressions(self):
         node = list_(num(1), call("max", num(1), num(2)), inline_funcdef(["a", "b"], num(33)))
-        assert fmt().format_node(node, 0) == "[1, max(1, 2), (a : Int, b : Int) : Int => 33]"
+        assert fmt().format_node(node, 0) == "[1, max(1, 2), (a: Int, b: Int): Int => 33]"
 
     def test_in_binding(self):
-        assert fmt().format_node(bind("x", list_(num(1), num(2))), 0) == "x : Int := [1, 2]"
+        assert fmt().format_node(bind("x", list_(num(1), num(2))), 0) == "x: Int := [1, 2]"

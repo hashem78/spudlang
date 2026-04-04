@@ -1,6 +1,6 @@
-add : Function[[Int, Int], Int] := (a : Int, b : Int) : Int => a + b
-identity : Function[[Int], Int] := (x : Int) : Int => x
-noop : Function[[], Unit] := () : Unit => ()
-double : Function[[Int], Int] := (x : Int) : Int => x * 2
-map(items, (x : Int) : Int => x + 1)
-filter(items, (x : Int) : Bool => x > 0)
+add: Function[[Int, Int], Int] := (a: Int, b: Int): Int => a + b
+identity: Function[[Int], Int] := (x: Int): Int => x
+noop: Function[[], Unit] := (): Unit => ()
+double: Function[[Int], Int] := (x: Int): Int => x * 2
+map(items, (x: Int): Int => x + 1)
+filter(items, (x: Int): Bool => x > 0)

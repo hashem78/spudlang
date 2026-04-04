@@ -1,5 +1,5 @@
-x : Int := +5
-y : Int := +x
-z : Int := +x
-w : Int := -x
-v : Int := -x
+x: Int := +5
+y: Int := +x
+z: Int := +x
+w: Int := -x
+v: Int := -x

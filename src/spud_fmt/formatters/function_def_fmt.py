@@ -21,6 +21,6 @@ class FunctionDefFormatter:
                 param_str = format_typed_params(params, separator)
                 ret_str = format_type(return_type)
                 arrow = " =>" if self._config.spaces_around_fat_arrow else "=>"
-                header = f"{indent}({param_str}) : {ret_str}{arrow}"
+                header = f"{indent}({param_str}): {ret_str}{arrow}"
                 body_lines = format_body(body, depth + 1, self._config, self._fmt)
                 return f"{header}\n{body_lines}"

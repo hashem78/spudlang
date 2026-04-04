@@ -20,4 +20,4 @@ class InlineFunctionDefFormatter:
                 ret_str = format_type(return_type)
                 arrow = " => " if self._config.spaces_around_fat_arrow else "=>"
                 formatted_body = self._fmt().format_node(body, depth)
-                return f"({param_str}) : {ret_str}{arrow}{formatted_body}"
+                return f"({param_str}): {ret_str}{arrow}{formatted_body}"

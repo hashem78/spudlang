@@ -19,5 +19,5 @@ def format_type(node: TypeExpression) -> str:
 
 
 def format_typed_params(params: list[TypedParam], separator: str) -> str:
-    parts = [f"{p.name.name} : {format_type(p.type_annotation)}" for p in params]
+    parts = [f"{p.name.name}: {format_type(p.type_annotation)}" for p in params]
     return separator.join(parts)

@@ -21,12 +21,12 @@ class TestFormatProgram:
 
     def test_single_statement(self):
         result = fmt().format_program(program(bind("x", num(1))))
-        assert result == "x : Int := 1\n"
+        assert result == "x: Int := 1\n"
 
     def test_multiple_flat(self):
         prog = program(bind("x", num(1)), bind("y", num(2)), bind("z", num(3)))
         result = fmt().format_program(prog)
-        assert result == "x : Int := 1\ny : Int := 2\nz : Int := 3\n"
+        assert result == "x: Int := 1\ny: Int := 2\nz: Int := 3\n"
 
     def test_blank_line_before_function_def(self):
         prog = program(bind("x", num(1)), bind("f", funcdef(["a"], [id("a")])))
@@ -67,7 +67,7 @@ class TestComplexPrograms:
         func = funcdef(["i"], body)
         prog = program(bind("fizzbuzz", func))
         result = fmt().format_program(prog)
-        assert "fizzbuzz : Int := (i : Int) : Int =>" in result
+        assert "fizzbuzz: Int := (i: Int): Int =>" in result
         assert "if i % 15 == 0" in result
         assert "'fizzbuzz'" in result
         assert "elif i % 3 == 0" in result
@@ -94,10 +94,10 @@ class TestComplexPrograms:
             forloop("i", call("range", id("max")), [call("validate", id("i"))]),
         )
         result = fmt().format_program(prog)
-        assert "max : Int := 100" in result
-        assert "validate : Int := (input : Int) : Int =>" in result
+        assert "max: Int := 100" in result
+        assert "validate: Int := (input: Int): Int =>" in result
         assert "  if input > 0" in result
         assert "  elif input < 0" in result
         assert "  else" in result
-        assert "for i : Int in range(max)" in result
+        assert "for i: Int in range(max)" in result
         assert "  validate(i)" in result
