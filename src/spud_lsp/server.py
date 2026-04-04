@@ -62,10 +62,12 @@ class SpudLanguageServer(LanguageServer):
 
         @self.feature(types.TEXT_DOCUMENT_HOVER)
         def hover(params: types.HoverParams) -> types.Hover | None:
-            program: Program | None = self._last_program.get(params.text_document.uri)
-            if program is None:
+            result = self._last_result.get(params.text_document.uri)
+            if result is None:
                 return None
-            return self._hover.hover(program, params.position.line, params.position.character)
+            return self._hover.hover(
+                result.type_check_result.typed_program, params.position.line, params.position.character
+            )
 
         @self.feature(
             types.TEXT_DOCUMENT_COMPLETION,
