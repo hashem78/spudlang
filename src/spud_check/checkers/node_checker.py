@@ -21,6 +21,8 @@ from spud.stage_six import (
 )
 from spud_check.checkers.binary_op_checker import BinaryOpChecker
 from spud_check.checkers.binding_checker import BindingChecker
+from spud_check.checkers.function_call_checker import FunctionCallChecker
+from spud_check.checkers.list_literal_checker import ListLiteralChecker
 from spud_check.checkers.unary_op_checker import UnaryOpChecker
 from spud_check.type_errors import TypeError
 from spud_check.typed_nodes import (
@@ -42,11 +44,6 @@ class _TypeCheckerShim:
 
     def __init__(self, type_checker: "object"):
         self._tc = type_checker
-
-    def check_function_call(
-        self, node: FunctionCall, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_function_call(node, env, errors), env  # type: ignore[attr-defined]
 
     def check_function_def(
         self, node: FunctionDef, env: Environment[SpudType], errors: list[TypeError]
@@ -89,11 +86,15 @@ class NodeChecker:
         binding_checker: BindingChecker,
         binary_op_checker: BinaryOpChecker,
         unary_op_checker: UnaryOpChecker,
+        function_call_checker: FunctionCallChecker,
+        list_literal_checker: ListLiteralChecker,
     ):
         self._shim = shim
         self._binding_checker = binding_checker
         self._binary_op_checker = binary_op_checker
         self._unary_op_checker = unary_op_checker
+        self._function_call_checker = function_call_checker
+        self._list_literal_checker = list_literal_checker
 
     def dispatch(
         self,
@@ -131,7 +132,7 @@ class NodeChecker:
             case UnaryOp():
                 return self._unary_op_checker.check(node, env, errors)
             case FunctionCall():
-                return self._shim.check_function_call(node, env, errors)
+                return self._function_call_checker.check(node, env, errors)
             case FunctionDef():
                 return self._shim.check_function_def(node, env, errors)
             case InlineFunctionDef():
@@ -141,7 +142,7 @@ class NodeChecker:
             case ForLoop():
                 return self._shim.check_for_loop(node, env, errors)
             case ListLiteral():
-                return self._shim.check_list_literal(node, env, errors)
+                return self._list_literal_checker.check(node, env, errors)
             case _:
                 return TypedUnitLiteral(resolved_type=UnitType(), position=node.position, end=node.end), env
 
@@ -152,10 +153,14 @@ def build_node_checker(type_checker: object) -> NodeChecker:
     binding_checker = BindingChecker(dispatch=node_checker)
     binary_op_checker = BinaryOpChecker(dispatch=node_checker)
     unary_op_checker = UnaryOpChecker(dispatch=node_checker)
+    function_call_checker = FunctionCallChecker(dispatch=node_checker)
+    list_literal_checker = ListLiteralChecker(dispatch=node_checker)
     node_checker.__init__(
         shim=shim,
         binding_checker=binding_checker,
         binary_op_checker=binary_op_checker,
         unary_op_checker=unary_op_checker,
+        function_call_checker=function_call_checker,
+        list_literal_checker=list_literal_checker,
     )
     return node_checker

@@ -8,23 +8,17 @@ from spud.core.types import (
 )
 from spud.stage_six import (
     ForLoop,
-    FunctionCall,
     FunctionDef,
     IfElse,
     InlineFunctionDef,
-    ListLiteral,
     Program,
 )
 from spud_check.checkers import NodeChecker
 from spud_check.type_check_result import TypeCheckResult
 from spud_check.type_errors import (
-    ArgumentCountMismatchError,
-    ArgumentTypeMismatchError,
     BranchTypeMismatchError,
     ConditionNotBoolError,
     ElementTypeMismatchError,
-    HeterogeneousListError,
-    NotCallableError,
     NotIterableError,
     ReturnTypeMismatchError,
     TypeError,
@@ -33,11 +27,9 @@ from spud_check.type_resolver import resolve_type
 from spud_check.typed_nodes import (
     TypedConditionBranch,
     TypedForLoop,
-    TypedFunctionCall,
     TypedFunctionDef,
     TypedIfElse,
     TypedInlineFunctionDef,
-    TypedListLiteral,
     TypedNode,
     TypedParam,
     TypedProgram,
@@ -73,63 +65,6 @@ class TypeChecker:
             body=typed_body,
         )
         return TypeCheckResult(errors=errors, typed_program=typed_program)
-
-    def _check_function_call(
-        self,
-        node: FunctionCall,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedFunctionCall:
-        callee_type = env.lookup(node.callee.name)
-
-        if callee_type is None or not isinstance(callee_type, FunctionType):
-            if callee_type is not None:
-                errors.append(
-                    NotCallableError(
-                        position=node.position,
-                        name=node.callee.name,
-                    )
-                )
-            return TypedFunctionCall(
-                resolved_type=UnitType(),
-                position=node.position,
-                end=node.end,
-                callee_name=node.callee.name,
-                args=[self._node_checker.dispatch(a, env, errors)[0] for a in node.args],
-            )
-
-        if len(node.args) != len(callee_type.params):
-            errors.append(
-                ArgumentCountMismatchError(
-                    position=node.position,
-                    name=node.callee.name,
-                    expected_count=len(callee_type.params),
-                    actual_count=len(node.args),
-                )
-            )
-
-        typed_args: list[TypedNode] = []
-        for i, arg in enumerate(node.args):
-            typed_arg, _ = self._node_checker.dispatch(arg, env, errors)
-            typed_args.append(typed_arg)
-            if i < len(callee_type.params) and typed_arg.resolved_type != callee_type.params[i]:
-                errors.append(
-                    ArgumentTypeMismatchError(
-                        position=arg.position,
-                        name=node.callee.name,
-                        index=i,
-                        expected=callee_type.params[i].kind,
-                        actual=typed_arg.resolved_type.kind,
-                    )
-                )
-
-        return TypedFunctionCall(
-            resolved_type=callee_type.returns,
-            position=node.position,
-            end=node.end,
-            callee_name=node.callee.name,
-            args=typed_args,
-        )
 
     def _check_function_def(
         self,
@@ -333,42 +268,4 @@ class TypeChecker:
             variable_type=var_type,
             iterable=typed_iterable,
             body=typed_body,
-        )
-
-    def _check_list_literal(
-        self,
-        node: ListLiteral,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedListLiteral:
-        typed_elements: list[TypedNode] = []
-        for elem in node.elements:
-            typed_elem, _ = self._node_checker.dispatch(elem, env, errors)
-            typed_elements.append(typed_elem)
-
-        if not typed_elements:
-            return TypedListLiteral(
-                resolved_type=ListType(element=UnitType()),
-                position=node.position,
-                end=node.end,
-                elements=[],
-            )
-
-        first_type = typed_elements[0].resolved_type
-        for i, te in enumerate(typed_elements[1:], 1):
-            if te.resolved_type != first_type:
-                errors.append(
-                    HeterogeneousListError(
-                        position=te.position,
-                        index=i,
-                        expected=first_type.kind,
-                        actual=te.resolved_type.kind,
-                    )
-                )
-
-        return TypedListLiteral(
-            resolved_type=ListType(element=first_type),
-            position=node.position,
-            end=node.end,
-            elements=typed_elements,
         )
