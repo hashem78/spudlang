@@ -1,8 +1,31 @@
 from lsprotocol import types
 
+from spud.stage_eight.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
+from spud.stage_eight.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
+from spud.stage_eight.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
+from spud.stage_eight.type_errors.condition_not_bool_error import ConditionNotBoolError
+from spud.stage_eight.type_errors.element_type_mismatch_error import ElementTypeMismatchError
+from spud.stage_eight.type_errors.heterogeneous_list_error import HeterogeneousListError
+from spud.stage_eight.type_errors.not_callable_error import NotCallableError
+from spud.stage_eight.type_errors.not_iterable_error import NotIterableError
+from spud.stage_eight.type_errors.operator_type_error import OperatorTypeError
+from spud.stage_eight.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
+from spud.stage_eight.type_errors.type_error import TypeError
+from spud.stage_eight.type_errors.type_mismatch_error import TypeMismatchError
+from spud.stage_eight.type_errors.unary_operator_type_error import UnaryOperatorTypeError
+from spud.stage_eight.type_errors.unknown_type_error import UnknownTypeError
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_seven.resolve_error import ResolveError, ResolveErrorKind
-from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind
+from spud.stage_seven.resolve_error import (
+    DuplicateBindingError,
+    ResolveError,
+    ShadowedBindingError,
+    UndefinedVariableError,
+)
+from spud.stage_six.parse_errors.parse_context import ParseContext
+from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
+from spud.stage_six.parse_errors.parse_error import ParseError
+from spud.stage_six.parse_errors.unexpected_end_error import UnexpectedEndError
+from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 from spud.stage_six.program import Program
 
 _TOKEN_LABELS: dict[T, str] = {
@@ -77,17 +100,13 @@ def _context_label(context: ParseContext) -> str:
     return _CONTEXT_LABELS.get(context.kind, context.kind.value)
 
 
-_RESOLVE_MESSAGES: dict[ResolveErrorKind, str] = {
-    ResolveErrorKind.UNDEFINED_VARIABLE: "undefined variable '{name}'",
-    ResolveErrorKind.DUPLICATE_BINDING: "duplicate binding '{name}'",
-    ResolveErrorKind.SHADOWED_BINDING: "'{name}' shadows an outer binding",
-}
-
-
 class DiagnosticsHandler:
-    def diagnose(self, program: Program) -> list[types.Diagnostic]:
-        """Convert parse and resolve errors from a Program into LSP diagnostics."""
-        return [self._to_diagnostic(error) for error in program.errors]
+    def diagnose(self, program: Program, type_errors: list[TypeError] | None = None) -> list[types.Diagnostic]:
+        """Convert parse, resolve, and type errors into LSP diagnostics."""
+        diagnostics = [self._to_diagnostic(error) for error in program.errors]
+        if type_errors:
+            diagnostics.extend(self._type_error_diagnostic(e) for e in type_errors)
+        return diagnostics
 
     def _to_diagnostic(self, error: ParseError | ResolveError) -> types.Diagnostic:
         match error:
@@ -98,16 +117,16 @@ class DiagnosticsHandler:
 
     def _parse_error_diagnostic(self, error: ParseError) -> types.Diagnostic:
         message: str
-        match error.kind:
-            case ParseErrorKind.UNEXPECTED_END:
+        match error:
+            case UnexpectedEndError(expected=expected):
                 message = "unexpected end of input"
-                if error.expected:
-                    message += f", expected {_token_label(error.expected)}"
-            case ParseErrorKind.UNEXPECTED_TOKEN:
-                got_label: str = _token_label(error.got) if error.got else "token"
+                if expected:
+                    message += f", expected {_token_label(expected)}"
+            case UnexpectedTokenError(expected=expected, got=got):
+                got_label: str = _token_label(got) if got else "token"
                 message = f"unexpected {got_label}"
-                if error.expected:
-                    message += f", expected {_token_label(error.expected)}"
+                if expected:
+                    message += f", expected {_token_label(expected)}"
 
         if error.context:
             message += f" ({_context_label(error.context)})"
@@ -123,14 +142,64 @@ class DiagnosticsHandler:
         )
 
     def _resolve_error_diagnostic(self, error: ResolveError) -> types.Diagnostic:
-        template = _RESOLVE_MESSAGES.get(error.kind, error.kind.value)
-        message = template.format(name=error.name)
+        message: str
+        match error:
+            case UndefinedVariableError(name=name):
+                message = f"undefined variable '{name}'"
+            case DuplicateBindingError(name=name):
+                message = f"duplicate binding '{name}'"
+            case ShadowedBindingError(name=name):
+                message = f"'{name}' shadows an outer binding"
         return types.Diagnostic(
             range=types.Range(
                 start=types.Position(line=error.position.line, character=error.position.column),
-                end=types.Position(line=error.position.line, character=error.position.column + len(error.name)),
+                end=types.Position(line=error.position.line, character=error.position.column + len(name)),
             ),
             severity=types.DiagnosticSeverity.Error,
             source="spud",
             message=message,
         )
+
+    def _type_error_diagnostic(self, error: TypeError) -> types.Diagnostic:
+        message = _format_type_error(error)
+        return types.Diagnostic(
+            range=types.Range(
+                start=types.Position(line=error.position.line, character=error.position.column),
+                end=types.Position(line=error.position.line, character=error.position.column + 1),
+            ),
+            severity=types.DiagnosticSeverity.Error,
+            source="spud",
+            message=message,
+        )
+
+
+def _format_type_error(error: TypeError) -> str:
+    match error:
+        case TypeMismatchError(name=name, expected=expected, actual=actual):
+            return f"'{name}' declared as {expected.value} but value has type {actual.value}"
+        case ArgumentTypeMismatchError(name=name, index=index, expected=expected, actual=actual):
+            return f"argument {index} of '{name}' expected {expected.value} but got {actual.value}"
+        case ArgumentCountMismatchError(name=name, expected_count=expected, actual_count=actual):
+            return f"'{name}' expects {expected} arguments but got {actual}"
+        case NotCallableError(name=name):
+            return f"'{name}' is not callable"
+        case OperatorTypeError(operator=op, left=left, right=right):
+            return f"operator '{op}' not supported for {left.value} and {right.value}"
+        case UnaryOperatorTypeError(operator=op, operand=operand):
+            return f"unary '{op}' not supported for {operand.value}"
+        case BranchTypeMismatchError(index=index, expected=expected, actual=actual):
+            return f"branch {index} has type {actual.value} but expected {expected.value}"
+        case ConditionNotBoolError(actual=actual):
+            return f"condition must be Bool but got {actual.value}"
+        case NotIterableError(actual=actual):
+            return f"for-loop requires List but got {actual.value}"
+        case ElementTypeMismatchError(name=name, expected=expected, actual=actual):
+            return f"loop variable '{name}' declared as {expected.value} but list element type is {actual.value}"
+        case UnknownTypeError(name=name):
+            return f"unknown type '{name}'"
+        case HeterogeneousListError(index=index, expected=expected, actual=actual):
+            return f"list element {index} has type {actual.value} but expected {expected.value}"
+        case ReturnTypeMismatchError(expected=expected, actual=actual):
+            return f"function returns {actual.value} but declared return type is {expected.value}"
+        case _:
+            return error.kind.value

@@ -1,7 +1,7 @@
 from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
-from spud.core.pipeline import ResolvedProgram
+from spud.core.pipeline import TypeCheckedProgram
 from spud.stage_six.program import Program
 from spud_lsp.completion import CompletionHandler
 from spud_lsp.diagnostics import DiagnosticsHandler
@@ -29,29 +29,35 @@ class SpudLanguageServer(LanguageServer):
         self._symbols = symbols
         self._semantic_tokens = semantic_tokens
         self._last_program: dict[str, Program] = {}
-        self._last_result: dict[str, ResolvedProgram] = {}
+        self._last_result: dict[str, TypeCheckedProgram] = {}
         self._register_features()
 
     def _register_features(self) -> None:
         @self.feature(types.TEXT_DOCUMENT_DID_OPEN)
         def did_open(params: types.DidOpenTextDocumentParams) -> None:
             uri: str = params.text_document.uri
-            result: ResolvedProgram = self._parse(params.text_document.text)
+            result: TypeCheckedProgram = self._parse(params.text_document.text)
             self._last_program[uri] = result.program
             self._last_result[uri] = result
             self.text_document_publish_diagnostics(
-                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(result.program))
+                types.PublishDiagnosticsParams(
+                    uri=uri,
+                    diagnostics=self._diagnostics.diagnose(result.program, result.type_check_result.errors),
+                )
             )
 
         @self.feature(types.TEXT_DOCUMENT_DID_CHANGE)
         def did_change(params: types.DidChangeTextDocumentParams) -> None:
             uri: str = params.text_document.uri
             doc = self.workspace.get_text_document(uri)
-            result: ResolvedProgram = self._parse(doc.source)
+            result: TypeCheckedProgram = self._parse(doc.source)
             self._last_program[uri] = result.program
             self._last_result[uri] = result
             self.text_document_publish_diagnostics(
-                types.PublishDiagnosticsParams(uri=uri, diagnostics=self._diagnostics.diagnose(result.program))
+                types.PublishDiagnosticsParams(
+                    uri=uri,
+                    diagnostics=self._diagnostics.diagnose(result.program, result.type_check_result.errors),
+                )
             )
 
         @self.feature(types.TEXT_DOCUMENT_HOVER)
@@ -80,7 +86,7 @@ class SpudLanguageServer(LanguageServer):
             types.SemanticTokensRegistrationOptions(legend=LEGEND, full=True),
         )
         def semantic_tokens_full(params: types.SemanticTokensParams) -> types.SemanticTokens | None:
-            result: ResolvedProgram | None = self._last_result.get(params.text_document.uri)
+            result: TypeCheckedProgram | None = self._last_result.get(params.text_document.uri)
             if result is None:
                 return None
             return self._semantic_tokens.semantic_tokens(result.resolve_result, result.tokens)
