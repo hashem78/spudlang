@@ -1,29 +1,30 @@
 from structlog import BoundLogger
 
-from spud.core.environment import Environment
-from spud.core.pipeline.pipeline_stage import PipelineStage
-from spud.core.position import Position
-from spud.stage_seven.resolve_error import (
+from spud.core import Environment, Position
+from spud.core.pipeline import PipelineStage
+from spud.core.resolve_errors import (
     DuplicateBindingError,
     ResolveError,
     ShadowedBindingError,
     UndefinedVariableError,
 )
 from spud.stage_seven.resolve_result import ResolveResult
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.binding import Binding
-from spud.stage_six.condition_branch import ConditionBranch
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.inline_function_def import InlineFunctionDef
-from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.program import Program
-from spud.stage_six.typed_param import TypedParam
-from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six import (
+    ASTNode,
+    BinaryOp,
+    Binding,
+    ConditionBranch,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
+    Identifier,
+    IfElse,
+    InlineFunctionDef,
+    ListLiteral,
+    Program,
+    TypedParam,
+    UnaryOp,
+)
 
 
 class StageSeven(PipelineStage):

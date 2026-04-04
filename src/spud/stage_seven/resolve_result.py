@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from spud.core.environment import Environment
-from spud.core.resolve_errors.resolve_error import ResolveError
-from spud.stage_six.program import Program
+from spud.core import Environment
+from spud.core.resolve_errors import ResolveError
+from spud.stage_six import Program
 
 
 class ResolveResult(BaseModel, frozen=True):
