@@ -1,7 +1,10 @@
 from spud.core.position import Position
 from spud.stage_five.stage_five_token import StageFiveToken
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.parse_error import ParseContext, ParseError, ParseErrorKind
+from spud.stage_six.parse_errors.parse_context import ParseContext
+from spud.stage_six.parse_errors.parse_error import ParseError
+from spud.stage_six.parse_errors.unexpected_end_error import UnexpectedEndError
+from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 
 
 class TokenStream:
@@ -33,7 +36,7 @@ class TokenStream:
         """Advance past the current token and return it."""
         if self.at_end():
             position = self._tokens[-1].position if self._tokens else Position(line=0, column=0)
-            return ParseError(kind=ParseErrorKind.UNEXPECTED_END, position=position, context=context)
+            return UnexpectedEndError(position=position, context=context)
         token = self._tokens[self._pos]
         self._pos += 1
         return token
@@ -42,15 +45,13 @@ class TokenStream:
         """Consume the current token, asserting it matches the expected type."""
         result = self.consume(context=context)
         if isinstance(result, ParseError):
-            return ParseError(
-                kind=ParseErrorKind.UNEXPECTED_END,
+            return UnexpectedEndError(
                 position=result.position,
                 expected=token_type,
                 context=context,
             )
         if result.token_type != token_type:
-            return ParseError(
-                kind=ParseErrorKind.UNEXPECTED_TOKEN,
+            return UnexpectedTokenError(
                 position=result.position,
                 expected=token_type,
                 got=result.token_type,

@@ -1,9 +1,11 @@
 from lsprotocol import types
 
 from spud.core.position import Position
-from spud.core.resolve_error import ResolveError, ResolveErrorKind
+from spud.core.resolve_errors.duplicate_binding_error import DuplicateBindingError
+from spud.core.resolve_errors.shadowed_binding_error import ShadowedBindingError
+from spud.core.resolve_errors.undefined_variable_error import UndefinedVariableError
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.parse_error import ParseError, ParseErrorKind
+from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 from spud.stage_six.program import Program
 from spud_lsp.diagnostics import DiagnosticsHandler
 
@@ -18,7 +20,7 @@ class TestResolveErrorDiagnostics:
     def test_undefined_variable(self):
         program = _program(
             [
-                ResolveError(kind=ResolveErrorKind.UNDEFINED_VARIABLE, position=Position(line=2, column=5), name="w"),
+                UndefinedVariableError(position=Position(line=2, column=5), name="w"),
             ]
         )
         diags = DiagnosticsHandler().diagnose(program)
@@ -32,7 +34,7 @@ class TestResolveErrorDiagnostics:
     def test_duplicate_binding(self):
         program = _program(
             [
-                ResolveError(kind=ResolveErrorKind.DUPLICATE_BINDING, position=Position(line=1, column=0), name="x"),
+                DuplicateBindingError(position=Position(line=1, column=0), name="x"),
             ]
         )
         diags = DiagnosticsHandler().diagnose(program)
@@ -42,7 +44,7 @@ class TestResolveErrorDiagnostics:
     def test_shadowed_binding(self):
         program = _program(
             [
-                ResolveError(kind=ResolveErrorKind.SHADOWED_BINDING, position=Position(line=3, column=6), name="val"),
+                ShadowedBindingError(position=Position(line=3, column=6), name="val"),
             ]
         )
         diags = DiagnosticsHandler().diagnose(program)
@@ -52,7 +54,7 @@ class TestResolveErrorDiagnostics:
     def test_resolve_error_range_spans_name(self):
         program = _program(
             [
-                ResolveError(kind=ResolveErrorKind.UNDEFINED_VARIABLE, position=Position(line=0, column=3), name="foo"),
+                UndefinedVariableError(position=Position(line=0, column=3), name="foo"),
             ]
         )
         diags = DiagnosticsHandler().diagnose(program)
@@ -64,8 +66,8 @@ class TestMixedErrors:
     def test_parse_and_resolve_errors(self):
         program = _program(
             [
-                ParseError(kind=ParseErrorKind.UNEXPECTED_TOKEN, position=Position(line=0, column=0), got=T.WALRUS),
-                ResolveError(kind=ResolveErrorKind.UNDEFINED_VARIABLE, position=Position(line=1, column=5), name="y"),
+                UnexpectedTokenError(position=Position(line=0, column=0), got=T.WALRUS),
+                UndefinedVariableError(position=Position(line=1, column=5), name="y"),
             ]
         )
         diags = DiagnosticsHandler().diagnose(program)

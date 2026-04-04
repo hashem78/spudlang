@@ -2,7 +2,9 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.function_type_expr import FunctionTypeExpr
 from spud.stage_six.list_type_expr import ListTypeExpr
 from spud.stage_six.named_type import NamedType
-from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ctx
+from spud.stage_six.parse_errors.parse_context import ParseContext, ctx
+from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
+from spud.stage_six.parse_errors.parse_error import ParseError
 from spud.stage_six.token_stream import TokenStream
 from spud.stage_six.type_expression import TypeExpression
 

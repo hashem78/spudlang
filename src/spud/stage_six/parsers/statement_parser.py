@@ -3,7 +3,10 @@ from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binding import Binding
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.parse_error import ParseContextKind, ParseError, ParseErrorKind, ctx
+from spud.stage_six.parse_errors.parse_context import ctx
+from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
+from spud.stage_six.parse_errors.parse_error import ParseError
+from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
@@ -52,16 +55,14 @@ class StatementParser:
                 return self._binding_parser.parse(stream)
             case T.ELSE:
                 tok = stream.consume()
-                return ParseError(
-                    kind=ParseErrorKind.UNEXPECTED_TOKEN,
+                return UnexpectedTokenError(
                     position=tok.position,
                     got=T.ELSE,
                     context=ctx(ParseContextKind.ORPHANED_ELSE),
                 )
             case T.ELIF:
                 tok = stream.consume()
-                return ParseError(
-                    kind=ParseErrorKind.UNEXPECTED_TOKEN,
+                return UnexpectedTokenError(
                     position=tok.position,
                     got=T.ELIF,
                     context=ctx(ParseContextKind.ORPHANED_ELIF),

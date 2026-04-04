@@ -1,0 +1,26 @@
+from enum import Enum
+
+
+class ParseContextKind(str, Enum):
+    BINDING_TARGET = "binding_target"
+    BINDING_VALUE = "binding_value"
+    FUNCTION_PARAMS = "function_params"
+    FUNCTION_BODY = "function_body"
+    FUNCTION_ARGS = "function_args"
+    IF_CONDITION = "if_condition"
+    ELIF_CONDITION = "elif_condition"
+    IF_BODY = "if_body"
+    ELIF_BODY = "elif_body"
+    ELSE_BODY = "else_body"
+    FOR_VARIABLE = "for_variable"
+    FOR_ITERABLE = "for_iterable"
+    FOR_BODY = "for_body"
+    BLOCK = "block"
+    EXPRESSION = "expression"
+    ORPHANED_ELSE = "orphaned_else"
+    ORPHANED_ELIF = "orphaned_elif"
+    UNTERMINATED_STRING = "unterminated_string"
+    UNTERMINATED_RAW_STRING = "unterminated_raw_string"
+    UNTERMINATED_DELIMITER = "unterminated_delimiter"
+    TYPE_ANNOTATION = "type_annotation"
+    RETURN_TYPE = "return_type"

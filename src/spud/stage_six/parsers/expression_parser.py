@@ -12,7 +12,11 @@ from spud.stage_six.identifier import Identifier
 from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
+from spud.stage_six.parse_errors.parse_context import ParseContext, ctx
+from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
+from spud.stage_six.parse_errors.parse_error import ParseError, with_context
+from spud.stage_six.parse_errors.unexpected_end_error import UnexpectedEndError
+from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 from spud.stage_six.parsers.param_list_parser import parse_param_list
 from spud.stage_six.parsers.type_parser import parse_type
 from spud.stage_six.raw_string_literal import RawStringLiteral
@@ -163,8 +167,7 @@ class ExpressionParser:
         """
         tok = stream.peek()
         if tok is None:
-            return ParseError(
-                kind=ParseErrorKind.UNEXPECTED_END,
+            return UnexpectedEndError(
                 position=Position(line=0, column=0),
                 context=ctx(ParseContextKind.EXPRESSION),
             )
@@ -189,8 +192,7 @@ class ExpressionParser:
                 is_double = tok.value.startswith('"')
                 is_single = tok.value.startswith("'")
                 if (is_double and not tok.value.endswith('"')) or (is_single and not tok.value.endswith("'")):
-                    return ParseError(
-                        kind=ParseErrorKind.UNEXPECTED_END,
+                    return UnexpectedEndError(
                         position=tok.position,
                         context=ctx(ParseContextKind.UNTERMINATED_STRING),
                     )
@@ -199,8 +201,7 @@ class ExpressionParser:
             case T.RAW_STRING:
                 stream.consume()
                 if not tok.value.endswith("`"):
-                    return ParseError(
-                        kind=ParseErrorKind.UNEXPECTED_END,
+                    return UnexpectedEndError(
                         position=tok.position,
                         context=ctx(ParseContextKind.UNTERMINATED_RAW_STRING),
                     )
@@ -235,8 +236,7 @@ class ExpressionParser:
                 return self._parse_list_literal(stream)
 
             case _:
-                return ParseError(
-                    kind=ParseErrorKind.UNEXPECTED_TOKEN,
+                return UnexpectedTokenError(
                     position=tok.position,
                     got=tok.token_type,
                     context=ctx(ParseContextKind.EXPRESSION),

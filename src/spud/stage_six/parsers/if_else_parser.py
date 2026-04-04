@@ -2,7 +2,9 @@ from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.condition_branch import ConditionBranch
 from spud.stage_six.if_else import IfElse
-from spud.stage_six.parse_error import ParseContextKind, ParseError, ctx, with_context
+from spud.stage_six.parse_errors.parse_context import ctx
+from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
+from spud.stage_six.parse_errors.parse_error import ParseError, with_context
 from spud.stage_six.parser_protocol import IParser
 from spud.stage_six.token_stream import TokenStream
 
