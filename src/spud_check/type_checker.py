@@ -1,69 +1,78 @@
-from spud.core.environment import Environment
-from spud.core.types.bool_type import BoolType
-from spud.core.types.float_type import FloatType
-from spud.core.types.function_type import FunctionType
-from spud.core.types.int_type import IntType
-from spud.core.types.list_type import ListType
-from spud.core.types.spud_type import SpudType
-from spud.core.types.string_type import StringType
-from spud.core.types.unit_type import UnitType
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.binding import Binding
-from spud.stage_six.boolean_literal import BooleanLiteral
-from spud.stage_six.float_literal import FloatLiteral
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.function_type_expr import FunctionTypeExpr
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.inline_function_def import InlineFunctionDef
-from spud.stage_six.int_literal import IntLiteral
-from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.list_type_expr import ListTypeExpr
-from spud.stage_six.named_type import NamedType
-from spud.stage_six.program import Program
-from spud.stage_six.raw_string_literal import RawStringLiteral
-from spud.stage_six.string_literal import StringLiteral
-from spud.stage_six.type_expression import TypeExpression
-from spud.stage_six.unary_op import UnaryOp
-from spud.stage_six.unit_literal import UnitLiteral
+from spud.core import Environment
+from spud.core.types import (
+    BoolType,
+    FloatType,
+    FunctionType,
+    IntType,
+    ListType,
+    SpudType,
+    StringType,
+    UnitType,
+)
+from spud.stage_six import (
+    ASTNode,
+    BinaryOp,
+    Binding,
+    BooleanLiteral,
+    FloatLiteral,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
+    FunctionTypeExpr,
+    Identifier,
+    IfElse,
+    InlineFunctionDef,
+    IntLiteral,
+    ListLiteral,
+    ListTypeExpr,
+    NamedType,
+    Program,
+    RawStringLiteral,
+    StringLiteral,
+    TypeExpression,
+    UnaryOp,
+    UnitLiteral,
+)
 from spud_check.builtin_types import BUILTIN_TYPES
 from spud_check.operator_types import BINARY_OP_TYPES, UNARY_OP_TYPES
 from spud_check.type_check_result import TypeCheckResult
-from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud_check.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
-from spud_check.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
-from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud_check.type_errors.element_type_mismatch_error import ElementTypeMismatchError
-from spud_check.type_errors.heterogeneous_list_error import HeterogeneousListError
-from spud_check.type_errors.not_callable_error import NotCallableError
-from spud_check.type_errors.not_iterable_error import NotIterableError
-from spud_check.type_errors.operator_type_error import OperatorTypeError
-from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud_check.type_errors.type_error import TypeError
-from spud_check.type_errors.type_mismatch_error import TypeMismatchError
-from spud_check.type_errors.unary_operator_type_error import UnaryOperatorTypeError
-from spud_check.type_errors.unknown_type_error import UnknownTypeError
-from spud_check.typed_nodes.typed_binary_op import TypedBinaryOp
-from spud_check.typed_nodes.typed_binding import TypedBinding
-from spud_check.typed_nodes.typed_boolean_literal import TypedBooleanLiteral
-from spud_check.typed_nodes.typed_condition_branch import TypedConditionBranch
-from spud_check.typed_nodes.typed_float_literal import TypedFloatLiteral
-from spud_check.typed_nodes.typed_for_loop import TypedForLoop
-from spud_check.typed_nodes.typed_function_call import TypedFunctionCall
-from spud_check.typed_nodes.typed_function_def import TypedFunctionDef, TypedParam
-from spud_check.typed_nodes.typed_identifier import TypedIdentifier
-from spud_check.typed_nodes.typed_if_else import TypedIfElse
-from spud_check.typed_nodes.typed_inline_function_def import TypedInlineFunctionDef
-from spud_check.typed_nodes.typed_int_literal import TypedIntLiteral
-from spud_check.typed_nodes.typed_list_literal import TypedListLiteral
-from spud_check.typed_nodes.typed_node import TypedNode
-from spud_check.typed_nodes.typed_program import TypedProgram
-from spud_check.typed_nodes.typed_string_literal import TypedStringLiteral
-from spud_check.typed_nodes.typed_unary_op import TypedUnaryOp
-from spud_check.typed_nodes.typed_unit_literal import TypedUnitLiteral
+from spud_check.type_errors import (
+    ArgumentCountMismatchError,
+    ArgumentTypeMismatchError,
+    BranchTypeMismatchError,
+    ConditionNotBoolError,
+    ElementTypeMismatchError,
+    HeterogeneousListError,
+    NotCallableError,
+    NotIterableError,
+    OperatorTypeError,
+    ReturnTypeMismatchError,
+    TypeError,
+    TypeMismatchError,
+    UnaryOperatorTypeError,
+    UnknownTypeError,
+)
+from spud_check.typed_nodes import (
+    TypedBinaryOp,
+    TypedBinding,
+    TypedBooleanLiteral,
+    TypedConditionBranch,
+    TypedFloatLiteral,
+    TypedForLoop,
+    TypedFunctionCall,
+    TypedFunctionDef,
+    TypedIdentifier,
+    TypedIfElse,
+    TypedInlineFunctionDef,
+    TypedIntLiteral,
+    TypedListLiteral,
+    TypedNode,
+    TypedParam,
+    TypedProgram,
+    TypedStringLiteral,
+    TypedUnaryOp,
+    TypedUnitLiteral,
+)
 
 
 class TypeChecker:
