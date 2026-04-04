@@ -7,8 +7,6 @@ from spud.core.types import (
     UnitType,
 )
 from spud.stage_six import (
-    BinaryOp,
-    Binding,
     ForLoop,
     FunctionCall,
     FunctionDef,
@@ -16,10 +14,8 @@ from spud.stage_six import (
     InlineFunctionDef,
     ListLiteral,
     Program,
-    UnaryOp,
 )
 from spud_check.checkers import NodeChecker
-from spud_check.operator_types import BINARY_OP_TYPES, UNARY_OP_TYPES
 from spud_check.type_check_result import TypeCheckResult
 from spud_check.type_errors import (
     ArgumentCountMismatchError,
@@ -30,16 +26,11 @@ from spud_check.type_errors import (
     HeterogeneousListError,
     NotCallableError,
     NotIterableError,
-    OperatorTypeError,
     ReturnTypeMismatchError,
     TypeError,
-    TypeMismatchError,
-    UnaryOperatorTypeError,
 )
 from spud_check.type_resolver import resolve_type
 from spud_check.typed_nodes import (
-    TypedBinaryOp,
-    TypedBinding,
     TypedConditionBranch,
     TypedForLoop,
     TypedFunctionCall,
@@ -50,7 +41,6 @@ from spud_check.typed_nodes import (
     TypedNode,
     TypedParam,
     TypedProgram,
-    TypedUnaryOp,
 )
 
 
@@ -83,103 +73,6 @@ class TypeChecker:
             body=typed_body,
         )
         return TypeCheckResult(errors=errors, typed_program=typed_program)
-
-    def _check_binding(
-        self,
-        node: Binding,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> tuple[TypedBinding, Environment[SpudType]]:
-        declared = resolve_type(node.type_annotation, errors)
-
-        is_function = isinstance(node.value, FunctionDef | InlineFunctionDef)
-        if is_function:
-            env = env.with_binding(node.target.name, declared)
-
-        typed_value, env = self._node_checker.dispatch(node.value, env, errors)
-
-        if typed_value.resolved_type != declared:
-            errors.append(
-                TypeMismatchError(
-                    position=node.position,
-                    name=node.target.name,
-                    expected=declared.kind,
-                    actual=typed_value.resolved_type.kind,
-                )
-            )
-
-        if not is_function:
-            env = env.with_binding(node.target.name, declared)
-
-        return TypedBinding(
-            resolved_type=declared,
-            position=node.position,
-            end=node.end,
-            target_name=node.target.name,
-            type_annotation=node.type_annotation,
-            value=typed_value,
-        ), env
-
-    def _check_binary_op(
-        self,
-        node: BinaryOp,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedBinaryOp:
-        typed_left, _ = self._node_checker.dispatch(node.left, env, errors)
-        typed_right, _ = self._node_checker.dispatch(node.right, env, errors)
-
-        key = (node.operator, typed_left.resolved_type.kind, typed_right.resolved_type.kind)
-        result_type = BINARY_OP_TYPES.get(key)
-
-        if result_type is None:
-            errors.append(
-                OperatorTypeError(
-                    position=node.position,
-                    operator=node.operator,
-                    left=typed_left.resolved_type.kind,
-                    right=typed_right.resolved_type.kind,
-                )
-            )
-            result_type = UnitType()
-
-        return TypedBinaryOp(
-            resolved_type=result_type,
-            position=node.position,
-            end=node.end,
-            left=typed_left,
-            operator=node.operator,
-            right=typed_right,
-        )
-
-    def _check_unary_op(
-        self,
-        node: UnaryOp,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedUnaryOp:
-        typed_operand, _ = self._node_checker.dispatch(node.operand, env, errors)
-
-        key = (node.operator, typed_operand.resolved_type.kind)
-        result_type = UNARY_OP_TYPES.get(key)
-
-        if result_type is None:
-            errors.append(
-                UnaryOperatorTypeError(
-                    position=node.position,
-                    operator=node.operator,
-                    operand=typed_operand.resolved_type.kind,
-                )
-            )
-            result_type = UnitType()
-
-        return TypedUnaryOp(
-            resolved_type=result_type,
-            position=node.position,
-            end=node.end,
-            operator=node.operator,
-            operand=typed_operand,
-        )
 
     def _check_function_call(
         self,

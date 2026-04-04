@@ -19,6 +19,9 @@ from spud.stage_six import (
     UnaryOp,
     UnitLiteral,
 )
+from spud_check.checkers.binary_op_checker import BinaryOpChecker
+from spud_check.checkers.binding_checker import BindingChecker
+from spud_check.checkers.unary_op_checker import UnaryOpChecker
 from spud_check.type_errors import TypeError
 from spud_check.typed_nodes import (
     TypedBooleanLiteral,
@@ -39,21 +42,6 @@ class _TypeCheckerShim:
 
     def __init__(self, type_checker: "object"):
         self._tc = type_checker
-
-    def check_binding(
-        self, node: Binding, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_binding(node, env, errors)  # type: ignore[attr-defined]
-
-    def check_binary_op(
-        self, node: BinaryOp, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_binary_op(node, env, errors), env  # type: ignore[attr-defined]
-
-    def check_unary_op(
-        self, node: UnaryOp, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_unary_op(node, env, errors), env  # type: ignore[attr-defined]
 
     def check_function_call(
         self, node: FunctionCall, env: Environment[SpudType], errors: list[TypeError]
@@ -95,8 +83,17 @@ class NodeChecker:
     through this instance.
     """
 
-    def __init__(self, shim: _TypeCheckerShim):
+    def __init__(
+        self,
+        shim: _TypeCheckerShim,
+        binding_checker: BindingChecker,
+        binary_op_checker: BinaryOpChecker,
+        unary_op_checker: UnaryOpChecker,
+    ):
         self._shim = shim
+        self._binding_checker = binding_checker
+        self._binary_op_checker = binary_op_checker
+        self._unary_op_checker = unary_op_checker
 
     def dispatch(
         self,
@@ -128,11 +125,11 @@ class NodeChecker:
                     resolved_type=resolved_type, position=node.position, end=node.end, name=name
                 ), env
             case Binding():
-                return self._shim.check_binding(node, env, errors)
+                return self._binding_checker.check(node, env, errors)
             case BinaryOp():
-                return self._shim.check_binary_op(node, env, errors)
+                return self._binary_op_checker.check(node, env, errors)
             case UnaryOp():
-                return self._shim.check_unary_op(node, env, errors)
+                return self._unary_op_checker.check(node, env, errors)
             case FunctionCall():
                 return self._shim.check_function_call(node, env, errors)
             case FunctionDef():
@@ -150,4 +147,15 @@ class NodeChecker:
 
 
 def build_node_checker(type_checker: object) -> NodeChecker:
-    return NodeChecker(shim=_TypeCheckerShim(type_checker))
+    node_checker = NodeChecker.__new__(NodeChecker)
+    shim = _TypeCheckerShim(type_checker)
+    binding_checker = BindingChecker(dispatch=node_checker)
+    binary_op_checker = BinaryOpChecker(dispatch=node_checker)
+    unary_op_checker = UnaryOpChecker(dispatch=node_checker)
+    node_checker.__init__(
+        shim=shim,
+        binding_checker=binding_checker,
+        binary_op_checker=binary_op_checker,
+        unary_op_checker=unary_op_checker,
+    )
+    return node_checker
