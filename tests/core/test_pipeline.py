@@ -1,6 +1,6 @@
 import pytest
 
-from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram
+from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram, TypeCheckedProgram
 from spud.core.resolve_error import ResolveErrorKind
 from spud.core.string_reader import StringReader
 from spud.di.container import Container
@@ -72,10 +72,10 @@ class TestPipelineGetReturnTypes:
 
 
 class TestPipelineRun:
-    def test_run_returns_resolved_program(self):
+    def test_run_returns_type_checked_program(self):
         pipeline = _pipeline()
         result = pipeline.run(_reader("x : Int := 1"))
-        assert isinstance(result, ResolvedProgram)
+        assert isinstance(result, TypeCheckedProgram)
 
     def test_run_valid_program_has_no_errors(self):
         pipeline = _pipeline()

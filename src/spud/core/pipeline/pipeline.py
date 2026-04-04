@@ -2,7 +2,7 @@ from typing import TypeVar, cast
 
 from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.pipeline.pipeline_step import PipelineStep
-from spud.core.pipeline.resolved_program import ResolvedProgram
+from spud.core.pipeline.type_checked_program import TypeCheckedProgram
 from spud.core.reader_protocol import IReader
 
 T = TypeVar("T", bound=PipelineStage)
@@ -36,6 +36,6 @@ class Pipeline:
         step = self._steps[stage_type]
         return cast(T, step(source))
 
-    def run(self, source: IReader) -> ResolvedProgram:
-        """Run the full pipeline and return the resolved program."""
-        return self.get(ResolvedProgram, source)
+    def run(self, source: IReader) -> TypeCheckedProgram:
+        """Run the full pipeline and return the type-checked program."""
+        return self.get(TypeCheckedProgram, source)
