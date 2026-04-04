@@ -222,6 +222,25 @@ class TestStepChainIndependence:
             assert result.resolve_result.environment.contains(f"var{i}")
 
 
+class TestTypeCheckResult:
+    def test_no_errors_for_valid_program(self):
+        pipeline = _pipeline()
+        result = pipeline.run(_reader("x : Int := 1"))
+        assert result.type_check_result.errors == []
+
+    def test_has_error_for_mismatch(self):
+        pipeline = _pipeline()
+        result = pipeline.run(_reader("x : Int := 3.14"))
+        assert len(result.type_check_result.errors) > 0
+
+    def test_typed_program_body_non_empty(self):
+        pipeline = _pipeline()
+        result = pipeline.run(_reader("x : Int := 1"))
+        typed_program = result.type_check_result.typed_program
+        assert hasattr(typed_program, "body")
+        assert len(typed_program.body) > 0
+
+
 class TestUnknownStageType:
     def test_get_unregistered_type_raises_key_error(self):
         pipeline = _pipeline()
