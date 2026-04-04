@@ -40,21 +40,6 @@ from spud_check.typed_nodes import (
 )
 
 
-class _TypeCheckerShim:
-    """Adapter that delegates composite node checks back to TypeChecker's
-    per-node methods. Used during the refactor while checker classes are
-    being extracted incrementally. Deleted in the final commit.
-    """
-
-    def __init__(self, type_checker: "object"):
-        self._tc = type_checker
-
-    def check_list_literal(
-        self, node: ListLiteral, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_list_literal(node, env, errors), env  # type: ignore[attr-defined]
-
-
 class NodeChecker:
     """Dispatches AST nodes to the appropriate per-node checker.
 
@@ -66,7 +51,6 @@ class NodeChecker:
 
     def __init__(
         self,
-        shim: _TypeCheckerShim,
         binding_checker: BindingChecker,
         binary_op_checker: BinaryOpChecker,
         unary_op_checker: UnaryOpChecker,
@@ -77,7 +61,6 @@ class NodeChecker:
         if_else_checker: IfElseChecker,
         for_loop_checker: ForLoopChecker,
     ):
-        self._shim = shim
         self._binding_checker = binding_checker
         self._binary_op_checker = binary_op_checker
         self._unary_op_checker = unary_op_checker
@@ -139,9 +122,8 @@ class NodeChecker:
                 return TypedUnitLiteral(resolved_type=UnitType(), position=node.position, end=node.end), env
 
 
-def build_node_checker(type_checker: object) -> NodeChecker:
+def build_node_checker() -> NodeChecker:
     node_checker = NodeChecker.__new__(NodeChecker)
-    shim = _TypeCheckerShim(type_checker)
     binding_checker = BindingChecker(dispatch=node_checker)
     binary_op_checker = BinaryOpChecker(dispatch=node_checker)
     unary_op_checker = UnaryOpChecker(dispatch=node_checker)
@@ -152,7 +134,6 @@ def build_node_checker(type_checker: object) -> NodeChecker:
     if_else_checker = IfElseChecker(dispatch=node_checker)
     for_loop_checker = ForLoopChecker(dispatch=node_checker)
     node_checker.__init__(
-        shim=shim,
         binding_checker=binding_checker,
         binary_op_checker=binary_op_checker,
         unary_op_checker=unary_op_checker,

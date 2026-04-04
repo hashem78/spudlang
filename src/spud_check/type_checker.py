@@ -28,7 +28,7 @@ class TypeChecker:
     def __init__(self, node_checker: "NodeChecker | None" = None):
         from spud_check.checkers import build_node_checker
 
-        self._node_checker = node_checker if node_checker is not None else build_node_checker(self)
+        self._node_checker = node_checker if node_checker is not None else build_node_checker()
 
     def check(self, program: Program) -> TypeCheckResult:
         errors: list[TypeError] = []
