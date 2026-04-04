@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six import ASTNode, StringLiteral
 from spud_fmt.config import FmtConfig, QuoteStyle
 
 

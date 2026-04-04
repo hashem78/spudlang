@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.unit_literal import UnitLiteral
+from spud.stage_six import ASTNode, UnitLiteral
 
 
 class UnitLiteralFormatter:

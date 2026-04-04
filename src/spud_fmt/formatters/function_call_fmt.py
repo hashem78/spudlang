@@ -1,7 +1,6 @@
 from typing import Callable
 
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.function_call import FunctionCall
+from spud.stage_six import ASTNode, FunctionCall
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 

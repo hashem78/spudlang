@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from spud.stage_six.ast_node import ASTNode
+from spud.stage_six import ASTNode
 
 
 class FormatterDispatch(Protocol):

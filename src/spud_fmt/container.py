@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from spud.di.container import Container as CoreContainer
+from spud.di import Container as CoreContainer
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter import Formatter
 from spud_fmt.formatter_protocol import FormatterDispatch

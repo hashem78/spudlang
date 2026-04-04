@@ -1,7 +1,6 @@
 from typing import Callable
 
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.if_else import IfElse
+from spud.stage_six import ASTNode, IfElse
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 from spud_fmt.formatters.body_fmt import format_body

@@ -1,7 +1,6 @@
 from typing import Callable
 
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six import ASTNode, InlineFunctionDef
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 from spud_fmt.formatters.type_fmt import format_type, format_typed_params

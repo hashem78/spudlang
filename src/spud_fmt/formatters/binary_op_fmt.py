@@ -1,8 +1,7 @@
 from typing import Callable
 
-from spud.core.operator_precedence import NON_ASSOCIATIVE_OPS, NON_COMMUTATIVE_OPS, OPERATOR_PRECEDENCE
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binary_op import BinaryOp
+from spud.core import NON_ASSOCIATIVE_OPS, NON_COMMUTATIVE_OPS, OPERATOR_PRECEDENCE
+from spud.stage_six import ASTNode, BinaryOp
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 

@@ -1,6 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.node_type import NodeType
-from spud.stage_six.program import Program
+from spud.stage_six import ASTNode, NodeType, Program
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import NodeFormatter
 from spud_fmt.formatters.body_fmt import is_block_node

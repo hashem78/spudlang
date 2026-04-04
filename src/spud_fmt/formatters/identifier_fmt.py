@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.identifier import Identifier
+from spud.stage_six import ASTNode, Identifier
 
 
 class IdentifierFormatter:

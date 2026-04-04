@@ -1,11 +1,6 @@
 from typing import Callable
 
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binding import Binding
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.inline_function_def import InlineFunctionDef
+from spud.stage_six import ASTNode, Binding, ForLoop, FunctionDef, IfElse, InlineFunctionDef
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 

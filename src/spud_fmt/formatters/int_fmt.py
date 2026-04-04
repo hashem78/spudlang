@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.int_literal import IntLiteral
+from spud.stage_six import ASTNode, IntLiteral
 
 
 class IntFormatter:

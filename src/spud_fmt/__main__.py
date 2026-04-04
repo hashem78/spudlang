@@ -4,8 +4,8 @@ from pathlib import Path
 import cyclopts
 from dependency_injector import providers
 
+from spud.core import StringReader
 from spud.core.pipeline import ParsedProgram
-from spud.core.string_reader import StringReader
 from spud_fmt.config_loader import load_config
 from spud_fmt.container import FmtContainer
 

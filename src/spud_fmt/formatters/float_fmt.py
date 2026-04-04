@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.float_literal import FloatLiteral
+from spud.stage_six import ASTNode, FloatLiteral
 from spud_fmt.config import FmtConfig
 
 

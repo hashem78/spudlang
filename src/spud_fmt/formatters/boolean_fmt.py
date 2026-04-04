@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.boolean_literal import BooleanLiteral
+from spud.stage_six import ASTNode, BooleanLiteral
 
 
 class BooleanFormatter:

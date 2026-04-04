@@ -1,5 +1,4 @@
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.raw_string_literal import RawStringLiteral
+from spud.stage_six import ASTNode, RawStringLiteral
 
 
 class RawStringFormatter:

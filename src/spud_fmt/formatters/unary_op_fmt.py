@@ -1,8 +1,6 @@
 from typing import Callable
 
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.unary_op import UnaryOp
+from spud.stage_six import ASTNode, BinaryOp, UnaryOp
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
 
