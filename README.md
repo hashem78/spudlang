@@ -1,78 +1,84 @@
 # spud
 
-A small programming language with a multi-stage parser pipeline, scope resolution, an LSP server with semantic highlighting, and a code formatter.
+A small statically-typed programming language with a multi-stage parser pipeline, scope resolution, a type checker, an LSP server with semantic highlighting, and a code formatter.
 
 ## Language
 
-spud uses indentation-based blocks, `:=` for bindings, and `=>` for function definitions. Every expression produces a value.
+spud uses indentation-based blocks, `:=` for bindings, and `=>` for function definitions. Every binding and every function parameter carries a type annotation. Every expression produces a value.
 
 ```
-pi := 3.14159
-radius := 5
-area := pi * radius * radius
+pi: Float := 3.14159
+radius: Float := 5.0
+area: Float := pi * radius * radius
 
-greet := (name) => 'hello ' + name
+greet: Function[[String], String] := (name: String): String =>
+  'hello ' + name
 
-factorial := (n) =>
+factorial: Function[[Int], Int] := (n: Int): Int =>
   if n == 0
     1
   else
     n * factorial(n - 1)
 
-result := factorial(10)
-numbers := [1, 2, 3, 4, 5]
+result: Int := factorial(10)
+numbers: List[Int] := [1, 2, 3, 4, 5]
 
-for item in numbers
-  doubled := item * 2
-  greet('world')
+for item: Int in numbers
+  doubled: Int := item * 2
 
-max := (a, b) =>
+max: Function[[Int, Int], Int] := (a: Int, b: Int): Int =>
   if a > b
     a
   else
     b
 
-biggest := max(42, 17)
-
-compose := (f, g) =>
-  (x) => f(g(x))
+biggest: Int := max(42, 17)
 ```
+
+### Types
+
+Built-in types: `Int`, `Float`, `String`, `Bool`, `Unit`.
+
+Compound types:
+
+- `List[T]` — homogeneous lists.
+- `Function[[T1, T2, ...], R]` — functions taking `T1, T2, ...` and returning `R`.
 
 ### Literals
 
 ```
-x := 42
-pi := 3.14
-half := .5
-name := 'hello'
-raw := `raw string`
-flag := true
-items := [1, 2, 3]
-nothing := ()
+x: Int := 42
+pi: Float := 3.14
+half: Float := 0.5
+name: String := 'hello'
+raw: String := `raw string`
+flag: Bool := true
+items: List[Int] := [1, 2, 3]
+nothing: Unit := ()
 ```
 
 ### Bindings
 
-All bindings are immutable. Rebinding and shadowing are not allowed.
+All bindings are immutable and require a type annotation. Rebinding and shadowing are not allowed.
 
 ```
-x := 42
-name := 'hello'
+x: Int := 42
+name: String := 'hello'
 ```
 
 ### Functions
 
-Block functions have an indented body. Inline functions use a single expression. Self-recursion is supported.
+Parameters and return types are annotated. Block functions have an indented body; inline functions use a single expression. Self-recursion is supported.
 
 ```
-add := (a, b) =>
-  result := a + b
+add: Function[[Int, Int], Int] := (a: Int, b: Int): Int =>
+  result: Int := a + b
   result
 
-double := (x) => x * 2
-noop := () => ()
+double: Function[[Int], Int] := (x: Int): Int => x * 2
+noop: Function[[], Unit] := (): Unit => ()
 
-factorial := (n) =>
+factorial: Function[[Int], Int] := (n: Int): Int =>
   if n == 0
     1
   else
@@ -89,8 +95,8 @@ elif x == 0
 else
   'negative'
 
-for i in range(10)
-  print(i)
+for i: Int in numbers
+  doubled: Int := i * 2
 ```
 
 ### Expressions
@@ -101,7 +107,7 @@ Binary operators with standard precedence, unary minus/plus, function calls, lis
 a + b * c
 -x
 f(1, 2)
-[1, max(3, 4), (x) => x + 1]
+[1, max(3, 4)]
 (a + b) * c
 ```
 
@@ -131,9 +137,10 @@ hatch run build:all
 Or build individual tools:
 
 ```sh
-hatch run build:binary       # spud
-hatch run build:lsp-binary   # spud-lsp
-hatch run build:fmt-binary   # spud-fmt
+hatch run build:binary        # spud
+hatch run build:lsp-binary    # spud-lsp
+hatch run build:fmt-binary    # spud-fmt
+hatch run build:check-binary  # spud-check
 ```
 
 ## Usage
@@ -149,7 +156,7 @@ spud program.spud --tree
 Parse from stdin:
 
 ```sh
-echo 'x := 1 + 2' | spud /dev/stdin --tree
+echo 'x: Int := 1 + 2' | spud /dev/stdin --tree
 ```
 
 Example output:
@@ -178,31 +185,23 @@ global
   area
   greet
   factorial
-  result
-  numbers
-  max
-  biggest
-  compose
   scope
     name
   scope
     n
     scope
     scope
-  scope
-    item
-    doubled
-  scope
-    a
-    b
-    scope
-    scope
-  scope
-    f
-    g
-    scope
-      x
 ```
+
+### Type checker
+
+Run type checking over a file and report type errors:
+
+```sh
+spud-check program.spud
+```
+
+Reports operator type mismatches, argument count/type mismatches, unknown types, branch type mismatches in `if`/`elif`/`else`, heterogeneous list elements, non-iterable `for` targets, non-callable call targets, and return type mismatches.
 
 ### Formatter
 
@@ -221,7 +220,7 @@ spud-fmt program.spud --write
 Format from stdin:
 
 ```sh
-echo 'x:=1+2' | spud-fmt
+echo 'x:Int:=1+2' | spud-fmt
 ```
 
 #### Configuration
@@ -254,11 +253,12 @@ Communicates over stdio. Point your editor's LSP client at the `spud-lsp` binary
 
 Features:
 
-- **Diagnostics** - parse errors and scope resolution errors (undefined variables, duplicate bindings, shadowed names)
-- **Semantic highlighting** - functions, parameters, variables, keywords, operators, numbers, and strings each get distinct colors
-- **Hover** - shows type information for identifiers, literals, and operators
-- **Completion** - keywords and in-scope bindings
-- **Document symbols** - top-level bindings
+- **Diagnostics** — parse errors, scope resolution errors (undefined variables, duplicate bindings, shadowed names), and type errors from the type checker.
+- **Semantic highlighting** — functions, parameters, variables, keywords, operators, type annotations, numbers, and strings each get distinct colors.
+- **Hover** — shows the resolved type for identifiers, literals, operators, and expressions.
+- **Go-to-definition** — jump from an identifier reference to its binding or parameter.
+- **Completion** — keywords and in-scope bindings.
+- **Document symbols** — top-level bindings.
 
 #### Neovim
 
@@ -333,19 +333,20 @@ hatch run dev:typecheck
 
 ## Architecture
 
-The parser is a seven-stage pipeline. Each stage transforms its input and passes it to the next.
+The frontend is an eight-stage pipeline. Each stage transforms its input and passes it to the next. There is no code generation — spud stops after producing a typed AST.
 
-1. **Stage one** - Character lexer. Reads raw characters and emits single-character tokens with position data.
-2. **Stage two** - Keyword matching. Trie-based pass that groups character tokens into keyword tokens (`if`, `for`, `true`, etc.) with word boundary detection.
-3. **Stage three** - Identifier and numeric grouping. Merges runs of non-symbol characters into identifier or integer tokens, splitting on whitespace and symbols.
-4. **Stage four** - Operator and float matching. Trie-based pass that recognizes multi-character operators (`:=`, `=>`, `==`, `!=`, `<=`, `>=`, `&&`, `||`). A streaming combiner merges adjacent `INT DOT INT` patterns into float tokens.
-5. **Stage five** - Indentation. Streaming pass that tracks column depth and emits synthetic `INDENT`/`DEDENT` tokens.
-6. **Stage six** - AST. Recursive descent parser producing a typed AST from the token stream.
-7. **Stage seven** - Scope resolution. Walks the AST with an immutable environment tree, validating bindings and references. Reports undefined variables, duplicate bindings, and shadowed names.
+1. **Stage one** — Character lexer. Reads raw characters and emits single-character tokens with position data.
+2. **Stage two** — Keyword matching. Trie-based pass that groups character tokens into keyword tokens (`if`, `for`, `true`, etc.) with word boundary detection.
+3. **Stage three** — Identifier and numeric grouping. Merges runs of non-symbol characters into identifier or integer tokens, splitting on whitespace and symbols.
+4. **Stage four** — Operator and float matching. Trie-based pass that recognizes multi-character operators (`:=`, `=>`, `==`, `!=`, `<=`, `>=`, `&&`, `||`). A streaming combiner merges adjacent `INT DOT INT` patterns into float tokens.
+5. **Stage five** — Indentation. Streaming pass that tracks column depth and emits synthetic `INDENT`/`DEDENT` tokens.
+6. **Stage six** — AST. Recursive descent parser producing a typed AST from the token stream.
+7. **Stage seven** — Scope resolution. Walks the AST with an immutable environment tree, validating bindings and references. Reports undefined variables, duplicate bindings, and shadowed names.
+8. **Stage eight** — Type checking. Walks the resolved AST with an `Environment[SpudType]`, resolving type annotations and producing a parallel typed AST alongside any type errors.
 
-The `Environment` in `spud.core` is generic and reusable — stage seven uses `Environment[ASTNode]`, and a future type-checker could use `Environment[Type]` over the same tree structure.
+The `Environment` in `spud.core` is generic and reusable — stage seven uses `Environment[ASTNode]` for scope resolution, stage eight uses `Environment[SpudType]` for type checking, both over the same tree structure.
 
-The formatter and LSP server are separate packages (`spud_fmt`, `spud_lsp`) under `src/` that depend on the core `spud` package.
+Stages one through seven live in the core `spud` package. The type checker (`spud_check`), formatter (`spud_fmt`), and LSP server (`spud_lsp`) are separate top-level packages under `src/` that depend on `spud`.
 
 ## License
 
