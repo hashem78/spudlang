@@ -62,13 +62,17 @@ from spud.stage_six.float_literal import FloatLiteral
 from spud.stage_six.for_loop import ForLoop
 from spud.stage_six.function_call import FunctionCall
 from spud.stage_six.function_def import FunctionDef
+from spud.stage_six.function_type_expr import FunctionTypeExpr
 from spud.stage_six.identifier import Identifier
 from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
+from spud.stage_six.list_type_expr import ListTypeExpr
+from spud.stage_six.named_type import NamedType
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.type_expression import TypeExpression
 from spud.stage_six.typed_param import TypedParam
 from spud.stage_six.unary_op import UnaryOp
 
@@ -79,10 +83,11 @@ NUMBER = 3
 STRING = 4
 KEYWORD = 5
 OPERATOR = 6
+TYPE = 7
 
 DECLARATION = 1 << 0
 
-TOKEN_TYPES = ["variable", "function", "parameter", "number", "string", "keyword", "operator"]
+TOKEN_TYPES = ["variable", "function", "parameter", "number", "string", "keyword", "operator", "type"]
 TOKEN_MODIFIERS = ["declaration"]
 
 LEGEND = types.SemanticTokensLegend(
@@ -159,28 +164,34 @@ class SemanticTokensHandler:
     ) -> None:
         """Emit semantic tokens for a single AST node and recurse into children."""
         match node:
-            case Binding(target=target, value=value):
+            case Binding(target=target, type_annotation=type_ann, value=value):
                 is_func = isinstance(value, FunctionDef | InlineFunctionDef)
                 token_type = FUNCTION if is_func else VARIABLE
                 out.append((target.position.line, target.position.column, len(target.name), token_type, DECLARATION))
+                _collect_type_tokens(type_ann, out)
                 self._visit(value, env, out)
 
-            case FunctionDef(params=params, body=body):
+            case FunctionDef(params=params, return_type=return_type, body=body):
                 child_env = _find_child_env_with_params(env, params)
                 for p in params:
                     out.append((p.name.position.line, p.name.position.column, len(p.name.name), PARAMETER, DECLARATION))
+                    _collect_type_tokens(p.type_annotation, out)
+                _collect_type_tokens(return_type, out)
                 self._collect_from_ast(body, child_env, out)
 
-            case InlineFunctionDef(params=params, body=body):
+            case InlineFunctionDef(params=params, return_type=return_type, body=body):
                 child_env = _find_child_env_with_params(env, params)
                 for p in params:
                     out.append((p.name.position.line, p.name.position.column, len(p.name.name), PARAMETER, DECLARATION))
+                    _collect_type_tokens(p.type_annotation, out)
+                _collect_type_tokens(return_type, out)
                 self._visit(body, child_env, out)
 
-            case ForLoop(variable=variable, iterable=iterable, body=body):
+            case ForLoop(variable=variable, variable_type=variable_type, iterable=iterable, body=body):
                 out.append(
                     (variable.position.line, variable.position.column, len(variable.name), VARIABLE, DECLARATION)
                 )
+                _collect_type_tokens(variable_type, out)
                 self._visit(iterable, env, out)
                 child_env = _find_child_env_with_binding(env, variable.name)
                 self._collect_from_ast(body, child_env, out)
@@ -227,6 +238,21 @@ class SemanticTokensHandler:
             case ListLiteral(elements=elements):
                 for elem in elements:
                     self._visit(elem, env, out)
+
+
+def _collect_type_tokens(type_expr: TypeExpression, out: list[RawToken]) -> None:
+    """Emit semantic tokens for a type expression and its children."""
+    match type_expr:
+        case NamedType(name=name):
+            out.append((type_expr.position.line, type_expr.position.column, len(name), TYPE, 0))
+        case ListTypeExpr(element=element):
+            out.append((type_expr.position.line, type_expr.position.column, len("List"), TYPE, 0))
+            _collect_type_tokens(element, out)
+        case FunctionTypeExpr(params=params, returns=returns):
+            out.append((type_expr.position.line, type_expr.position.column, len("Function"), TYPE, 0))
+            for p in params:
+                _collect_type_tokens(p, out)
+            _collect_type_tokens(returns, out)
 
 
 def _classify_identifier(name: str, env: Environment[ASTNode]) -> int:
