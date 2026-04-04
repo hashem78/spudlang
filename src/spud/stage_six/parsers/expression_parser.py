@@ -14,6 +14,7 @@ from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.parse_error import ParseContext, ParseContextKind, ParseError, ParseErrorKind, ctx, with_context
 from spud.stage_six.parsers.param_list_parser import parse_param_list
+from spud.stage_six.parsers.type_parser import parse_type
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
 from spud.stage_six.token_stream import TokenStream
@@ -269,11 +270,13 @@ class ExpressionParser:
         return ListLiteral(position=lbracket.position, end=rbracket.position, elements=elements)
 
     def _is_inline_function(self, stream: TokenStream) -> bool:
-        """Scan ahead to check if tokens form a ``(params) =>`` pattern.
+        """Scan ahead to check if tokens form a ``(params) : Type => expr`` pattern.
 
         Walks forward from the current ``(`` without consuming,
         tracking parenthesis depth. When the matching ``)`` is found,
-        checks whether the next token is ``=>``.
+        checks whether the next token is ``:`` (return type annotation).
+        Then scans past the return type to find ``=>``, confirming
+        this is an inline function rather than a grouped expression.
         """
         depth = 0
         offset = 0
@@ -288,11 +291,36 @@ class ExpressionParser:
                     depth -= 1
                     if depth == 0:
                         next_tok = stream.peek_at(offset + 1)
-                        return next_tok is not None and next_tok.token_type == T.FAT_ARROW
+                        if next_tok is None or next_tok.token_type != T.COLON:
+                            return False
+                        return self._scan_to_fat_arrow(stream, offset + 2)
+            offset += 1
+
+    def _scan_to_fat_arrow(self, stream: TokenStream, offset: int) -> bool:
+        """Skip past a return type annotation to find ``=>``.
+
+        The return type may contain nested brackets (e.g.
+        ``List[Int]`` or ``Function[[Int], Int]``), so bracket
+        depth is tracked.
+        """
+        depth = 0
+        while True:
+            tok = stream.peek_at(offset)
+            if tok is None:
+                return False
+            match tok.token_type:
+                case T.BRACKET_LEFT:
+                    depth += 1
+                case T.BRACKET_RIGHT:
+                    depth -= 1
+                case T.FAT_ARROW if depth == 0:
+                    return True
+                case T.NEW_LINE if depth == 0:
+                    return False
             offset += 1
 
     def _parse_inline_function(self, stream: TokenStream) -> InlineFunctionDef | ParseError:
-        """Parse an inline function: ``(params) => expression``."""
+        """Parse an inline function: ``(params) : ReturnType => expression``."""
         paren_tok = stream.expect(T.PAREN_LEFT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
         if isinstance(paren_tok, ParseError):
             return paren_tok
@@ -302,13 +330,21 @@ class ExpressionParser:
         rparen = stream.expect(T.PAREN_RIGHT, context=ctx(ParseContextKind.FUNCTION_PARAMS))
         if isinstance(rparen, ParseError):
             return rparen
+        colon = stream.expect(T.COLON, context=ctx(ParseContextKind.RETURN_TYPE))
+        if isinstance(colon, ParseError):
+            return colon
+        return_type = parse_type(stream)
+        if isinstance(return_type, ParseError):
+            return return_type
         arrow = stream.expect(T.FAT_ARROW, context=ctx(ParseContextKind.FUNCTION_BODY))
         if isinstance(arrow, ParseError):
             return arrow
         body = self.parse(stream)
         if isinstance(body, ParseError):
             return with_context(body, ctx(ParseContextKind.FUNCTION_BODY))
-        return InlineFunctionDef(position=paren_tok.position, end=body.end, params=params, body=body)
+        return InlineFunctionDef(
+            position=paren_tok.position, end=body.end, params=params, return_type=return_type, body=body
+        )
 
     def _parse_function_call(self, stream: TokenStream, callee_tok: StageFiveToken) -> FunctionCall | ParseError:
         """Parse a function call after the callee identifier was consumed.

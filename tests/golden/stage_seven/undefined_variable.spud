@@ -1,1 +1,1 @@
-result := w + 1
+result : Int := w + 1

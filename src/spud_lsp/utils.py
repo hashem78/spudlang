@@ -21,7 +21,7 @@ def find_node_at(node: ASTNode, line: int, column: int) -> ASTNode | None:
         case Binding(value=value):
             children = [node.target, value]
         case FunctionDef(params=params, body=body):
-            children = [*params, *body]
+            children = [*[p.name for p in params], *body]
         case FunctionCall(callee=callee, args=args):
             children = [callee, *args]
         case BinaryOp(left=left, right=right):

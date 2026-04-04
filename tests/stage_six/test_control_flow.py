@@ -92,7 +92,7 @@ class TestIfElse:
 
 class TestForLoop:
     def test_simple(self):
-        result = parse("for i in items\n  process(i)")
+        result = parse("for i : Int in items\n  process(i)")
         assert isinstance(result, Program)
         assert len(result.body) == 1
         node = result.body[0]
@@ -106,7 +106,7 @@ class TestForLoop:
         assert node.body[0].callee.name == "process"
 
     def test_function_call_iterable(self):
-        result = parse("for i in range(10)\n  i")
+        result = parse("for i : Int in range(10)\n  i")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, ForLoop)
@@ -117,7 +117,7 @@ class TestForLoop:
         assert node.iterable.args[0].value == 10
 
     def test_nested_for(self):
-        result = parse("for i in a\n  for j in b\n    i + j")
+        result = parse("for i : Int in a\n  for j : Int in b\n    i + j")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, ForLoop)
@@ -131,7 +131,7 @@ class TestForLoop:
         assert inner.body[0].operator == "+"
 
     def test_multi_line_body(self):
-        result = parse("for i in items\n  x := i + 1\n  print(x)")
+        result = parse("for i : Int in items\n  x : Int := i + 1\n  print(x)")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, ForLoop)

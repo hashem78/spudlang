@@ -1,5 +1,5 @@
-outer := (x) =>
-  inner := (y) =>
+outer : Function[[Int], Int] := (x : Int) : Int =>
+  inner : Function[[Int], Int] := (y : Int) : Int =>
     x + y
 
   inner(x)

@@ -1,2 +1,2 @@
-result := y + 1
-y := 5
+result : Int := y + 1
+y : Int := 5

@@ -1,4 +1,4 @@
-add := (a, b) => a + b
-identity := (x) => x
-noop := () => ()
-map(items, (x) => x + 1)
+add : Function[[Int, Int], Int] := (a : Int, b : Int) : Int => a + b
+identity : Function[[Int], Int] := (x : Int) : Int => x
+noop : Function[[], Unit] := () : Unit => ()
+map(items, (x : Int) : Int => x + 1)

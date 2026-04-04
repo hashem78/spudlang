@@ -1,7 +1,7 @@
-x := 1
+x : Int := 1
 else
   body
-y := 2
+y : Int := 2
 elif true
   body
-z := 3
+z : Int := 3

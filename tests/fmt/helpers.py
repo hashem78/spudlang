@@ -12,9 +12,12 @@ from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
+from spud.stage_six.named_type import NamedType
 from spud.stage_six.program import Program
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.type_expression import TypeExpression
+from spud.stage_six.typed_param import TypedParam
 from spud.stage_six.unary_op import UnaryOp
 from spud.stage_six.unit_literal import UnitLiteral
 from spud_fmt.config import FmtConfig
@@ -68,12 +71,26 @@ def call(name: str, *args) -> FunctionCall:
     return FunctionCall(position=P, end=P, callee=id(name), args=list(args))
 
 
-def bind(name: str, value) -> Binding:
-    return Binding(position=P, end=P, target=id(name), value=value)
+def named_type(name: str) -> NamedType:
+    return NamedType(position=P, end=P, name=name)
 
 
-def funcdef(params: list[str], body: list) -> FunctionDef:
-    return FunctionDef(position=P, end=P, params=[id(p) for p in params], body=body)
+def typed_param(name: str, type_name: str = "Int") -> TypedParam:
+    return TypedParam(name=id(name), type_annotation=named_type(type_name))
+
+
+def bind(name: str, value, type_ann: TypeExpression | None = None) -> Binding:
+    return Binding(position=P, end=P, target=id(name), type_annotation=type_ann or named_type("Int"), value=value)
+
+
+def funcdef(params: list[str], body: list, return_type: TypeExpression | None = None) -> FunctionDef:
+    return FunctionDef(
+        position=P,
+        end=P,
+        params=[typed_param(p) for p in params],
+        return_type=return_type or named_type("Int"),
+        body=body,
+    )
 
 
 def branch(condition, body: list) -> ConditionBranch:
@@ -84,12 +101,20 @@ def ifelse(branches: list, else_body=None) -> IfElse:
     return IfElse(position=P, end=P, branches=branches, else_body=else_body)
 
 
-def forloop(var: str, iterable, body: list) -> ForLoop:
-    return ForLoop(position=P, end=P, variable=id(var), iterable=iterable, body=body)
+def forloop(var: str, iterable, body: list, var_type: TypeExpression | None = None) -> ForLoop:
+    return ForLoop(
+        position=P, end=P, variable=id(var), variable_type=var_type or named_type("Int"), iterable=iterable, body=body
+    )
 
 
-def inline_funcdef(params: list[str], body) -> InlineFunctionDef:
-    return InlineFunctionDef(position=P, end=P, params=[id(p) for p in params], body=body)
+def inline_funcdef(params: list[str], body, return_type: TypeExpression | None = None) -> InlineFunctionDef:
+    return InlineFunctionDef(
+        position=P,
+        end=P,
+        params=[typed_param(p) for p in params],
+        return_type=return_type or named_type("Int"),
+        body=body,
+    )
 
 
 def list_(*elements) -> ListLiteral:

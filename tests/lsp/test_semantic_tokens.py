@@ -32,137 +32,137 @@ def _decode(data: list[int]) -> list[tuple[int, int, int, str, bool]]:
 
 class TestSimpleBinding:
     def test_variable_declaration(self):
-        tokens = _run("x := 5")
+        tokens = _run("x : Int := 5")
         assert (0, 0, 1, "variable", True) in tokens
 
     def test_walrus_operator(self):
-        tokens = _run("x := 5")
-        assert (0, 2, 2, "operator", False) in tokens
+        tokens = _run("x : Int := 5")
+        assert (0, 8, 2, "operator", False) in tokens
 
     def test_number(self):
-        tokens = _run("x := 5")
-        assert (0, 5, 1, "number", False) in tokens
+        tokens = _run("x : Int := 5")
+        assert (0, 11, 1, "number", False) in tokens
 
 
 class TestMultiDigitNumber:
     def test_length(self):
-        tokens = _run("x := 42")
-        assert (0, 5, 2, "number", False) in tokens
+        tokens = _run("x : Int := 42")
+        assert (0, 11, 2, "number", False) in tokens
 
     def test_large_number(self):
-        tokens = _run("x := 12345")
-        assert (0, 5, 5, "number", False) in tokens
+        tokens = _run("x : Int := 12345")
+        assert (0, 11, 5, "number", False) in tokens
 
 
 class TestFloatLiteral:
     def test_float(self):
-        tokens = _run("x := 3.14")
-        assert (0, 5, 4, "number", False) in tokens
+        tokens = _run("x : Float := 3.14")
+        assert (0, 13, 4, "number", False) in tokens
 
     def test_trailing_dot(self):
-        tokens = _run("x := 3.")
-        assert (0, 5, 3, "number", False) in tokens
+        tokens = _run("x : Float := 3.")
+        assert (0, 13, 3, "number", False) in tokens
 
     def test_leading_dot(self):
-        tokens = _run("x := .5")
-        assert (0, 5, 3, "number", False) in tokens
+        tokens = _run("x : Float := .5")
+        assert (0, 13, 3, "number", False) in tokens
 
 
 class TestStringLiteral:
     def test_single_quoted(self):
-        tokens = _run("x := 'hello'")
-        assert (0, 5, 7, "string", False) in tokens
+        tokens = _run("x : String := 'hello'")
+        assert (0, 14, 7, "string", False) in tokens
 
     def test_double_quoted(self):
-        tokens = _run('x := "hello"')
-        assert (0, 5, 7, "string", False) in tokens
+        tokens = _run('x : String := "hello"')
+        assert (0, 14, 7, "string", False) in tokens
 
     def test_empty_string(self):
-        tokens = _run("x := ''")
-        assert (0, 5, 2, "string", False) in tokens
+        tokens = _run("x : String := ''")
+        assert (0, 14, 2, "string", False) in tokens
 
 
 class TestFunctionBinding:
     def test_function_name_is_function_declaration(self):
-        tokens = _run("f := (x) => x")
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x")
         assert (0, 0, 1, "function", True) in tokens
 
     def test_param_is_parameter_declaration(self):
-        tokens = _run("f := (x) => x")
-        assert (0, 6, 1, "parameter", True) in tokens
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x")
+        assert (0, 29, 1, "parameter", True) in tokens
 
     def test_param_reference_in_body(self):
-        tokens = _run("f := (x) => x")
-        assert (0, 12, 1, "parameter", False) in tokens
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x")
+        assert (0, 47, 1, "parameter", False) in tokens
 
 
 class TestFunctionCall:
     def test_callee_is_function(self):
-        tokens = _run("f := (x) => x\nf(1)")
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x\nf(1)")
         func_refs = [(ln, c, le, t, d) for ln, c, le, t, d in tokens if ln == 1 and t == "function"]
         assert len(func_refs) == 1
         assert func_refs[0] == (1, 0, 1, "function", False)
 
     def test_arg_is_number(self):
-        tokens = _run("f := (x) => x\nf(1)")
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x\nf(1)")
         assert (1, 2, 1, "number", False) in tokens
 
 
 class TestKeywords:
     def test_if_keyword(self):
-        tokens = _run("x := 1\nif true\n  x")
+        tokens = _run("x : Int := 1\nif true\n  x")
         assert (1, 0, 2, "keyword", False) in tokens
 
     def test_true_keyword(self):
-        tokens = _run("x := 1\nif true\n  x")
+        tokens = _run("x : Int := 1\nif true\n  x")
         assert (1, 3, 4, "keyword", False) in tokens
 
     def test_else_keyword(self):
-        tokens = _run("x := 1\nif true\n  x\nelse\n  x")
+        tokens = _run("x : Int := 1\nif true\n  x\nelse\n  x")
         assert (3, 0, 4, "keyword", False) in tokens
 
     def test_for_and_in_keywords(self):
-        tokens = _run("x := [1]\nfor i in x\n  i")
+        tokens = _run("x : List[Int] := [1]\nfor i : Int in x\n  i")
         keywords = [(ln, c, le, t, d) for ln, c, le, t, d in tokens if t == "keyword"]
         keyword_texts = [(ln, c, le) for ln, c, le, _, _ in keywords]
         assert (1, 0, 3) in keyword_texts
-        assert (1, 6, 2) in keyword_texts
+        assert (1, 12, 2) in keyword_texts
 
 
 class TestOperators:
     def test_arithmetic(self):
-        tokens = _run("x := 1 + 2")
-        assert (0, 7, 1, "operator", False) in tokens
+        tokens = _run("x : Int := 1 + 2")
+        assert (0, 13, 1, "operator", False) in tokens
 
     def test_comparison(self):
-        tokens = _run("x := 1 == 2")
-        assert (0, 7, 2, "operator", False) in tokens
+        tokens = _run("x : Int := 1 == 2")
+        assert (0, 13, 2, "operator", False) in tokens
 
     def test_logical(self):
-        tokens = _run("x := true && false")
-        assert (0, 10, 2, "operator", False) in tokens
+        tokens = _run("x : Bool := true && false")
+        assert (0, 17, 2, "operator", False) in tokens
 
 
 class TestForLoop:
     def test_loop_variable_is_declaration(self):
-        tokens = _run("x := [1]\nfor i in x\n  i")
+        tokens = _run("x : List[Int] := [1]\nfor i : Int in x\n  i")
         assert (1, 4, 1, "variable", True) in tokens
 
     def test_loop_variable_reference_in_body(self):
-        tokens = _run("x := [1]\nfor i in x\n  i")
+        tokens = _run("x : List[Int] := [1]\nfor i : Int in x\n  i")
         assert (2, 2, 1, "variable", False) in tokens
 
 
 class TestIdentifierClassification:
     def test_variable_reference(self):
-        tokens = _run("x := 1\ny := x")
-        assert (1, 5, 1, "variable", False) in tokens
+        tokens = _run("x : Int := 1\ny : Int := x")
+        assert (1, 11, 1, "variable", False) in tokens
 
     def test_function_reference(self):
-        tokens = _run("f := (x) => x\ny := f")
-        refs = [(ln, c, le, t, d) for ln, c, le, t, d in tokens if ln == 1 and c == 5]
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x\ny : Function[[Int], Int] := f")
+        refs = [(ln, c, le, t, d) for ln, c, le, t, d in tokens if ln == 1 and c == 28]
         assert refs[0][3] == "function"
 
     def test_parameter_reference(self):
-        tokens = _run("f := (x) => x")
-        assert (0, 12, 1, "parameter", False) in tokens
+        tokens = _run("f : Function[[Int], Int] := (x : Int) : Int => x")
+        assert (0, 47, 1, "parameter", False) in tokens

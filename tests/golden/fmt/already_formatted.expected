@@ -1,9 +1,9 @@
-x := 1
-y := 2
+x : Int := 1
+y : Int := 2
 
-f := (a, b) =>
-  result := a + b
+f : Function[[Int, Int], Int] := (a : Int, b : Int) : Int =>
+  result : Int := a + b
   result
 
-for i in range(10)
+for i : Int in range(10)
   print(i)

@@ -42,21 +42,21 @@ class TestFunctionCall:
 class TestFunctionDef:
     def test_single_param(self):
         result = fmt().format_node(funcdef(["x"], [id("x")]), 0)
-        assert result == "(x) =>\n  x"
+        assert result == "(x : Int) : Int =>\n  x"
 
     def test_multiple_params(self):
         result = fmt().format_node(funcdef(["a", "b", "c"], [id("a")]), 0)
-        assert result == "(a, b, c) =>\n  a"
+        assert result == "(a : Int, b : Int, c : Int) : Int =>\n  a"
 
     def test_no_comma_space(self):
         cfg = FmtConfig(space_after_comma=False)
         result = fmt(cfg).format_node(funcdef(["a", "b"], [id("a")]), 0)
-        assert result.startswith("(a,b)")
+        assert result.startswith("(a : Int,b : Int)")
 
     def test_no_fat_arrow_space(self):
         cfg = FmtConfig(spaces_around_fat_arrow=False)
         result = fmt(cfg).format_node(funcdef(["x"], [id("x")]), 0)
-        assert result.startswith("(x)=>")
+        assert result.startswith("(x : Int) : Int=>")
 
     def test_nested_body(self):
         body = [bind("y", binop(id("x"), "+", num(1))), id("y")]
@@ -68,39 +68,39 @@ class TestFunctionDef:
 class TestInlineFunctionDef:
     def test_two_params(self):
         result = fmt().format_node(inline_funcdef(["a", "b"], binop(id("a"), "+", id("b"))), 0)
-        assert result == "(a, b) => a + b"
+        assert result == "(a : Int, b : Int) : Int => a + b"
 
     def test_single_param(self):
         result = fmt().format_node(inline_funcdef(["a"], id("a")), 0)
-        assert result == "(a) => a"
+        assert result == "(a : Int) : Int => a"
 
     def test_no_params(self):
         result = fmt().format_node(inline_funcdef([], num(42)), 0)
-        assert result == "() => 42"
+        assert result == "() : Int => 42"
 
     def test_void_callback(self):
         result = fmt().format_node(inline_funcdef([], unit()), 0)
-        assert result == "() => ()"
+        assert result == "() : Int => ()"
 
     def test_no_comma_space(self):
         cfg = FmtConfig(space_after_comma=False)
         result = fmt(cfg).format_node(inline_funcdef(["a", "b"], id("a")), 0)
-        assert result == "(a,b) => a"
+        assert result == "(a : Int,b : Int) : Int => a"
 
     def test_no_fat_arrow_space(self):
         cfg = FmtConfig(spaces_around_fat_arrow=False)
         result = fmt(cfg).format_node(inline_funcdef(["x"], id("x")), 0)
-        assert result == "(x)=>x"
+        assert result == "(x : Int) : Int=>x"
 
     def test_body_with_binary_op(self):
         body = binop(id("x"), "*", binop(id("y"), "+", num(1)))
         result = fmt().format_node(inline_funcdef(["x", "y"], body), 0)
-        assert result == "(x, y) => x * (y + 1)"
+        assert result == "(x : Int, y : Int) : Int => x * (y + 1)"
 
     def test_binding_inline_function(self):
         node = bind("add", inline_funcdef(["a", "b"], binop(id("a"), "+", id("b"))))
         result = fmt().format_node(node, 0)
-        assert result == "add := (a, b) => a + b"
+        assert result == "add : Int := (a : Int, b : Int) : Int => a + b"
 
     def test_binding_inline_not_block_node(self):
         from spud_fmt.formatters.body_fmt import is_block_node
@@ -122,4 +122,4 @@ class TestUnitLiteral:
 
     def test_in_binding(self):
         result = fmt().format_node(bind("x", unit()), 0)
-        assert result == "x := ()"
+        assert result == "x : Int := ()"

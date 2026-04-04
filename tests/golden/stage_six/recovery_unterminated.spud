@@ -1,2 +1,2 @@
 "unterminated
-y := 5
+y : Int := 5

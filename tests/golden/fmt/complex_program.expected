@@ -1,6 +1,6 @@
-max := 100
+max : Int := 100
 
-validate := (input) =>
+validate : Function[[Int], String] := (input : Int) : String =>
   if input > 0
     'positive'
   elif input < 0
@@ -8,6 +8,6 @@ validate := (input) =>
   else
     'zero'
 
-for i in range(max)
-  result := validate(i)
+for i : Int in range(max)
+  result : String := validate(i)
   print(result)

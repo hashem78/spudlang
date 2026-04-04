@@ -1,4 +1,4 @@
-x := 5
-name := "spud"
-flag := true
-result := a + b
+x : Int := 5
+name : String := "spud"
+flag : Bool := true
+result : Int := a + b

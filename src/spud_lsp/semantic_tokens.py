@@ -69,6 +69,7 @@ from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.raw_string_literal import RawStringLiteral
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.typed_param import TypedParam
 from spud.stage_six.unary_op import UnaryOp
 
 VARIABLE = 0
@@ -167,13 +168,13 @@ class SemanticTokensHandler:
             case FunctionDef(params=params, body=body):
                 child_env = _find_child_env_with_params(env, params)
                 for p in params:
-                    out.append((p.position.line, p.position.column, len(p.name), PARAMETER, DECLARATION))
+                    out.append((p.name.position.line, p.name.position.column, len(p.name.name), PARAMETER, DECLARATION))
                 self._collect_from_ast(body, child_env, out)
 
             case InlineFunctionDef(params=params, body=body):
                 child_env = _find_child_env_with_params(env, params)
                 for p in params:
-                    out.append((p.position.line, p.position.column, len(p.name), PARAMETER, DECLARATION))
+                    out.append((p.name.position.line, p.name.position.column, len(p.name.name), PARAMETER, DECLARATION))
                 self._visit(body, child_env, out)
 
             case ForLoop(variable=variable, iterable=iterable, body=body):
@@ -244,7 +245,7 @@ def _classify_identifier(name: str, env: Environment[ASTNode]) -> int:
 
 def _find_child_env_with_params(
     env: Environment[ASTNode],
-    params: list[Identifier],
+    params: list[TypedParam],
 ) -> Environment[ASTNode]:
     """Find the child environment that contains the given function parameters."""
     if not params:
@@ -252,7 +253,7 @@ def _find_child_env_with_params(
             if not child.bindings:
                 return child
         return env
-    first_param = params[0].name
+    first_param = params[0].name.name
     for child in env.children:
         if child.contains(first_param):
             return child

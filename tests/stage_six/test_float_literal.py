@@ -134,7 +134,7 @@ class TestFloatInExpressions:
         assert node.right.right.value == 3.0
 
     def test_float_in_binding(self):
-        result = parse("x := 3.14")
+        result = parse("x : Float := 3.14")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -161,7 +161,7 @@ class TestFloatInExpressions:
         assert node.args[1].value == 1.0
 
     def test_trailing_dot_in_binding(self):
-        result = parse("x := 5.")
+        result = parse("x : Float := 5.")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -169,7 +169,7 @@ class TestFloatInExpressions:
         assert node.value.value == 5.0
 
     def test_leading_dot_in_binding(self):
-        result = parse("x := .25")
+        result = parse("x : Float := .25")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)

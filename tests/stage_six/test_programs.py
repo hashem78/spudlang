@@ -8,12 +8,13 @@ from spud.stage_six.if_else import IfElse
 from spud.stage_six.int_literal import IntLiteral
 from spud.stage_six.program import Program
 from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six.typed_param import TypedParam
 from tests.stage_six.helpers import parse
 
 
 class TestComplexPrograms:
     def test_binding_function_def_call(self):
-        text = "add := (a, b) =>\n  a + b\nresult := add(1, 2)"
+        text = "add : Function[[Int, Int], Int] := (a : Int, b : Int) : Int =>\n  a + b\nresult : Int := add(1, 2)"
         result = parse(text)
         assert isinstance(result, Program)
         assert len(result.body) == 2
@@ -24,7 +25,13 @@ class TestComplexPrograms:
         assert result.body[1].value.callee.name == "add"
 
     def test_function_with_if_else_body(self):
-        text = 'classify := (x) =>\n  if x > 0\n    "positive"\n  else\n    "negative"'
+        text = (
+            "classify : Function[[Int], String] := (x : Int) : String =>\n"
+            "  if x > 0\n"
+            '    "positive"\n'
+            "  else\n"
+            '    "negative"'
+        )
         result = parse(text)
         assert isinstance(result, Program)
         node = result.body[0]
@@ -37,7 +44,11 @@ class TestComplexPrograms:
         assert fdef.body[0].else_body is not None
 
     def test_function_with_for_loop_body(self):
-        text = "looper := (items) =>\n  for i in items\n    process(i)"
+        text = (
+            "looper : Function[[List[Int]], Unit] := (items : List[Int]) : Unit =>\n"
+            "  for i : Int in items\n"
+            "    process(i)"
+        )
         result = parse(text)
         assert isinstance(result, Program)
         node = result.body[0]
@@ -48,7 +59,12 @@ class TestComplexPrograms:
         assert isinstance(fdef.body[0], ForLoop)
 
     def test_deeply_nested(self):
-        text = "nested := (n) =>\n  for i in range(n)\n    if i > 5\n      print(i)"
+        text = (
+            "nested : Function[[Int], Unit] := (n : Int) : Unit =>\n"
+            "  for i : Int in range(n)\n"
+            "    if i > 5\n"
+            "      print(i)"
+        )
         result = parse(text)
         assert isinstance(result, Program)
         node = result.body[0]
@@ -67,7 +83,15 @@ class TestComplexPrograms:
         assert call.callee.name == "print"
 
     def test_multiple_top_level_statements(self):
-        text = 'x := 42\ngreet := (name) =>\n  print(name)\nfor i in range(x)\n  greet("hello")\nif x > 0\n  "positive"'
+        text = (
+            "x : Int := 42\n"
+            "greet : Function[[String], Unit] := (name : String) : Unit =>\n"
+            "  print(name)\n"
+            "for i : Int in range(x)\n"
+            '  greet("hello")\n'
+            "if x > 0\n"
+            '  "positive"'
+        )
         result = parse(text)
         assert isinstance(result, Program)
         assert len(result.body) == 4
@@ -78,7 +102,14 @@ class TestComplexPrograms:
         assert isinstance(result.body[3], IfElse)
 
     def test_program_spud_pattern(self):
-        text = 'nested := (n) =>\n  for i in range(n)\n    if i > 5\n      "big"\n    else\n      "small"'
+        text = (
+            "nested : Function[[Int], String] := (n : Int) : String =>\n"
+            "  for i : Int in range(n)\n"
+            "    if i > 5\n"
+            '      "big"\n'
+            "    else\n"
+            '      "small"'
+        )
         result = parse(text)
         assert isinstance(result, Program)
         assert len(result.body) == 1
@@ -88,7 +119,8 @@ class TestComplexPrograms:
         fdef = node.value
         assert isinstance(fdef, FunctionDef)
         assert len(fdef.params) == 1
-        assert fdef.params[0].name == "n"
+        assert isinstance(fdef.params[0], TypedParam)
+        assert fdef.params[0].name.name == "n"
         assert len(fdef.body) == 1
         for_loop = fdef.body[0]
         assert isinstance(for_loop, ForLoop)
@@ -158,7 +190,7 @@ class TestEdgeCases:
         assert rhs4.right.name == "f"
 
     def test_binding_to_grouped_expression(self):
-        result = parse("x := (a + b)")
+        result = parse("x : Int := (a + b)")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)

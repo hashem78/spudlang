@@ -1,2 +1,2 @@
-add := (a, b) =>
+add : Function[[Int, Int], Int] := (a : Int, b : Int) : Int =>
   a + b

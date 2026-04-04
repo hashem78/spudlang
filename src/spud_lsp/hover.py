@@ -54,7 +54,7 @@ def _describe(node: ASTNode) -> str | None:
         case Binding(target=target):
             return f"**Binding** `{target.name}`"
         case FunctionDef(params=params):
-            names: str = ", ".join(p.name for p in params)
+            names: str = ", ".join(f"{p.name.name} : ..." for p in params)
             return f"**Function** `({names}) =>`"
         case FunctionCall(callee=callee):
             return f"**Function call** `{callee.name}(...)`"

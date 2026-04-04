@@ -1,5 +1,5 @@
-f := (x) =>
-  for i in range(x)
+f : Function[[Int], Int] := (x : Int) : Int =>
+  for i : Int in range(x)
     :=
     process(i)
-valid := 42
+valid : Int := 42

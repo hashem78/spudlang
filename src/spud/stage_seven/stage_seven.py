@@ -17,6 +17,7 @@ from spud.stage_six.if_else import IfElse
 from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud.stage_six.list_literal import ListLiteral
 from spud.stage_six.program import Program
+from spud.stage_six.typed_param import TypedParam
 from spud.stage_six.unary_op import UnaryOp
 
 
@@ -187,7 +188,7 @@ class StageSeven(PipelineStage):
 
     def _resolve_function(
         self,
-        params: list[Identifier],
+        params: list[TypedParam],
         body: list[ASTNode],
         env: Environment[ASTNode],
         errors: list[ResolveError],
@@ -201,7 +202,7 @@ class StageSeven(PipelineStage):
         """
         child = env.child()
         for param in params:
-            child = self._define_checked(param.name, param.position, param, child, env, errors)
+            child = self._define_checked(param.name.name, param.name.position, param.name, child, env, errors)
         return self._resolve_body(body, child, errors)
 
     def _resolve_branch(

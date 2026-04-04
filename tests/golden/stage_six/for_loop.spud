@@ -1,4 +1,4 @@
-for i in items
+for i : Int in items
   process(i)
-for x in range(10)
+for x : Int in range(10)
   x + 1

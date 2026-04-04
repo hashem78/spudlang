@@ -32,6 +32,8 @@ class ParseContextKind(str, Enum):
     UNTERMINATED_STRING = "unterminated_string"
     UNTERMINATED_RAW_STRING = "unterminated_raw_string"
     UNTERMINATED_DELIMITER = "unterminated_delimiter"
+    TYPE_ANNOTATION = "type_annotation"
+    RETURN_TYPE = "return_type"
 
 
 class ParseContext(BaseModel, frozen=True):

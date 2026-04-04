@@ -1,12 +1,12 @@
-max := 100
-validate := (input) =>
+max : Int := 100
+validate : Function[[Int], String] := (input : Int) : String =>
   if input > max
     "too large"
   elif input < 0
     "negative"
   else
     "ok"
-main := () =>
-  for i in range(max)
-    result := validate(i)
+main : Function[[], Unit] := () : Unit =>
+  for i : Int in range(max)
+    result : String := validate(i)
     print(result)

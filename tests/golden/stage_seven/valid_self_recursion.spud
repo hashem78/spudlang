@@ -1,2 +1,2 @@
-f := (x) =>
+f : Function[[Int], Int] := (x : Int) : Int =>
   f(x - 1)

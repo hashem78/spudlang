@@ -279,7 +279,7 @@ class TestListLiteral:
         assert isinstance(node.elements[1], FunctionCall)
 
     def test_inline_function_element(self):
-        result = parse("[(a, b) => a + b]")
+        result = parse("[(a : Int, b : Int) : Int => a + b]")
         assert not result.errors
         node = result.body[0]
         assert isinstance(node, ListLiteral)
@@ -287,7 +287,7 @@ class TestListLiteral:
         assert isinstance(node.elements[0], InlineFunctionDef)
 
     def test_list_in_binding(self):
-        result = parse("x := [1, 2, 3]")
+        result = parse("x : List[Int] := [1, 2, 3]")
         assert not result.errors
         node = result.body[0]
         assert isinstance(node, Binding)

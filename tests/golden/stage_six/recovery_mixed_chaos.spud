@@ -1,12 +1,12 @@
-a := 1
+a : Int := 1
 := broken
-b := (x) =>
+b : Function[[Int], String] := (x : Int) : String =>
   if x > 0
     "yes"
   else
     "no"
 else
   orphaned
-c := a + b(1)
+c : Int := a + b(1)
 for in missing_var
-d := 42
+d : Int := 42

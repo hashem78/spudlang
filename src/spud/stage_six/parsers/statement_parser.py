@@ -20,8 +20,8 @@ class StatementParser:
 
     - ``IF``             → delegate to ``IfElseParser``
     - ``FOR``            → delegate to ``ForLoopParser``
-    - ``IDENTIFIER :=``  → delegate to ``BindingParser``
-      (two-token lookahead: current is IDENTIFIER, next is WALRUS)
+    - ``IDENTIFIER :``   → delegate to ``BindingParser``
+      (two-token lookahead: current is IDENTIFIER, next is COLON)
     - anything else      → delegate to ``ExpressionParser``
       (bare expressions like function calls or literals)
 
@@ -48,7 +48,7 @@ class StatementParser:
                 return self._if_else_parser.parse(stream)
             case T.FOR:
                 return self._for_loop_parser.parse(stream)
-            case T.IDENTIFIER if self._peek_type_at(stream, 1) == T.WALRUS:
+            case T.IDENTIFIER if self._peek_type_at(stream, 1) == T.COLON:
                 return self._binding_parser.parse(stream)
             case T.ELSE:
                 tok = stream.consume()

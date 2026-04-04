@@ -37,7 +37,7 @@ async def main() -> int:
     client.protocol.notify("initialized", types.InitializedParams())
 
     # Open a valid document.
-    valid_text: str = "x := 5\nadd := (a, b) =>\n  a + b\nadd(1, 2)"
+    valid_text: str = "x : Int := 5\nadd : Function[[Int, Int], Int] := (a : Int, b : Int) : Int =>\n  a + b\nadd(1, 2)"
     client.protocol.notify(
         "textDocument/didOpen",
         types.DidOpenTextDocumentParams(
@@ -162,9 +162,9 @@ async def main() -> int:
         ("for in x", "in for loop variable"),
         ("else\n  x", "'else' without matching 'if'"),
         ("elif true\n  x", "'elif' without matching 'if'"),
-        ("x := y + 1", "undefined variable 'y'"),
-        ("x := 1\nx := 2", "duplicate binding 'x'"),
-        ("x := 1\nf := (x) =>\n  x", "'x' shadows an outer binding"),
+        ("x : Int := y + 1", "undefined variable 'y'"),
+        ("x : Int := 1\nx : Int := 2", "duplicate binding 'x'"),
+        ("x : Int := 1\nf : Function[[Int], Int] := (x : Int) : Int =>\n  x", "'x' shadows an outer binding"),
     ]
 
     for i, (code, expected_fragment) in enumerate(diag_cases):
@@ -195,7 +195,7 @@ async def main() -> int:
 
     # Multiple errors in one file — verify recovery collects all.
     diagnostics_received.clear()
-    multi_error_text: str = "x := 5\n:= broken\ny := 10\n:= also broken"
+    multi_error_text: str = "x : Int := 5\n:= broken\ny : Int := 10\n:= also broken"
     client.protocol.notify(
         "textDocument/didOpen",
         types.DidOpenTextDocumentParams(

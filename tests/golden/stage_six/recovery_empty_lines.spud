@@ -1,6 +1,6 @@
 
-x := 5
+x : Int := 5
 
 := broken
 
-y := 10
+y : Int := 10

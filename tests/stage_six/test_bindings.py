@@ -11,7 +11,7 @@ from tests.stage_six.helpers import parse
 
 class TestBindings:
     def test_simple_binding(self):
-        result = parse("x := 5")
+        result = parse("x : Int := 5")
         assert isinstance(result, Program)
         assert len(result.body) == 1
         node = result.body[0]
@@ -22,7 +22,7 @@ class TestBindings:
         assert node.value.value == 5
 
     def test_binding_to_expression(self):
-        result = parse("x := a + b")
+        result = parse("x : Int := a + b")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -31,7 +31,7 @@ class TestBindings:
         assert node.value.operator == "+"
 
     def test_binding_to_string(self):
-        result = parse('name := "spud"')
+        result = parse('name : String := "spud"')
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -40,7 +40,7 @@ class TestBindings:
         assert node.value.value == "spud"
 
     def test_binding_to_boolean(self):
-        result = parse("flag := true")
+        result = parse("flag : Bool := true")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -49,7 +49,7 @@ class TestBindings:
         assert node.value.value is True
 
     def test_binding_to_function_call(self):
-        result = parse("x := foo(1)")
+        result = parse("x : Int := foo(1)")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)
@@ -61,7 +61,7 @@ class TestBindings:
         assert node.value.args[0].value == 1
 
     def test_multiple_bindings(self):
-        result = parse("x := 1\ny := 2")
+        result = parse("x : Int := 1\ny : Int := 2")
         assert isinstance(result, Program)
         assert len(result.body) == 2
         first = result.body[0]

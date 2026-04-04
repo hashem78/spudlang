@@ -53,10 +53,10 @@ def _label(node: ASTNode) -> str:
         case Binding(target=target):
             return f"BINDING {target.name}"
         case InlineFunctionDef(params=params):
-            names = ", ".join(p.name for p in params)
+            names = ", ".join(p.name.name for p in params)
             return f"INLINE_FUNCTION_DEF ({names})"
         case FunctionDef(params=params):
-            names = ", ".join(p.name for p in params)
+            names = ", ".join(p.name.name for p in params)
             return f"FUNCTION_DEF ({names})"
         case FunctionCall(callee=callee):
             return f"CALL {callee.name}"

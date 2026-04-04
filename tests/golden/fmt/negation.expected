@@ -1,4 +1,4 @@
-x := -5
-y := x
-z := -x
-w := a + -b
+x : Int := -5
+y : Int := x
+z : Int := -x
+w : Int := a + -b

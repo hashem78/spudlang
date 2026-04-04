@@ -1,4 +1,4 @@
-x := 5
-f := (a) =>
-  x := 10
+x : Int := 5
+f : Function[[Int], Int] := (a : Int) : Int =>
+  x : Int := 10
   a + x

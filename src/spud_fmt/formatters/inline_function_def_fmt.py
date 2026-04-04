@@ -4,6 +4,7 @@ from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.inline_function_def import InlineFunctionDef
 from spud_fmt.config import FmtConfig
 from spud_fmt.formatter_protocol import FormatterDispatch
+from spud_fmt.formatters.type_fmt import format_type, format_typed_params
 
 
 class InlineFunctionDefFormatter:
@@ -13,9 +14,10 @@ class InlineFunctionDefFormatter:
 
     def format(self, node: ASTNode, depth: int) -> str:
         match node:
-            case InlineFunctionDef(params=params, body=body):
-                param_names = [p.name for p in params]
+            case InlineFunctionDef(params=params, return_type=return_type, body=body):
                 separator = ", " if self._config.space_after_comma else ","
+                param_str = format_typed_params(params, separator)
+                ret_str = format_type(return_type)
                 arrow = " => " if self._config.spaces_around_fat_arrow else "=>"
                 formatted_body = self._fmt().format_node(body, depth)
-                return f"({separator.join(param_names)}){arrow}{formatted_body}"
+                return f"({param_str}) : {ret_str}{arrow}{formatted_body}"

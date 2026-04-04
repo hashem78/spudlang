@@ -130,7 +130,7 @@ class TestIntInExpressions:
         assert node.right.right.value == 3
 
     def test_numeric_in_binding(self):
-        result = parse("x := 42")
+        result = parse("x : Int := 42")
         assert isinstance(result, Program)
         node = result.body[0]
         assert isinstance(node, Binding)

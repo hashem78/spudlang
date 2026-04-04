@@ -88,7 +88,7 @@ class TestUnaryOp:
     def test_binding_to_negative(self):
         from tests.fmt.helpers import bind
 
-        assert fmt().format_node(bind("x", neg(num(5))), 0) == "x := -5"
+        assert fmt().format_node(bind("x", neg(num(5))), 0) == "x : Int := -5"
 
     def test_unary_plus(self):
         assert fmt().format_node(pos(num(5)), 0) == "+5"

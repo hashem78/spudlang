@@ -4,4 +4,4 @@ else
   b
 else
   c
-x := 1
+x : Int := 1

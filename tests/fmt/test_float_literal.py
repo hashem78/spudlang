@@ -82,7 +82,7 @@ class TestFloatBothNormalizationsDisabled:
 
 class TestFloatInContext:
     def test_float_in_binding(self):
-        assert fmt().format_node(bind("x", float_(3.14)), 0) == "x := 3.14"
+        assert fmt().format_node(bind("x", float_(3.14)), 0) == "x : Int := 3.14"
 
     def test_float_in_binary_op(self):
         assert fmt().format_node(binop(float_(1.5), "+", num(2)), 0) == "1.5 + 2"
