@@ -1,13 +1,7 @@
-from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.parse_errors.parse_context import ctx
-from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
-from spud.stage_six.parse_errors.parse_error import ParseError, with_context
-from spud.stage_six.parser_protocol import IParser
+from spud.stage_five import StageFiveTokenType as T
+from spud.stage_six import ASTNode, ForLoop, Identifier, IParser, TokenStream
+from spud.stage_six.parse_errors import ParseContextKind, ParseError, ctx, with_context
 from spud.stage_six.parsers.type_parser import parse_type
-from spud.stage_six.token_stream import TokenStream
 
 
 class ForLoopParser:

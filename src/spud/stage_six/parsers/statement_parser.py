@@ -1,14 +1,6 @@
-from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binding import Binding
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.parse_errors.parse_context import ctx
-from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
-from spud.stage_six.parse_errors.parse_error import ParseError
-from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
-from spud.stage_six.parser_protocol import IParser
-from spud.stage_six.token_stream import TokenStream
+from spud.stage_five import StageFiveTokenType as T
+from spud.stage_six import ASTNode, Binding, ForLoop, IfElse, IParser, TokenStream
+from spud.stage_six.parse_errors import ParseContextKind, ParseError, UnexpectedTokenError, ctx
 
 
 class StatementParser:

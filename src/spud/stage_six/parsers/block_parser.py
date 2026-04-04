@@ -1,8 +1,6 @@
-from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.parse_errors.parse_error import ParseError
-from spud.stage_six.parser_protocol import IParser
-from spud.stage_six.token_stream import TokenStream
+from spud.stage_five import StageFiveTokenType as T
+from spud.stage_six import ASTNode, IParser, TokenStream
+from spud.stage_six.parse_errors import ParseError
 
 
 class BlockParser:
