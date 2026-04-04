@@ -7,18 +7,18 @@ from spud.stage_one.stage_one_token import StageOneToken
 from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 
-class DefinedStageTwoToken(BaseModel):
+class DefinedStageTwoToken(BaseModel, frozen=True):
     token_type: StageTwoTokenType
     position: Position
 
 
-class StringLiteralStageTwoToken(BaseModel):
+class StringLiteralStageTwoToken(BaseModel, frozen=True):
     token_type: Literal[StageTwoTokenType.STRING] = StageTwoTokenType.STRING
     position: Position
     value: list[StageOneToken]
 
 
-class RawStringLiteralStageTwoToken(BaseModel):
+class RawStringLiteralStageTwoToken(BaseModel, frozen=True):
     token_type: Literal[StageTwoTokenType.RAW_STRING] = StageTwoTokenType.RAW_STRING
     position: Position
     value: list[StageOneToken]
