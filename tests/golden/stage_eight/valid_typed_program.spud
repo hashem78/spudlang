@@ -1,0 +1,6 @@
+x : Int := 42
+pi : Float := 3.14
+name : String := 'hello'
+xs : List[Int] := [1, 2, 3]
+f : Function[[Int], Int] := (n : Int) : Int => n * 2
+result : Int := f(x)

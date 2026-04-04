@@ -1,0 +1,5 @@
+x : Int := 5
+y : Int := x(1)
+f : Function[[Int], Int] := (n : Int) : Int => n
+z : Int := f(1, 2)
+w : Int := f(3.14)

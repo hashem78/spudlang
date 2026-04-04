@@ -1,0 +1,4 @@
+UNKNOWN_TYPE name=Foo 0:4
+TYPE_MISMATCH name=x expected=unit actual=int 0:0
+UNKNOWN_TYPE name=Bar 1:4
+TYPE_MISMATCH name=y expected=unit actual=float 1:0

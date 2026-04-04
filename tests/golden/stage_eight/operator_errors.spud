@@ -1,0 +1,3 @@
+a : Float := 1.0
+b : Int := 2
+c : Float := a * b

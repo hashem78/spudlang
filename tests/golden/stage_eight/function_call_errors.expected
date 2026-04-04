@@ -1,0 +1,4 @@
+NOT_CALLABLE name=x 1:11
+TYPE_MISMATCH name=y expected=int actual=unit 1:0
+ARGUMENT_COUNT_MISMATCH name=f expected=1 actual=2 3:11
+ARGUMENT_TYPE_MISMATCH name=f index=0 expected=int actual=float 4:13

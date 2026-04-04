@@ -1,0 +1,2 @@
+TYPE_MISMATCH name=x expected=int actual=float 0:0
+TYPE_MISMATCH name=y expected=string actual=int 1:0

@@ -1,0 +1,2 @@
+OPERATOR_TYPE_ERROR op=* left=float right=int 2:13
+TYPE_MISMATCH name=c expected=float actual=unit 2:0

@@ -1,0 +1,6 @@
+x : Int := 5
+for i : Int in x
+  i
+xs : List[Int] := [1, 2, 3]
+for j : Float in xs
+  j
