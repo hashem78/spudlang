@@ -22,6 +22,8 @@ from spud.stage_six import (
 from spud_check.checkers.binary_op_checker import BinaryOpChecker
 from spud_check.checkers.binding_checker import BindingChecker
 from spud_check.checkers.function_call_checker import FunctionCallChecker
+from spud_check.checkers.function_def_checker import FunctionDefChecker
+from spud_check.checkers.inline_function_def_checker import InlineFunctionDefChecker
 from spud_check.checkers.list_literal_checker import ListLiteralChecker
 from spud_check.checkers.unary_op_checker import UnaryOpChecker
 from spud_check.type_errors import TypeError
@@ -44,16 +46,6 @@ class _TypeCheckerShim:
 
     def __init__(self, type_checker: "object"):
         self._tc = type_checker
-
-    def check_function_def(
-        self, node: FunctionDef, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_function_def(node, env, errors), env  # type: ignore[attr-defined]
-
-    def check_inline_function_def(
-        self, node: InlineFunctionDef, env: Environment[SpudType], errors: list[TypeError]
-    ) -> tuple[TypedNode, Environment[SpudType]]:
-        return self._tc._check_inline_function_def(node, env, errors), env  # type: ignore[attr-defined]
 
     def check_if_else(
         self, node: IfElse, env: Environment[SpudType], errors: list[TypeError]
@@ -88,6 +80,8 @@ class NodeChecker:
         unary_op_checker: UnaryOpChecker,
         function_call_checker: FunctionCallChecker,
         list_literal_checker: ListLiteralChecker,
+        function_def_checker: FunctionDefChecker,
+        inline_function_def_checker: InlineFunctionDefChecker,
     ):
         self._shim = shim
         self._binding_checker = binding_checker
@@ -95,6 +89,8 @@ class NodeChecker:
         self._unary_op_checker = unary_op_checker
         self._function_call_checker = function_call_checker
         self._list_literal_checker = list_literal_checker
+        self._function_def_checker = function_def_checker
+        self._inline_function_def_checker = inline_function_def_checker
 
     def dispatch(
         self,
@@ -134,9 +130,9 @@ class NodeChecker:
             case FunctionCall():
                 return self._function_call_checker.check(node, env, errors)
             case FunctionDef():
-                return self._shim.check_function_def(node, env, errors)
+                return self._function_def_checker.check(node, env, errors)
             case InlineFunctionDef():
-                return self._shim.check_inline_function_def(node, env, errors)
+                return self._inline_function_def_checker.check(node, env, errors)
             case IfElse():
                 return self._shim.check_if_else(node, env, errors)
             case ForLoop():
@@ -155,6 +151,8 @@ def build_node_checker(type_checker: object) -> NodeChecker:
     unary_op_checker = UnaryOpChecker(dispatch=node_checker)
     function_call_checker = FunctionCallChecker(dispatch=node_checker)
     list_literal_checker = ListLiteralChecker(dispatch=node_checker)
+    function_def_checker = FunctionDefChecker(dispatch=node_checker)
+    inline_function_def_checker = InlineFunctionDefChecker(dispatch=node_checker)
     node_checker.__init__(
         shim=shim,
         binding_checker=binding_checker,
@@ -162,5 +160,7 @@ def build_node_checker(type_checker: object) -> NodeChecker:
         unary_op_checker=unary_op_checker,
         function_call_checker=function_call_checker,
         list_literal_checker=list_literal_checker,
+        function_def_checker=function_def_checker,
+        inline_function_def_checker=inline_function_def_checker,
     )
     return node_checker

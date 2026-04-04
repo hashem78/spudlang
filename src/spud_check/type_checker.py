@@ -1,16 +1,13 @@
 from spud.core import Environment
 from spud.core.types import (
     BoolType,
-    FunctionType,
     ListType,
     SpudType,
     UnitType,
 )
 from spud.stage_six import (
     ForLoop,
-    FunctionDef,
     IfElse,
-    InlineFunctionDef,
     Program,
 )
 from spud_check.checkers import NodeChecker
@@ -20,18 +17,14 @@ from spud_check.type_errors import (
     ConditionNotBoolError,
     ElementTypeMismatchError,
     NotIterableError,
-    ReturnTypeMismatchError,
     TypeError,
 )
 from spud_check.type_resolver import resolve_type
 from spud_check.typed_nodes import (
     TypedConditionBranch,
     TypedForLoop,
-    TypedFunctionDef,
     TypedIfElse,
-    TypedInlineFunctionDef,
     TypedNode,
-    TypedParam,
     TypedProgram,
 )
 
@@ -65,96 +58,6 @@ class TypeChecker:
             body=typed_body,
         )
         return TypeCheckResult(errors=errors, typed_program=typed_program)
-
-    def _check_function_def(
-        self,
-        node: FunctionDef,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedFunctionDef:
-        param_types: list[SpudType] = []
-        typed_params: list[TypedParam] = []
-        child_env = env.child()
-
-        for p in node.params:
-            pt = resolve_type(p.type_annotation, errors)
-            param_types.append(pt)
-            child_env = child_env.with_binding(p.name.name, pt)
-            typed_params.append(
-                TypedParam(
-                    resolved_type=pt, position=p.name.position, end=p.name.end, name=p.name.name, declared_type=pt
-                )
-            )
-
-        return_type = resolve_type(node.return_type, errors)
-
-        typed_body: list[TypedNode] = []
-        for stmt in node.body:
-            typed_stmt, child_env = self._node_checker.dispatch(stmt, child_env, errors)
-            typed_body.append(typed_stmt)
-
-        if typed_body:
-            body_type = typed_body[-1].resolved_type
-            if body_type != return_type:
-                errors.append(
-                    ReturnTypeMismatchError(
-                        position=node.position,
-                        expected=return_type.kind,
-                        actual=body_type.kind,
-                    )
-                )
-
-        func_type = FunctionType(params=tuple(param_types), returns=return_type)
-        return TypedFunctionDef(
-            resolved_type=func_type,
-            position=node.position,
-            end=node.end,
-            params=typed_params,
-            return_type=return_type,
-            body=typed_body,
-        )
-
-    def _check_inline_function_def(
-        self,
-        node: InlineFunctionDef,
-        env: Environment[SpudType],
-        errors: list[TypeError],
-    ) -> TypedInlineFunctionDef:
-        param_types: list[SpudType] = []
-        typed_params: list[TypedParam] = []
-        child_env = env.child()
-
-        for p in node.params:
-            pt = resolve_type(p.type_annotation, errors)
-            param_types.append(pt)
-            child_env = child_env.with_binding(p.name.name, pt)
-            typed_params.append(
-                TypedParam(
-                    resolved_type=pt, position=p.name.position, end=p.name.end, name=p.name.name, declared_type=pt
-                )
-            )
-
-        return_type = resolve_type(node.return_type, errors)
-        typed_body, _ = self._node_checker.dispatch(node.body, child_env, errors)
-
-        if typed_body.resolved_type != return_type:
-            errors.append(
-                ReturnTypeMismatchError(
-                    position=node.position,
-                    expected=return_type.kind,
-                    actual=typed_body.resolved_type.kind,
-                )
-            )
-
-        func_type = FunctionType(params=tuple(param_types), returns=return_type)
-        return TypedInlineFunctionDef(
-            resolved_type=func_type,
-            position=node.position,
-            end=node.end,
-            params=typed_params,
-            return_type=return_type,
-            body=typed_body,
-        )
 
     def _check_if_else(
         self,
