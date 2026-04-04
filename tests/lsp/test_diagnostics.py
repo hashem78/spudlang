@@ -4,6 +4,13 @@ from spud.core.position import Position
 from spud.core.resolve_errors.duplicate_binding_error import DuplicateBindingError
 from spud.core.resolve_errors.shadowed_binding_error import ShadowedBindingError
 from spud.core.resolve_errors.undefined_variable_error import UndefinedVariableError
+from spud.core.types.spud_type_kind import SpudTypeKind
+from spud.stage_eight.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
+from spud.stage_eight.type_errors.condition_not_bool_error import ConditionNotBoolError
+from spud.stage_eight.type_errors.not_callable_error import NotCallableError
+from spud.stage_eight.type_errors.operator_type_error import OperatorTypeError
+from spud.stage_eight.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
+from spud.stage_eight.type_errors.type_mismatch_error import TypeMismatchError
 from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
 from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
 from spud.stage_six.program import Program
@@ -81,3 +88,86 @@ class TestNoErrors:
         program = _program()
         diags = DiagnosticsHandler().diagnose(program)
         assert diags == []
+
+
+class TestTypeErrorDiagnostics:
+    def test_type_mismatch(self):
+        program = _program()
+        errors = [
+            TypeMismatchError(
+                position=Position(line=0, column=0),
+                name="x",
+                expected=SpudTypeKind.INT,
+                actual=SpudTypeKind.FLOAT,
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "'x' declared as int but value has type float" == diags[0].message
+        assert diags[0].severity == types.DiagnosticSeverity.Error
+        assert diags[0].source == "spud"
+
+    def test_operator_type_error(self):
+        program = _program()
+        errors = [
+            OperatorTypeError(
+                position=Position(line=1, column=3),
+                operator="+",
+                left=SpudTypeKind.INT,
+                right=SpudTypeKind.STRING,
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "operator '+' not supported for int and string" == diags[0].message
+
+    def test_argument_count_mismatch(self):
+        program = _program()
+        errors = [
+            ArgumentCountMismatchError(
+                position=Position(line=2, column=0),
+                name="foo",
+                expected_count=2,
+                actual_count=3,
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "'foo' expects 2 arguments but got 3" == diags[0].message
+
+    def test_not_callable(self):
+        program = _program()
+        errors = [
+            NotCallableError(
+                position=Position(line=0, column=5),
+                name="val",
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "'val' is not callable" == diags[0].message
+
+    def test_condition_not_bool(self):
+        program = _program()
+        errors = [
+            ConditionNotBoolError(
+                position=Position(line=3, column=0),
+                actual=SpudTypeKind.INT,
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "condition must be Bool but got int" == diags[0].message
+
+    def test_return_type_mismatch(self):
+        program = _program()
+        errors = [
+            ReturnTypeMismatchError(
+                position=Position(line=1, column=2),
+                expected=SpudTypeKind.INT,
+                actual=SpudTypeKind.STRING,
+            ),
+        ]
+        diags = DiagnosticsHandler().diagnose(program, type_errors=errors)
+        assert len(diags) == 1
+        assert "function returns string but declared return type is int" == diags[0].message
