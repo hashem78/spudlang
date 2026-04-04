@@ -10,5 +10,3 @@ from spud.core.pipeline.stage_four_step import StageFourStep as StageFourStep
 from spud.core.pipeline.stage_one_step import StageOneStep as StageOneStep
 from spud.core.pipeline.stage_three_step import StageThreeStep as StageThreeStep
 from spud.core.pipeline.stage_two_step import StageTwoStep as StageTwoStep
-from spud.core.pipeline.type_check_step import TypeCheckStep as TypeCheckStep
-from spud.core.pipeline.type_checked_program import TypeCheckedProgram as TypeCheckedProgram

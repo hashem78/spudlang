@@ -15,13 +15,10 @@ from spud.core.pipeline import (
     StageOneStep,
     StageThreeStep,
     StageTwoStep,
-    TypeCheckedProgram,
-    TypeCheckStep,
 )
 from spud.di.logging import create_logger
 from spud.di.stage_four_trie import create_stage_four_trie
 from spud.di.stage_two_trie import create_stage_two_trie
-from spud.stage_eight.stage_eight import StageEight
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
@@ -61,7 +58,6 @@ def _create_pipeline(
     s4_trie: object,
     program_parser: ProgramParser,
     resolver: StageSeven,
-    checker: StageEight,
     logger: object,
 ) -> Pipeline:
     s1 = StageOneStep()
@@ -71,7 +67,6 @@ def _create_pipeline(
     s5 = StageFiveStep(prev=s4, logger=logger)
     parse = ParseStep(prev=s5, parser=program_parser)
     resolve = ResolveStep(prev=parse, resolver=resolver)
-    type_check = TypeCheckStep(prev=resolve, checker=checker)
 
     return Pipeline(
         {
@@ -82,7 +77,6 @@ def _create_pipeline(
             StageFive: s5,
             ParsedProgram: parse,
             ResolvedProgram: resolve,
-            TypeCheckedProgram: type_check,
         }
     )
 
@@ -93,7 +87,6 @@ class Container(containers.DeclarativeContainer):
     s4_trie = providers.Singleton(create_stage_four_trie)
     program_parser = providers.Singleton(_create_program_parser)
     resolver = providers.Singleton(StageSeven, logger=logger)
-    checker = providers.Singleton(StageEight)
 
     pipeline = providers.Singleton(
         _create_pipeline,
@@ -101,6 +94,5 @@ class Container(containers.DeclarativeContainer):
         s4_trie=s4_trie,
         program_parser=program_parser,
         resolver=resolver,
-        checker=checker,
         logger=logger,
     )
