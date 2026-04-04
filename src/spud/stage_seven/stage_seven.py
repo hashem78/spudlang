@@ -3,7 +3,12 @@ from structlog import BoundLogger
 from spud.core.environment import Environment
 from spud.core.pipeline.pipeline_stage import PipelineStage
 from spud.core.position import Position
-from spud.stage_seven.resolve_error import ResolveError, ResolveErrorKind
+from spud.stage_seven.resolve_error import (
+    DuplicateBindingError,
+    ResolveError,
+    ShadowedBindingError,
+    UndefinedVariableError,
+)
 from spud.stage_seven.resolve_result import ResolveResult
 from spud.stage_six.ast_node import ASTNode
 from spud.stage_six.binary_op import BinaryOp
@@ -136,8 +141,7 @@ class StageSeven(PipelineStage):
             case Identifier(name=name):
                 if env.lookup(name) is None:
                     errors.append(
-                        ResolveError(
-                            kind=ResolveErrorKind.UNDEFINED_VARIABLE,
+                        UndefinedVariableError(
                             position=node.position,
                             name=name,
                         )
@@ -252,8 +256,7 @@ class StageSeven(PipelineStage):
         """
         if env.contains(name):
             errors.append(
-                ResolveError(
-                    kind=ResolveErrorKind.DUPLICATE_BINDING,
+                DuplicateBindingError(
                     position=position,
                     name=name,
                 )
@@ -261,8 +264,7 @@ class StageSeven(PipelineStage):
             return True
         if env.lookup(name) is not None:
             errors.append(
-                ResolveError(
-                    kind=ResolveErrorKind.SHADOWED_BINDING,
+                ShadowedBindingError(
                     position=position,
                     name=name,
                 )
@@ -288,8 +290,7 @@ class StageSeven(PipelineStage):
         """
         if env.contains(name):
             errors.append(
-                ResolveError(
-                    kind=ResolveErrorKind.DUPLICATE_BINDING,
+                DuplicateBindingError(
                     position=position,
                     name=name,
                 )
@@ -297,8 +298,7 @@ class StageSeven(PipelineStage):
             return env
         if parent_env.lookup(name) is not None:
             errors.append(
-                ResolveError(
-                    kind=ResolveErrorKind.SHADOWED_BINDING,
+                ShadowedBindingError(
                     position=position,
                     name=name,
                 )

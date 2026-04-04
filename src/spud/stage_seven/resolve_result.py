@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from spud.core.environment import Environment
-from spud.core.resolve_error import ResolveError
+from spud.core.resolve_errors.resolve_error import ResolveError
 from spud.stage_six.program import Program
 
 

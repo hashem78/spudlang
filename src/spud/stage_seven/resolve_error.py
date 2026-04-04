@@ -1,2 +1,5 @@
-from spud.core.resolve_error import ResolveError as ResolveError
-from spud.core.resolve_error import ResolveErrorKind as ResolveErrorKind
+from spud.core.resolve_errors.duplicate_binding_error import DuplicateBindingError as DuplicateBindingError
+from spud.core.resolve_errors.resolve_error import ResolveError as ResolveError
+from spud.core.resolve_errors.resolve_error_kind import ResolveErrorKind as ResolveErrorKind
+from spud.core.resolve_errors.shadowed_binding_error import ShadowedBindingError as ShadowedBindingError
+from spud.core.resolve_errors.undefined_variable_error import UndefinedVariableError as UndefinedVariableError

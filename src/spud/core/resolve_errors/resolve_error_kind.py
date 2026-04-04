@@ -1,9 +1,5 @@
 from enum import Enum
 
-from pydantic import BaseModel
-
-from spud.core.position import Position
-
 
 class ResolveErrorKind(str, Enum):
     """Categories of semantic errors detected during scope resolution.
@@ -41,26 +37,3 @@ class ResolveErrorKind(str, Enum):
     UNDEFINED_VARIABLE = "undefined_variable"
     DUPLICATE_BINDING = "duplicate_binding"
     SHADOWED_BINDING = "shadowed_binding"
-
-
-class ResolveError(BaseModel, frozen=True):
-    """A single semantic error produced by scope resolution.
-
-    :param kind: The category of error (see :class:`ResolveErrorKind`).
-    :param position: Source location where the error was detected.
-    :param name: The binding or variable name involved.
-
-    Example::
-
-        >>> error = ResolveError(
-        ...     kind=ResolveErrorKind.UNDEFINED_VARIABLE,
-        ...     position=Position(line=0, column=4),
-        ...     name="w",
-        ... )
-        >>> error.kind
-        <ResolveErrorKind.UNDEFINED_VARIABLE: 'undefined_variable'>
-    """
-
-    kind: ResolveErrorKind
-    position: Position
-    name: str

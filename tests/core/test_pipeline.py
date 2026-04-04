@@ -1,7 +1,7 @@
 import pytest
 
 from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram, TypeCheckedProgram
-from spud.core.resolve_error import ResolveErrorKind
+from spud.core.resolve_errors.resolve_error_kind import ResolveErrorKind
 from spud.core.string_reader import StringReader
 from spud.di.container import Container
 from spud.stage_five.stage_five import StageFive
