@@ -5,6 +5,7 @@ from spud.core.pipeline import TypeCheckedProgram
 from spud.stage_six.program import Program
 from spud_lsp.completion import CompletionHandler
 from spud_lsp.diagnostics import DiagnosticsHandler
+from spud_lsp.goto_def import GotoDefHandler
 from spud_lsp.hover import HoverHandler
 from spud_lsp.lsp_types import ParseFn
 from spud_lsp.semantic_tokens import LEGEND, SemanticTokensHandler
@@ -20,6 +21,7 @@ class SpudLanguageServer(LanguageServer):
         completion: CompletionHandler,
         symbols: SymbolsHandler,
         semantic_tokens: SemanticTokensHandler,
+        goto_def: GotoDefHandler,
     ) -> None:
         super().__init__("spud-lsp", "v0.1")
         self._parse = parse
@@ -28,6 +30,7 @@ class SpudLanguageServer(LanguageServer):
         self._completion = completion
         self._symbols = symbols
         self._semantic_tokens = semantic_tokens
+        self._goto_def = goto_def
         self._last_program: dict[str, Program] = {}
         self._last_result: dict[str, TypeCheckedProgram] = {}
         self._register_features()
@@ -92,3 +95,12 @@ class SpudLanguageServer(LanguageServer):
             if result is None:
                 return None
             return self._semantic_tokens.semantic_tokens(result.resolve_result, result.tokens)
+
+        @self.feature(types.TEXT_DOCUMENT_DEFINITION)
+        def definition(params: types.DefinitionParams) -> types.Location | None:
+            program: Program | None = self._last_program.get(params.text_document.uri)
+            if program is None:
+                return None
+            return self._goto_def.goto_def(
+                program, params.text_document.uri, params.position.line, params.position.character
+            )

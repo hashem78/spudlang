@@ -1,4 +1,4 @@
-from spud.core.pipeline import ResolvedProgram
+from spud.core.pipeline import TypeCheckedProgram
 from spud.core.string_reader import StringReader
 from spud_lsp.container import LspContainer
 from spud_lsp.server import SpudLanguageServer
@@ -8,7 +8,7 @@ def entrypoint() -> None:
     container: LspContainer = LspContainer()
     pipeline = container.pipeline()
 
-    def parse(text: str) -> ResolvedProgram:
+    def parse(text: str) -> TypeCheckedProgram:
         return pipeline.run(StringReader(text))
 
     server: SpudLanguageServer = SpudLanguageServer(
@@ -18,6 +18,7 @@ def entrypoint() -> None:
         completion=container.completion_handler(),
         symbols=container.symbols_handler(),
         semantic_tokens=container.semantic_tokens_handler(),
+        goto_def=container.goto_def_handler(),
     )
     server.start_io()
 
