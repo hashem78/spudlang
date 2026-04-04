@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from spud.core.position import Position
+from spud.core import Position
 from spud_check.type_errors.type_error_kind import TypeErrorKind
 
 

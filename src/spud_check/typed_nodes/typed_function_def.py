@@ -1,4 +1,4 @@
-from spud.core.types.spud_type import SpudType
+from spud.core.types import SpudType
 from spud_check.typed_nodes.typed_node import TypedNode
 
 

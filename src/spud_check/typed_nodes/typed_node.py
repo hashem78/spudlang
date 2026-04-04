@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from spud.core.position import Position
-from spud.core.types.spud_type import SpudType
+from spud.core import Position
+from spud.core.types import SpudType
 
 
 class TypedNode(BaseModel, frozen=True):

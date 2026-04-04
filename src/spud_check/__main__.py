@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cyclopts
 
-from spud.core.file_reader import FileReader
+from spud.core import FileReader
 from spud.core.pipeline import ResolvedProgram
 from spud_check.container import CheckContainer
 

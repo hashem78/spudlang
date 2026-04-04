@@ -1,8 +1,4 @@
-from spud.core.types.bool_type import BoolType
-from spud.core.types.float_type import FloatType
-from spud.core.types.int_type import IntType
-from spud.core.types.spud_type import SpudType
-from spud.core.types.spud_type_kind import SpudTypeKind
+from spud.core.types import BoolType, FloatType, IntType, SpudType, SpudTypeKind
 
 K = SpudTypeKind
 

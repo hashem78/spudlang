@@ -1,4 +1,4 @@
-from spud.stage_six.type_expression import TypeExpression
+from spud.stage_six import TypeExpression
 from spud_check.typed_nodes.typed_node import TypedNode
 
 
