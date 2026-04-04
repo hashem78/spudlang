@@ -18,22 +18,17 @@ from spud.stage_six import (
     ForLoop,
     FunctionCall,
     FunctionDef,
-    FunctionTypeExpr,
     Identifier,
     IfElse,
     InlineFunctionDef,
     IntLiteral,
     ListLiteral,
-    ListTypeExpr,
-    NamedType,
     Program,
     RawStringLiteral,
     StringLiteral,
-    TypeExpression,
     UnaryOp,
     UnitLiteral,
 )
-from spud_check.builtin_types import BUILTIN_TYPES
 from spud_check.operator_types import BINARY_OP_TYPES, UNARY_OP_TYPES
 from spud_check.type_check_result import TypeCheckResult
 from spud_check.type_errors import (
@@ -50,8 +45,8 @@ from spud_check.type_errors import (
     TypeError,
     TypeMismatchError,
     UnaryOperatorTypeError,
-    UnknownTypeError,
 )
+from spud_check.type_resolver import resolve_type
 from spud_check.typed_nodes import (
     TypedBinaryOp,
     TypedBinding,
@@ -175,7 +170,7 @@ class TypeChecker:
         env: Environment[SpudType],
         errors: list[TypeError],
     ) -> tuple[TypedBinding, Environment[SpudType]]:
-        declared = self._resolve_type(node.type_annotation, errors)
+        declared = resolve_type(node.type_annotation, errors)
 
         is_function = isinstance(node.value, FunctionDef | InlineFunctionDef)
         if is_function:
@@ -334,7 +329,7 @@ class TypeChecker:
         child_env = env.child()
 
         for p in node.params:
-            pt = self._resolve_type(p.type_annotation, errors)
+            pt = resolve_type(p.type_annotation, errors)
             param_types.append(pt)
             child_env = child_env.with_binding(p.name.name, pt)
             typed_params.append(
@@ -343,7 +338,7 @@ class TypeChecker:
                 )
             )
 
-        return_type = self._resolve_type(node.return_type, errors)
+        return_type = resolve_type(node.return_type, errors)
 
         typed_body: list[TypedNode] = []
         for stmt in node.body:
@@ -382,7 +377,7 @@ class TypeChecker:
         child_env = env.child()
 
         for p in node.params:
-            pt = self._resolve_type(p.type_annotation, errors)
+            pt = resolve_type(p.type_annotation, errors)
             param_types.append(pt)
             child_env = child_env.with_binding(p.name.name, pt)
             typed_params.append(
@@ -391,7 +386,7 @@ class TypeChecker:
                 )
             )
 
-        return_type = self._resolve_type(node.return_type, errors)
+        return_type = resolve_type(node.return_type, errors)
         typed_body, _ = self._check_node(node.body, child_env, errors)
 
         if typed_body.resolved_type != return_type:
@@ -489,7 +484,7 @@ class TypeChecker:
         errors: list[TypeError],
     ) -> TypedForLoop:
         typed_iterable, _ = self._check_node(node.iterable, env, errors)
-        var_type = self._resolve_type(node.variable_type, errors)
+        var_type = resolve_type(node.variable_type, errors)
 
         if not isinstance(typed_iterable.resolved_type, ListType):
             errors.append(
@@ -564,30 +559,3 @@ class TypeChecker:
             end=node.end,
             elements=typed_elements,
         )
-
-    def _resolve_type(
-        self,
-        type_expr: TypeExpression,
-        errors: list[TypeError],
-    ) -> SpudType:
-        match type_expr:
-            case NamedType(name=name):
-                resolved = BUILTIN_TYPES.get(name)
-                if resolved is None:
-                    errors.append(
-                        UnknownTypeError(
-                            position=type_expr.position,
-                            name=name,
-                        )
-                    )
-                    return UnitType()
-                return resolved
-            case ListTypeExpr(element=element):
-                return ListType(element=self._resolve_type(element, errors))
-            case FunctionTypeExpr(params=params, returns=returns):
-                return FunctionType(
-                    params=tuple(self._resolve_type(p, errors) for p in params),
-                    returns=self._resolve_type(returns, errors),
-                )
-            case _:
-                return UnitType()
