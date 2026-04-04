@@ -27,12 +27,12 @@ from spud_check.typed_nodes import (
 
 
 def _check(text: str) -> TypeCheckResult:
-    from spud_check import TypeChecker
+    from spud_check import build_type_checker
 
     container = Container()
     pipeline = container.pipeline()
     result = pipeline.run(StringReader(text))
-    return TypeChecker().check(result.program)
+    return build_type_checker().check(result.program)
 
 
 class TestValidPrograms:

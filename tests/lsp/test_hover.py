@@ -1,13 +1,13 @@
 from spud.core import StringReader
 from spud.core.pipeline import Pipeline
 from spud.di import Container
-from spud_check import TypeChecker
+from spud_check import build_type_checker
 from spud_check.typed_nodes import TypedProgram
 from spud_lsp import HoverHandler
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()
-CHECKER = TypeChecker()
+CHECKER = build_type_checker()
 
 
 def _typed_program(text: str) -> TypedProgram:

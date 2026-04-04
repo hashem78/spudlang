@@ -9,7 +9,7 @@ from pathlib import Path
 from spud.core import FileReader
 from spud.core.pipeline import Pipeline
 from spud.di import Container
-from spud_check import TypeChecker
+from spud_check import build_type_checker
 from spud_check.type_errors import (
     ArgumentCountMismatchError,
     ArgumentTypeMismatchError,
@@ -31,7 +31,7 @@ GOLDEN_DIR = Path(__file__).parent / "golden" / "stage_eight"
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()
-CHECKER = TypeChecker()
+CHECKER = build_type_checker()
 
 
 def _serialize_error(error: TypeError) -> str:

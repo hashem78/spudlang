@@ -120,28 +120,3 @@ class NodeChecker:
                 return self._list_literal_checker.check(node, env, errors)
             case _:
                 return TypedUnitLiteral(resolved_type=UnitType(), position=node.position, end=node.end), env
-
-
-def build_node_checker() -> NodeChecker:
-    node_checker = NodeChecker.__new__(NodeChecker)
-    binding_checker = BindingChecker(dispatch=node_checker)
-    binary_op_checker = BinaryOpChecker(dispatch=node_checker)
-    unary_op_checker = UnaryOpChecker(dispatch=node_checker)
-    function_call_checker = FunctionCallChecker(dispatch=node_checker)
-    list_literal_checker = ListLiteralChecker(dispatch=node_checker)
-    function_def_checker = FunctionDefChecker(dispatch=node_checker)
-    inline_function_def_checker = InlineFunctionDefChecker(dispatch=node_checker)
-    if_else_checker = IfElseChecker(dispatch=node_checker)
-    for_loop_checker = ForLoopChecker(dispatch=node_checker)
-    node_checker.__init__(
-        binding_checker=binding_checker,
-        binary_op_checker=binary_op_checker,
-        unary_op_checker=unary_op_checker,
-        function_call_checker=function_call_checker,
-        list_literal_checker=list_literal_checker,
-        function_def_checker=function_def_checker,
-        inline_function_def_checker=inline_function_def_checker,
-        if_else_checker=if_else_checker,
-        for_loop_checker=for_loop_checker,
-    )
-    return node_checker
