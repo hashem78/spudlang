@@ -1,8 +1,6 @@
 from lsprotocol import types
 
-from spud.stage_six.binding import Binding
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.program import Program
+from spud.stage_six import Binding, FunctionDef, Program
 
 _KEYWORD_COMPLETIONS: list[types.CompletionItem] = [
     types.CompletionItem(label="if", kind=types.CompletionItemKind.Keyword),

@@ -1,15 +1,17 @@
 from lsprotocol import types
 
-from spud.core.position import Position
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binding import Binding
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.inline_function_def import InlineFunctionDef
-from spud.stage_six.program import Program
+from spud.core import Position
+from spud.stage_six import (
+    ASTNode,
+    Binding,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
+    Identifier,
+    IfElse,
+    InlineFunctionDef,
+    Program,
+)
 from spud_lsp.utils import find_node_at
 
 

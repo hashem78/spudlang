@@ -50,31 +50,31 @@ Token modifier legend::
 
 from lsprotocol import types
 
-from spud.core.environment import Environment
-from spud.core.keywords import KEYWORDS
-from spud.core.operator_precedence import OPERATOR_TOKENS
-from spud.stage_five.stage_five_token import StageFiveToken
-from spud.stage_seven.resolve_result import ResolveResult
-from spud.stage_six.ast_node import ASTNode
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.binding import Binding
-from spud.stage_six.float_literal import FloatLiteral
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.function_def import FunctionDef
-from spud.stage_six.function_type_expr import FunctionTypeExpr
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.inline_function_def import InlineFunctionDef
-from spud.stage_six.int_literal import IntLiteral
-from spud.stage_six.list_literal import ListLiteral
-from spud.stage_six.list_type_expr import ListTypeExpr
-from spud.stage_six.named_type import NamedType
-from spud.stage_six.raw_string_literal import RawStringLiteral
-from spud.stage_six.string_literal import StringLiteral
-from spud.stage_six.type_expression import TypeExpression
-from spud.stage_six.typed_param import TypedParam
-from spud.stage_six.unary_op import UnaryOp
+from spud.core import KEYWORDS, OPERATOR_TOKENS, Environment
+from spud.stage_five import StageFiveToken
+from spud.stage_seven import ResolveResult
+from spud.stage_six import (
+    ASTNode,
+    BinaryOp,
+    Binding,
+    FloatLiteral,
+    ForLoop,
+    FunctionCall,
+    FunctionDef,
+    FunctionTypeExpr,
+    Identifier,
+    IfElse,
+    InlineFunctionDef,
+    IntLiteral,
+    ListLiteral,
+    ListTypeExpr,
+    NamedType,
+    RawStringLiteral,
+    StringLiteral,
+    TypedParam,
+    TypeExpression,
+    UnaryOp,
+)
 
 VARIABLE = 0
 FUNCTION = 1

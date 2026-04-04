@@ -1,5 +1,5 @@
+from spud.core import StringReader
 from spud.core.pipeline import ResolvedProgram
-from spud.core.string_reader import StringReader
 from spud_lsp.container import LspContainer
 from spud_lsp.server import SpudLanguageServer
 

@@ -1,32 +1,36 @@
 from lsprotocol import types
 
-from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_seven.resolve_error import (
+from spud.core.resolve_errors import (
     DuplicateBindingError,
     ResolveError,
     ShadowedBindingError,
     UndefinedVariableError,
 )
-from spud.stage_six.parse_errors.parse_context import ParseContext
-from spud.stage_six.parse_errors.parse_context_kind import ParseContextKind
-from spud.stage_six.parse_errors.parse_error import ParseError
-from spud.stage_six.parse_errors.unexpected_end_error import UnexpectedEndError
-from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
-from spud.stage_six.program import Program
-from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud_check.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
-from spud_check.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
-from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud_check.type_errors.element_type_mismatch_error import ElementTypeMismatchError
-from spud_check.type_errors.heterogeneous_list_error import HeterogeneousListError
-from spud_check.type_errors.not_callable_error import NotCallableError
-from spud_check.type_errors.not_iterable_error import NotIterableError
-from spud_check.type_errors.operator_type_error import OperatorTypeError
-from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud_check.type_errors.type_error import TypeError
-from spud_check.type_errors.type_mismatch_error import TypeMismatchError
-from spud_check.type_errors.unary_operator_type_error import UnaryOperatorTypeError
-from spud_check.type_errors.unknown_type_error import UnknownTypeError
+from spud.stage_five import StageFiveTokenType as T
+from spud.stage_six import Program
+from spud.stage_six.parse_errors import (
+    ParseContext,
+    ParseContextKind,
+    ParseError,
+    UnexpectedEndError,
+    UnexpectedTokenError,
+)
+from spud_check.type_errors import (
+    ArgumentCountMismatchError,
+    ArgumentTypeMismatchError,
+    BranchTypeMismatchError,
+    ConditionNotBoolError,
+    ElementTypeMismatchError,
+    HeterogeneousListError,
+    NotCallableError,
+    NotIterableError,
+    OperatorTypeError,
+    ReturnTypeMismatchError,
+    TypeError,
+    TypeMismatchError,
+    UnaryOperatorTypeError,
+    UnknownTypeError,
+)
 
 _TOKEN_LABELS: dict[T, str] = {
     T.IDENTIFIER: "identifier",

@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
-from spud.di.container import Container as CoreContainer
-from spud_check.type_checker import TypeChecker
+from spud.di import Container as CoreContainer
+from spud_check import TypeChecker
 from spud_lsp.completion import CompletionHandler
 from spud_lsp.diagnostics import DiagnosticsHandler
 from spud_lsp.goto_def import GotoDefHandler

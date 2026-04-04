@@ -2,9 +2,8 @@ from lsprotocol import types
 from pygls.lsp.server import LanguageServer
 
 from spud.core.pipeline import ResolvedProgram
-from spud.stage_six.program import Program
-from spud_check.type_check_result import TypeCheckResult
-from spud_check.type_checker import TypeChecker
+from spud.stage_six import Program
+from spud_check import TypeChecker, TypeCheckResult
 from spud_lsp.completion import CompletionHandler
 from spud_lsp.diagnostics import DiagnosticsHandler
 from spud_lsp.goto_def import GotoDefHandler
