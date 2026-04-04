@@ -20,3 +20,6 @@ class NodeType(str, Enum):
     LIST_LITERAL = "list_literal"
     UNIT_LITERAL = "unit_literal"
     PROGRAM = "program"
+    NAMED_TYPE = "named_type"
+    LIST_TYPE = "list_type"
+    FUNCTION_TYPE = "function_type"
