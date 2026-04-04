@@ -5,32 +5,34 @@ from spud.core.types.int_type import IntType
 from spud.core.types.list_type import ListType
 from spud.core.types.unit_type import UnitType
 from spud.di.container import Container
-from spud.stage_eight.type_check_result import TypeCheckResult
-from spud.stage_eight.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud.stage_eight.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
-from spud.stage_eight.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
-from spud.stage_eight.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud.stage_eight.type_errors.element_type_mismatch_error import ElementTypeMismatchError
-from spud.stage_eight.type_errors.heterogeneous_list_error import HeterogeneousListError
-from spud.stage_eight.type_errors.not_callable_error import NotCallableError
-from spud.stage_eight.type_errors.not_iterable_error import NotIterableError
-from spud.stage_eight.type_errors.operator_type_error import OperatorTypeError
-from spud.stage_eight.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud.stage_eight.type_errors.type_mismatch_error import TypeMismatchError
-from spud.stage_eight.type_errors.unary_operator_type_error import UnaryOperatorTypeError
-from spud.stage_eight.type_errors.unknown_type_error import UnknownTypeError
-from spud.stage_eight.typed_nodes.typed_binding import TypedBinding
-from spud.stage_eight.typed_nodes.typed_function_def import TypedFunctionDef
-from spud.stage_eight.typed_nodes.typed_inline_function_def import TypedInlineFunctionDef
-from spud.stage_eight.typed_nodes.typed_int_literal import TypedIntLiteral
-from spud.stage_eight.typed_nodes.typed_program import TypedProgram
+from spud_check.type_check_result import TypeCheckResult
+from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
+from spud_check.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
+from spud_check.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
+from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
+from spud_check.type_errors.element_type_mismatch_error import ElementTypeMismatchError
+from spud_check.type_errors.heterogeneous_list_error import HeterogeneousListError
+from spud_check.type_errors.not_callable_error import NotCallableError
+from spud_check.type_errors.not_iterable_error import NotIterableError
+from spud_check.type_errors.operator_type_error import OperatorTypeError
+from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
+from spud_check.type_errors.type_mismatch_error import TypeMismatchError
+from spud_check.type_errors.unary_operator_type_error import UnaryOperatorTypeError
+from spud_check.type_errors.unknown_type_error import UnknownTypeError
+from spud_check.typed_nodes.typed_binding import TypedBinding
+from spud_check.typed_nodes.typed_function_def import TypedFunctionDef
+from spud_check.typed_nodes.typed_inline_function_def import TypedInlineFunctionDef
+from spud_check.typed_nodes.typed_int_literal import TypedIntLiteral
+from spud_check.typed_nodes.typed_program import TypedProgram
 
 
 def _check(text: str) -> TypeCheckResult:
+    from spud_check.type_checker import TypeChecker
+
     container = Container()
     pipeline = container.pipeline()
     result = pipeline.run(StringReader(text))
-    return result.type_check_result
+    return TypeChecker().check(result.program)
 
 
 class TestValidPrograms:

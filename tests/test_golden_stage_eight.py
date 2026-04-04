@@ -9,25 +9,27 @@ from pathlib import Path
 from spud.core.file_reader import FileReader
 from spud.core.pipeline import Pipeline
 from spud.di.container import Container
-from spud.stage_eight.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud.stage_eight.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
-from spud.stage_eight.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
-from spud.stage_eight.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud.stage_eight.type_errors.element_type_mismatch_error import ElementTypeMismatchError
-from spud.stage_eight.type_errors.heterogeneous_list_error import HeterogeneousListError
-from spud.stage_eight.type_errors.not_callable_error import NotCallableError
-from spud.stage_eight.type_errors.not_iterable_error import NotIterableError
-from spud.stage_eight.type_errors.operator_type_error import OperatorTypeError
-from spud.stage_eight.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud.stage_eight.type_errors.type_error import TypeError
-from spud.stage_eight.type_errors.type_mismatch_error import TypeMismatchError
-from spud.stage_eight.type_errors.unary_operator_type_error import UnaryOperatorTypeError
-from spud.stage_eight.type_errors.unknown_type_error import UnknownTypeError
+from spud_check.type_checker import TypeChecker
+from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
+from spud_check.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
+from spud_check.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
+from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
+from spud_check.type_errors.element_type_mismatch_error import ElementTypeMismatchError
+from spud_check.type_errors.heterogeneous_list_error import HeterogeneousListError
+from spud_check.type_errors.not_callable_error import NotCallableError
+from spud_check.type_errors.not_iterable_error import NotIterableError
+from spud_check.type_errors.operator_type_error import OperatorTypeError
+from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
+from spud_check.type_errors.type_error import TypeError
+from spud_check.type_errors.type_mismatch_error import TypeMismatchError
+from spud_check.type_errors.unary_operator_type_error import UnaryOperatorTypeError
+from spud_check.type_errors.unknown_type_error import UnknownTypeError
 
 GOLDEN_DIR = Path(__file__).parent / "golden" / "stage_eight"
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()
+CHECKER = TypeChecker()
 
 
 def _serialize_error(error: TypeError) -> str:
@@ -64,9 +66,10 @@ def _serialize_error(error: TypeError) -> str:
 
 def _serialize_stage_eight(path: Path) -> str:
     result = PIPELINE.run(FileReader(path))
-    if not result.type_check_result.errors:
+    check_result = CHECKER.check(result.program)
+    if not check_result.errors:
         return "OK"
-    return "\n".join(_serialize_error(e) for e in result.type_check_result.errors)
+    return "\n".join(_serialize_error(e) for e in check_result.errors)
 
 
 def _run_case(spud_path: Path) -> tuple[str, str | None]:

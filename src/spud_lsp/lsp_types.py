@@ -1,5 +1,5 @@
 from collections.abc import Callable
 
-from spud.core.pipeline import TypeCheckedProgram
+from spud.core.pipeline import ResolvedProgram
 
-ParseFn = Callable[[str], TypeCheckedProgram]
+ParseFn = Callable[[str], ResolvedProgram]

@@ -1,6 +1,6 @@
 import pytest
 
-from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram, TypeCheckedProgram
+from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram
 from spud.core.resolve_errors.resolve_error_kind import ResolveErrorKind
 from spud.core.string_reader import StringReader
 from spud.di.container import Container
@@ -72,10 +72,10 @@ class TestPipelineGetReturnTypes:
 
 
 class TestPipelineRun:
-    def test_run_returns_type_checked_program(self):
+    def test_run_returns_resolved_program(self):
         pipeline = _pipeline()
         result = pipeline.run(_reader("x : Int := 1"))
-        assert isinstance(result, TypeCheckedProgram)
+        assert isinstance(result, ResolvedProgram)
 
     def test_run_valid_program_has_no_errors(self):
         pipeline = _pipeline()
@@ -220,25 +220,6 @@ class TestStepChainIndependence:
             result = pipeline.run(_reader(f"var{i} : Int := {i}"))
             assert result.resolve_result.errors == []
             assert result.resolve_result.environment.contains(f"var{i}")
-
-
-class TestTypeCheckResult:
-    def test_no_errors_for_valid_program(self):
-        pipeline = _pipeline()
-        result = pipeline.run(_reader("x : Int := 1"))
-        assert result.type_check_result.errors == []
-
-    def test_has_error_for_mismatch(self):
-        pipeline = _pipeline()
-        result = pipeline.run(_reader("x : Int := 3.14"))
-        assert len(result.type_check_result.errors) > 0
-
-    def test_typed_program_body_non_empty(self):
-        pipeline = _pipeline()
-        result = pipeline.run(_reader("x : Int := 1"))
-        typed_program = result.type_check_result.typed_program
-        assert hasattr(typed_program, "body")
-        assert len(typed_program.body) > 0
 
 
 class TestUnknownStageType:

@@ -3,18 +3,18 @@ from lsprotocol import types
 from spud.core.types.function_type import FunctionType
 from spud.core.types.list_type import ListType
 from spud.core.types.spud_type import SpudType
-from spud.stage_eight.typed_nodes.typed_binary_op import TypedBinaryOp
-from spud.stage_eight.typed_nodes.typed_binding import TypedBinding
-from spud.stage_eight.typed_nodes.typed_condition_branch import TypedConditionBranch
-from spud.stage_eight.typed_nodes.typed_for_loop import TypedForLoop
-from spud.stage_eight.typed_nodes.typed_function_call import TypedFunctionCall
-from spud.stage_eight.typed_nodes.typed_function_def import TypedFunctionDef
-from spud.stage_eight.typed_nodes.typed_identifier import TypedIdentifier
-from spud.stage_eight.typed_nodes.typed_if_else import TypedIfElse
-from spud.stage_eight.typed_nodes.typed_list_literal import TypedListLiteral
-from spud.stage_eight.typed_nodes.typed_node import TypedNode
-from spud.stage_eight.typed_nodes.typed_program import TypedProgram
-from spud.stage_eight.typed_nodes.typed_unary_op import TypedUnaryOp
+from spud_check.typed_nodes.typed_binary_op import TypedBinaryOp
+from spud_check.typed_nodes.typed_binding import TypedBinding
+from spud_check.typed_nodes.typed_condition_branch import TypedConditionBranch
+from spud_check.typed_nodes.typed_for_loop import TypedForLoop
+from spud_check.typed_nodes.typed_function_call import TypedFunctionCall
+from spud_check.typed_nodes.typed_function_def import TypedFunctionDef
+from spud_check.typed_nodes.typed_identifier import TypedIdentifier
+from spud_check.typed_nodes.typed_if_else import TypedIfElse
+from spud_check.typed_nodes.typed_list_literal import TypedListLiteral
+from spud_check.typed_nodes.typed_node import TypedNode
+from spud_check.typed_nodes.typed_program import TypedProgram
+from spud_check.typed_nodes.typed_unary_op import TypedUnaryOp
 
 
 class HoverHandler:

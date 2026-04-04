@@ -1,16 +1,19 @@
 from spud.core.pipeline import Pipeline
 from spud.core.string_reader import StringReader
 from spud.di.container import Container
-from spud.stage_eight.typed_nodes.typed_program import TypedProgram
+from spud_check.type_checker import TypeChecker
+from spud_check.typed_nodes.typed_program import TypedProgram
 from spud_lsp.hover import HoverHandler
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()
+CHECKER = TypeChecker()
 
 
 def _typed_program(text: str) -> TypedProgram:
     result = PIPELINE.run(StringReader(text))
-    tp = result.type_check_result.typed_program
+    check_result = CHECKER.check(result.program)
+    tp = check_result.typed_program
     assert isinstance(tp, TypedProgram)
     return tp
 

@@ -26,6 +26,7 @@ dependencies = [
 spud = "spud.__main__:entrypoint"
 spud-lsp = "spud_lsp.__main__:entrypoint"
 spud-fmt = "spud_fmt.__main__:entrypoint"
+spud-check = "spud_check.__main__:entrypoint"
 
 [project.urls]
 Documentation = "https://github.com/hashem78/spud#readme"
@@ -63,10 +64,12 @@ extra-dependencies = [
 binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud src/spud/__main__.py"
 lsp-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-lsp src/spud_lsp/__main__.py"
 fmt-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-fmt src/spud_fmt/__main__.py"
+check-binary = "python -m nuitka --onefile --output-dir=dist --output-filename=spud-check src/spud_check/__main__.py"
 install-lsp = "cp dist/spud-lsp ~/.local/bin/spud-lsp && echo 'Installed spud-lsp to ~/.local/bin/spud-lsp'"
 install-fmt = "cp dist/spud-fmt ~/.local/bin/spud-fmt && echo 'Installed spud-fmt to ~/.local/bin/spud-fmt'"
+install-check = "cp dist/spud-check ~/.local/bin/spud-check && echo 'Installed spud-check to ~/.local/bin/spud-check'"
 install-spud = "cp dist/spud ~/.local/bin/spud && echo 'Installed spud to ~/.local/bin/spud'"
-all = "hatch run build:binary && hatch run build:lsp-binary && hatch run build:fmt-binary && hatch run build:install-spud && hatch run build:install-lsp && hatch run build:install-fmt"
+all = "hatch run build:binary && hatch run build:lsp-binary && hatch run build:fmt-binary && hatch run build:check-binary && hatch run build:install-spud && hatch run build:install-lsp && hatch run build:install-fmt && hatch run build:install-check"
 
 [tool.hatch.build.hooks.custom]
 
