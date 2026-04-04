@@ -9,16 +9,16 @@ from pathlib import Path
 
 import yaml
 
+from spud.core import FileReader
 from spud.core.ast_printer import _children, _label
-from spud.core.file_reader import FileReader
 from spud.core.pipeline import ParsedProgram, Pipeline
-from spud.di.container import Container
+from spud.di import Container
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
-from spud_fmt.config import FmtConfig
+from spud_fmt import FmtConfig
 from spud_fmt.container import _create_formatter
 
 _CONTAINER = Container()
@@ -108,7 +108,7 @@ def _print_node_to_buf(node, prefix: str, is_last: bool, buf) -> None:
 
 
 def _serialize_fmt(path: Path) -> str:
-    from spud.core.string_reader import StringReader
+    from spud.core import StringReader
 
     text = path.read_text()
     parsed = PIPELINE.get(ParsedProgram, StringReader(text))

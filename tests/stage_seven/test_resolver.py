@@ -1,9 +1,9 @@
 import structlog
 
-from spud.stage_seven.resolve_error import ResolveErrorKind
-from spud.stage_seven.resolve_result import ResolveResult
+from spud.core.resolve_errors import ResolveErrorKind
+from spud.stage_seven import ResolveResult
 from spud.stage_seven.stage_seven import StageSeven
-from spud.stage_six.program import Program
+from spud.stage_six import Program
 from tests.stage_six.helpers import parse
 
 

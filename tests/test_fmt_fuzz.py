@@ -13,7 +13,7 @@ from datetime import timedelta
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from spud_fmt.config import FmtConfig, QuoteStyle
+from spud_fmt import FmtConfig, QuoteStyle
 from spud_fmt.container import _create_formatter
 from tests.fuzz_helpers import load_valid_golden_programs, parse_text
 

@@ -1,20 +1,20 @@
 from lsprotocol import types
 
-from spud.core.position import Position
-from spud.core.resolve_errors.duplicate_binding_error import DuplicateBindingError
-from spud.core.resolve_errors.shadowed_binding_error import ShadowedBindingError
-from spud.core.resolve_errors.undefined_variable_error import UndefinedVariableError
-from spud.core.types.spud_type_kind import SpudTypeKind
-from spud.stage_five.stage_five_token_type import StageFiveTokenType as T
-from spud.stage_six.parse_errors.unexpected_token_error import UnexpectedTokenError
-from spud.stage_six.program import Program
-from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud_check.type_errors.not_callable_error import NotCallableError
-from spud_check.type_errors.operator_type_error import OperatorTypeError
-from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud_check.type_errors.type_mismatch_error import TypeMismatchError
-from spud_lsp.diagnostics import DiagnosticsHandler
+from spud.core import Position
+from spud.core.resolve_errors import DuplicateBindingError, ShadowedBindingError, UndefinedVariableError
+from spud.core.types import SpudTypeKind
+from spud.stage_five import StageFiveTokenType as T
+from spud.stage_six import Program
+from spud.stage_six.parse_errors import UnexpectedTokenError
+from spud_check.type_errors import (
+    ArgumentCountMismatchError,
+    ConditionNotBoolError,
+    NotCallableError,
+    OperatorTypeError,
+    ReturnTypeMismatchError,
+    TypeMismatchError,
+)
+from spud_lsp import DiagnosticsHandler
 
 P = Position(line=0, column=0)
 

@@ -1,13 +1,15 @@
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.binding import Binding
-from spud.stage_six.condition_branch import ConditionBranch
-from spud.stage_six.for_loop import ForLoop
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.if_else import IfElse
-from spud.stage_six.int_literal import IntLiteral
-from spud.stage_six.program import Program
-from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six import (
+    BinaryOp,
+    Binding,
+    ConditionBranch,
+    ForLoop,
+    FunctionCall,
+    Identifier,
+    IfElse,
+    IntLiteral,
+    Program,
+    StringLiteral,
+)
 from tests.stage_six.helpers import parse
 
 

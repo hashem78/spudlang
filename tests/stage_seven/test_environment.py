@@ -1,4 +1,4 @@
-from spud.core.environment import Environment
+from spud.core import Environment
 
 
 class TestWithBinding:

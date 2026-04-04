@@ -8,9 +8,8 @@ import structlog
 
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_one.stage_one import StageOne
+from spud.stage_three import StageThreeToken, StageThreeTokenType
 from spud.stage_three.stage_three import StageThree
-from spud.stage_three.stage_three_token import StageThreeToken
-from spud.stage_three.stage_three_token_type import StageThreeTokenType
 from spud.stage_two.stage_two import StageTwo
 
 

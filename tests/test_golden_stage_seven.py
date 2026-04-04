@@ -6,9 +6,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from spud.core.file_reader import FileReader
+from spud.core import FileReader
 from spud.core.pipeline import Pipeline
-from spud.di.container import Container
+from spud.di import Container
 
 GOLDEN_DIR = Path(__file__).parent / "golden" / "stage_seven"
 

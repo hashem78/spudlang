@@ -1,9 +1,9 @@
+from spud.core import StringReader
 from spud.core.pipeline import Pipeline
-from spud.core.string_reader import StringReader
-from spud.di.container import Container
-from spud_check.type_checker import TypeChecker
-from spud_check.typed_nodes.typed_program import TypedProgram
-from spud_lsp.hover import HoverHandler
+from spud.di import Container
+from spud_check import TypeChecker
+from spud_check.typed_nodes import TypedProgram
+from spud_lsp import HoverHandler
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()

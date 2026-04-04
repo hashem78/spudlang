@@ -9,7 +9,7 @@ from datetime import timedelta
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from spud.stage_six.program import Program
+from spud.stage_six import Program
 from tests.fuzz_helpers import load_valid_golden_programs, parse_text
 
 _SPUD_TOKENS: list[str] = [

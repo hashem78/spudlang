@@ -1,14 +1,13 @@
 import pytest
 
+from spud.core import StringReader
 from spud.core.pipeline import ParsedProgram, Pipeline, ResolvedProgram
-from spud.core.resolve_errors.resolve_error_kind import ResolveErrorKind
-from spud.core.string_reader import StringReader
-from spud.di.container import Container
+from spud.core.resolve_errors import ResolveErrorKind
+from spud.di import Container
 from spud.stage_five.stage_five import StageFive
 from spud.stage_four.stage_four import StageFour
 from spud.stage_one.stage_one import StageOne
-from spud.stage_six.binding import Binding
-from spud.stage_six.int_literal import IntLiteral
+from spud.stage_six import Binding, IntLiteral
 from spud.stage_three.stage_three import StageThree
 from spud.stage_two.stage_two import StageTwo
 

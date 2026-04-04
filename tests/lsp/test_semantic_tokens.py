@@ -1,7 +1,7 @@
+from spud.core import StringReader
 from spud.core.pipeline import Pipeline
-from spud.core.string_reader import StringReader
-from spud.di.container import Container
-from spud_lsp.semantic_tokens import TOKEN_TYPES, SemanticTokensHandler
+from spud.di import Container
+from spud_lsp import TOKEN_TYPES, SemanticTokensHandler
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()

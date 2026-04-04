@@ -1,7 +1,7 @@
+from spud.core import StringReader
 from spud.core.pipeline import ParsedProgram, Pipeline
-from spud.core.string_reader import StringReader
-from spud.di.container import Container
-from spud.stage_six.program import Program
+from spud.di import Container
+from spud.stage_six import Program
 
 _CONTAINER = Container()
 PIPELINE: Pipeline = _CONTAINER.pipeline()

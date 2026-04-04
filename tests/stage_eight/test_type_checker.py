@@ -1,33 +1,33 @@
-from spud.core.string_reader import StringReader
-from spud.core.types.float_type import FloatType
-from spud.core.types.function_type import FunctionType
-from spud.core.types.int_type import IntType
-from spud.core.types.list_type import ListType
-from spud.core.types.unit_type import UnitType
-from spud.di.container import Container
-from spud_check.type_check_result import TypeCheckResult
-from spud_check.type_errors.argument_count_mismatch_error import ArgumentCountMismatchError
-from spud_check.type_errors.argument_type_mismatch_error import ArgumentTypeMismatchError
-from spud_check.type_errors.branch_type_mismatch_error import BranchTypeMismatchError
-from spud_check.type_errors.condition_not_bool_error import ConditionNotBoolError
-from spud_check.type_errors.element_type_mismatch_error import ElementTypeMismatchError
-from spud_check.type_errors.heterogeneous_list_error import HeterogeneousListError
-from spud_check.type_errors.not_callable_error import NotCallableError
-from spud_check.type_errors.not_iterable_error import NotIterableError
-from spud_check.type_errors.operator_type_error import OperatorTypeError
-from spud_check.type_errors.return_type_mismatch_error import ReturnTypeMismatchError
-from spud_check.type_errors.type_mismatch_error import TypeMismatchError
-from spud_check.type_errors.unary_operator_type_error import UnaryOperatorTypeError
-from spud_check.type_errors.unknown_type_error import UnknownTypeError
-from spud_check.typed_nodes.typed_binding import TypedBinding
-from spud_check.typed_nodes.typed_function_def import TypedFunctionDef
-from spud_check.typed_nodes.typed_inline_function_def import TypedInlineFunctionDef
-from spud_check.typed_nodes.typed_int_literal import TypedIntLiteral
-from spud_check.typed_nodes.typed_program import TypedProgram
+from spud.core import StringReader
+from spud.core.types import FloatType, FunctionType, IntType, ListType, UnitType
+from spud.di import Container
+from spud_check import TypeCheckResult
+from spud_check.type_errors import (
+    ArgumentCountMismatchError,
+    ArgumentTypeMismatchError,
+    BranchTypeMismatchError,
+    ConditionNotBoolError,
+    ElementTypeMismatchError,
+    HeterogeneousListError,
+    NotCallableError,
+    NotIterableError,
+    OperatorTypeError,
+    ReturnTypeMismatchError,
+    TypeMismatchError,
+    UnaryOperatorTypeError,
+    UnknownTypeError,
+)
+from spud_check.typed_nodes import (
+    TypedBinding,
+    TypedFunctionDef,
+    TypedInlineFunctionDef,
+    TypedIntLiteral,
+    TypedProgram,
+)
 
 
 def _check(text: str) -> TypeCheckResult:
-    from spud_check.type_checker import TypeChecker
+    from spud_check import TypeChecker
 
     container = Container()
     pipeline = container.pipeline()

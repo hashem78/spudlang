@@ -2,12 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from spud.stage_six.binary_op import BinaryOp
-from spud.stage_six.binding import Binding
-from spud.stage_six.float_literal import FloatLiteral
-from spud.stage_six.function_call import FunctionCall
-from spud.stage_six.int_literal import IntLiteral
-from spud.stage_six.program import Program
+from spud.stage_six import BinaryOp, Binding, FloatLiteral, FunctionCall, IntLiteral, Program
 from tests.stage_six.helpers import parse
 
 

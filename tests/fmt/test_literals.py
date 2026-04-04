@@ -1,4 +1,4 @@
-from spud_fmt.config import FmtConfig, QuoteStyle
+from spud_fmt import FmtConfig, QuoteStyle
 from tests.fmt.helpers import bind, bool_, call, fmt, id, inline_funcdef, list_, num, raw, str_
 
 

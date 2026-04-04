@@ -1,9 +1,4 @@
-from spud.stage_six.boolean_literal import BooleanLiteral
-from spud.stage_six.identifier import Identifier
-from spud.stage_six.int_literal import IntLiteral
-from spud.stage_six.program import Program
-from spud.stage_six.raw_string_literal import RawStringLiteral
-from spud.stage_six.string_literal import StringLiteral
+from spud.stage_six import BooleanLiteral, Identifier, IntLiteral, Program, RawStringLiteral, StringLiteral
 from tests.stage_six.helpers import parse
 
 

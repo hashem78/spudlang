@@ -1,7 +1,4 @@
-from spud.stage_six.binding import Binding
-from spud.stage_six.function_type_expr import FunctionTypeExpr
-from spud.stage_six.list_type_expr import ListTypeExpr
-from spud.stage_six.named_type import NamedType
+from spud.stage_six import Binding, FunctionTypeExpr, ListTypeExpr, NamedType
 from tests.stage_six.helpers import parse
 
 

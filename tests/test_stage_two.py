@@ -6,12 +6,11 @@ from typing import Generator
 
 import structlog
 
-from spud.core.position import Position
+from spud.core import Position
 from spud.di.stage_two_trie import create_stage_two_trie
 from spud.stage_one.stage_one import StageOne
+from spud.stage_two import StageTwoToken, StageTwoTokenType, StringLiteralStageTwoToken
 from spud.stage_two.stage_two import StageTwo
-from spud.stage_two.stage_two_token import StageTwoToken, StringLiteralStageTwoToken
-from spud.stage_two.stage_two_token_type import StageTwoTokenType
 
 
 class _StringReader:

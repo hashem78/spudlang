@@ -1,4 +1,4 @@
-from spud_fmt.config import FmtConfig
+from spud_fmt import FmtConfig
 from tests.fmt.helpers import binop, call, fmt, id, neg, num, pos
 
 
