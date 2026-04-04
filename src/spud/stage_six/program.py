@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Literal
 
 from spud.core.resolve_errors.resolve_error import ResolveError
